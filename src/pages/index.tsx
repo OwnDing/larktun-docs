@@ -16,6 +16,13 @@ type NavGroup = {
   items: NavItem[];
 };
 
+type EntryItem = {
+  title: string;
+  description: string;
+  href: string;
+  tone: 'docs' | 'blog' | 'showcase';
+};
+
 function getPrimaryItems(): NavItem[] {
   return [
     {
@@ -141,6 +148,47 @@ function getGroups(): NavGroup[] {
   ];
 }
 
+function getEntryItems(): EntryItem[] {
+  return [
+    {
+      title: translate({
+        id: 'homepage.entries.docs.title',
+        message: '文档',
+      }),
+      description: translate({
+        id: 'homepage.entries.docs.description',
+        message: '覆盖产品介绍、部署方式、接入流程和问题处理。',
+      }),
+      href: '/docs',
+      tone: 'docs',
+    },
+    {
+      title: translate({
+        id: 'homepage.entries.blog.title',
+        message: '博客',
+      }),
+      description: translate({
+        id: 'homepage.entries.blog.description',
+        message: '发布记录、最佳实践和内容更新都会沉淀在这里。',
+      }),
+      href: '/blog',
+      tone: 'blog',
+    },
+    {
+      title: translate({
+        id: 'homepage.entries.showcase.title',
+        message: '使用场景',
+      }),
+      description: translate({
+        id: 'homepage.entries.showcase.description',
+        message: '远程研发、IT 运维与企业远程办公等场景入口。',
+      }),
+      href: '/showcase',
+      tone: 'showcase',
+    },
+  ];
+}
+
 function PrimaryList({items}: {items: NavItem[]}): ReactNode {
   return (
     <div className={styles.primaryList}>
@@ -154,9 +202,28 @@ function PrimaryList({items}: {items: NavItem[]}): ReactNode {
   );
 }
 
+function EntryGrid({items}: {items: EntryItem[]}): ReactNode {
+  return (
+    <section className={styles.entryGrid}>
+      {items.map((item, index) => (
+        <Link key={item.href} className={styles.entryCard} data-tone={item.tone} to={item.href}>
+          <span className={styles.entryIndex}>{String(index + 1).padStart(2, '0')}</span>
+          <Heading as="h3" className={styles.entryTitle}>
+            {item.title}
+          </Heading>
+          <p className={styles.entryDescription}>{item.description}</p>
+          <span className={styles.entryAction}>
+            <Translate id="homepage.section.all">全部内容</Translate>
+          </span>
+        </Link>
+      ))}
+    </section>
+  );
+}
+
 function GroupList({groups}: {groups: NavGroup[]}): ReactNode {
   return (
-    <section className={styles.library}>
+    <div className={styles.library}>
       {groups.map((group) => (
         <section key={group.title} className={styles.group}>
           <Heading as="h2" className={styles.groupTitle}>
@@ -171,12 +238,13 @@ function GroupList({groups}: {groups: NavGroup[]}): ReactNode {
           </div>
         </section>
       ))}
-    </section>
+    </div>
   );
 }
 
 export default function Home(): ReactNode {
   const primaryItems = getPrimaryItems();
+  const entryItems = getEntryItems();
   const groups = getGroups();
 
   return (
@@ -194,18 +262,52 @@ export default function Home(): ReactNode {
           <section className={styles.topShell}>
             <section className={styles.brandPanel}>
               <div className={styles.brandMark}>
-                <div className={styles.brandCopy}>
+                <div className={styles.brandHead}>
                   <span className={styles.brandName}>
                     <Translate id="homepage.panel.brand">云雀通</Translate>
                   </span>
-                  <Heading as="h1" className={styles.title}>
-                    <Translate id="homepage.title">文档中心</Translate>
-                  </Heading>
-                  <p className={styles.brandLead}>
-                    <Translate id="homepage.panel.title">
-                      SaaS 多租户网络、独立 ACL、自定义中继与低占用稳定体验
-                    </Translate>
-                  </p>
+                  <div className={styles.capabilityBadges}>
+                    <span className={styles.capabilityBadge}>
+                      <Translate id="homepage.hero.badge.mesh">零信任网络</Translate>
+                    </span>
+                    <span className={styles.capabilityBadge}>
+                      <Translate id="homepage.hero.badge.remote">RDP / SSH / VNC 远程控制</Translate>
+                    </span>
+                    <span className={styles.capabilityBadge}>
+                      <Translate id="homepage.hero.badge.audit">MFA / SSO / 审计日志</Translate>
+                    </span>
+                  </div>
+                </div>
+
+                <Heading as="h1" className={styles.title}>
+                  <Translate id="homepage.title">文档中心</Translate>
+                </Heading>
+                <p className={styles.brandLead}>
+                  <Translate id="homepage.panel.title">
+                    SaaS 多租户网络、独立 ACL、自定义中继与低占用稳定体验
+                  </Translate>
+                </p>
+
+                <div className={styles.panelMeta}>
+                  <span>
+                    <Translate id="homepage.panel.meta.primary">官网内容同步</Translate>
+                  </span>
+                  <span className={styles.metaDivider} />
+                  <span>
+                    <Translate id="homepage.panel.meta.secondary">含截图与部署导引</Translate>
+                  </span>
+                </div>
+
+                <div className={styles.stats}>
+                  <span className={styles.statPill}>
+                    <Translate id="homepage.stats.devices">免费设备额度</Translate>
+                  </span>
+                  <span className={styles.statPill}>
+                    <Translate id="homepage.stats.rollout">快速开通</Translate>
+                  </span>
+                  <span className={styles.statPill}>
+                    <Translate id="homepage.stats.controlPlane">基于 Docusaurus 3.10</Translate>
+                  </span>
                 </div>
               </div>
 
@@ -245,6 +347,9 @@ export default function Home(): ReactNode {
             </section>
 
             <section className={styles.quickPanel}>
+              <span className={styles.quickEyebrow}>
+                <Translate id="homepage.section.all">全部内容</Translate>
+              </span>
               <Heading as="h2" className={styles.quickTitle}>
                 <Translate id="homepage.section.common">常用入口</Translate>
               </Heading>
@@ -252,7 +357,26 @@ export default function Home(): ReactNode {
             </section>
           </section>
 
-          <GroupList groups={groups} />
+          <section className={styles.entriesSection}>
+            <div className={styles.entriesHead}>
+              <span className={styles.entriesEyebrow}>
+                <Translate id="homepage.features.eyebrow">内容架构</Translate>
+              </span>
+              <Heading as="h2" className={styles.entriesTitle}>
+                <Translate id="homepage.features.heading">围绕真实产品能力组织文档内容</Translate>
+              </Heading>
+            </div>
+            <EntryGrid items={entryItems} />
+          </section>
+
+          <section className={styles.librarySection}>
+            <p className={styles.libraryLead}>
+              <Translate id="homepage.features.subheading">
+                帮助中心现在已经能直接承接零信任网络、远程控制、安全能力、部署方式与使用场景的正式内容。
+              </Translate>
+            </p>
+            <GroupList groups={groups} />
+          </section>
         </div>
       </main>
     </Layout>
