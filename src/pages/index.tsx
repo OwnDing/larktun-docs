@@ -1,7 +1,6 @@
 import type {ReactNode} from 'react';
 import Link from '@docusaurus/Link';
 import Translate, {translate} from '@docusaurus/Translate';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
@@ -29,17 +28,17 @@ function getPrimaryItems(): NavItem[] {
     },
     {
       title: translate({
-        id: 'homepage.link.architecture',
-        message: '产品架构',
-      }),
-      href: '/docs/introduction/product-architecture',
-    },
-    {
-      title: translate({
         id: 'homepage.link.quickStart',
         message: '快速开始',
       }),
       href: '/docs/getting-started/quick-start',
+    },
+    {
+      title: translate({
+        id: 'homepage.link.deploy',
+        message: '部署方式与配置',
+      }),
+      href: '/docs/getting-started/install-and-configure',
     },
     {
       title: translate({
@@ -200,26 +199,52 @@ export default function Home(): ReactNode {
           <section className={styles.topShell}>
             <section className={styles.brandPanel}>
               <div className={styles.brandMark}>
-                <img
-                  className={styles.logo}
-                  src={useBaseUrl('/img/larktun.png')}
-                  alt={siteConfig.title}
-                />
                 <div className={styles.brandCopy}>
-                  <span className={styles.brandName}>Larktun</span>
+                  <span className={styles.brandName}>
+                    <Translate id="homepage.panel.brand">Larktun</Translate>
+                  </span>
                   <Heading as="h1" className={styles.title}>
                     <Translate id="homepage.title">文档中心</Translate>
                   </Heading>
+                  <p className={styles.brandLead}>
+                    <Translate id="homepage.panel.title">
+                      SaaS 多租户网络、独立 ACL、自定义中继与低占用稳定体验
+                    </Translate>
+                  </p>
                 </div>
               </div>
+
+              <ul className={styles.highlights}>
+                <li>
+                  <Translate id="homepage.panel.item.docs">
+                    每个租户都拥有隔离网络边界，租户间设备和访问数据互不影响
+                  </Translate>
+                </li>
+                <li>
+                  <Translate id="homepage.panel.item.blog">
+                    ACL 按租户独立配置和生效，可按用户组、标签和时间窗进行精细授权
+                  </Translate>
+                </li>
+                <li>
+                  <Translate id="homepage.panel.item.showcase">
+                    支持共享、专用和用户自建中继，满足不同网络和合规要求
+                  </Translate>
+                </li>
+                <li>
+                  <Translate id="homepage.panel.item.i18n">
+                    客户端低内存后台运行，不打扰终端用户，并保持跨地域访问稳定
+                  </Translate>
+                </li>
+              </ul>
+
               <div className={styles.brandActions}>
                 <Link className={styles.primaryAction} to="/docs/getting-started/quick-start">
                   <Translate id="homepage.link.quickStart">快速开始</Translate>
                 </Link>
                 <Link
                   className={styles.secondaryAction}
-                  to="/docs/introduction/product-architecture">
-                  <Translate id="homepage.link.architecture">产品架构</Translate>
+                  to="/docs/getting-started/install-and-configure">
+                  <Translate id="homepage.link.deploy">部署方式与配置</Translate>
                 </Link>
               </div>
             </section>

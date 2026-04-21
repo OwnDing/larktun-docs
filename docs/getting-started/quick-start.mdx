@@ -1,51 +1,58 @@
 ---
 title: 快速开始
-description: 用一条最短路径完成 Larktun 的首次接入验证。
+description: 用最短路径完成租户开通、ACL 生效与首条访问链路验证。
 sidebar_position: 1
 ---
 
 # 快速开始
 
-本页用于承载最短接入路径，帮助新用户从注册账号到接入首批设备，再到完成第一次安全访问验证。
+本页帮助你在最短时间内完成一次有效验证：创建租户、配置独立 ACL、选择中继方式并验证稳定访问。
 
 ## 前置准备
 
-- 一个 Larktun 账号
-- 至少一台待接入的设备，例如开发电脑、跳板机或测试服务器
-- 一条需要验证的访问链路，例如 SSH、RDP、VNC 或内部 Web 系统
-- 如果你已有 Headscale 网络，提前准备现有网络和身份策略信息
+- 一个可用的 Larktun 账号
+- 至少一台待接入设备（电脑、服务器或跳板机）
+- 一个要访问的目标服务（SSH、RDP、VNC 或内部 Web）
+- 如需自建中继，提前准备一台公网可达主机
 
 ## 推荐路径
 
-1. 注册账号并创建首个工作空间。
-2. 在免费额度内接入首批设备，确认设备在线状态正常。
-3. 选择共享中继或当前可用的默认接入方式，建立第一条访问链路。
-4. 为链路配置身份与访问策略，例如临时授权、审批或基础 MFA。
-5. 使用 SSH、RDP、VNC 或内部系统访问完成验证。
-6. 打开会话分析、日志与审计记录，确认链路稳定且可追溯。
+1. 创建首个租户（或工作空间），确认租户边界。
+2. 接入首批设备，确认设备在线。
+3. 配置该租户的 ACL 基线策略（最小权限优先）。
+4. 选择中继模式：共享、专用或自建。
+5. 发起首次访问验证并观察连通性。
+6. 检查审计日志、策略命中和会话稳定性。
+7. 在客户端观察内存占用，确认可长期后台运行。
 
-## 占位配置示例
-
-下面的配置作为部署思路示意，字段命名请以后续控制台或 CLI 的真实版本为准。
+## 示例配置（示意）
 
 ```yaml
-workspace: engineering-demo
+tenant: engineering-prod
 network:
-  mode: headscale
-  relay: shared
-identity:
-  mfa: enabled
-  sso: optional
-policy:
-  template: remote-dev
-  temporaryApproval: true
+  isolation: enabled
+  relayMode: custom
+  customRelay:
+    endpoint: relay.example.com:443
+acl:
+  default: deny
+  rules:
+    - subject: group:devops
+      action: allow
+      resource: tag:build-node
+      window: workhours
+session:
+  autoReconnect: true
+agent:
+  lowMemoryProfile: enabled
+  runInBackground: true
 audit:
   sessionLogs: enabled
   securityEvents: enabled
 ```
 
-## 完成验证后
+## 完成后建议
 
 - 继续阅读 [部署方式与配置](./install-and-configure)
 - 继续阅读 [开通第一条安全访问链路](./publish-your-first-service)
-- 如果设备状态异常或授权失败，先查看 [问题处理](../troubleshooting/common-issues)
+- 出现异常时查看 [问题处理](../troubleshooting/common-issues)

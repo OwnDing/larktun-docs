@@ -1,44 +1,51 @@
 ---
 title: Quick Start
-description: Complete a first Larktun validation flow using the shortest possible path.
+description: Validate tenant onboarding, ACL enforcement, and first secure path in the shortest flow.
 sidebar_position: 1
 ---
 
 # Quick Start
 
-This page is for the shortest onboarding path: open an account, connect the first devices, and verify the first secure access flow.
+This page helps you complete one effective first validation: create a tenant, apply tenant ACL, choose relay mode, and verify stable access.
 
 ## Prerequisites
 
-- A Larktun account
-- At least one device to onboard, such as a developer laptop, bastion host, or test server
-- One access path to validate, such as SSH, RDP, VNC, or an internal web system
-- If you already run Headscale, the current network and identity constraints you want to preserve
+- An active Larktun account
+- At least one device to onboard (laptop, server, or bastion)
+- A target service to reach (SSH, RDP, VNC, or internal web)
+- If using user-managed relay, one publicly reachable host
 
 ## Recommended flow
 
-1. Create your first workspace.
-2. Onboard the first devices and confirm they appear online.
-3. Choose the relay mode and establish the first access path.
-4. Configure identity and policy controls such as temporary approval or MFA.
-5. Validate access with SSH, RDP, VNC, or the target internal system.
-6. Review session analytics, logs, and audit events to confirm the path is stable and traceable.
+1. Create your first tenant (or workspace) and confirm the boundary.
+2. Onboard initial devices and confirm online state.
+3. Configure tenant ACL baseline (least privilege first).
+4. Select relay mode: shared, dedicated, or user-managed.
+5. Run the first access validation and confirm connectivity.
+6. Verify audit logs, ACL decisions, and session stability.
+7. Observe client memory profile for long-running background use.
 
-## Placeholder configuration example
-
-The sample below is only a deployment illustration. Final field names should follow the real console or CLI version.
+## Example configuration (illustrative)
 
 ```yaml
-workspace: engineering-demo
+tenant: engineering-prod
 network:
-  mode: headscale
-  relay: shared
-identity:
-  mfa: enabled
-  sso: optional
-policy:
-  template: remote-dev
-  temporaryApproval: true
+  isolation: enabled
+  relayMode: custom
+  customRelay:
+    endpoint: relay.example.com:443
+acl:
+  default: deny
+  rules:
+    - subject: group:devops
+      action: allow
+      resource: tag:build-node
+      window: workhours
+session:
+  autoReconnect: true
+agent:
+  lowMemoryProfile: enabled
+  runInBackground: true
 audit:
   sessionLogs: enabled
   securityEvents: enabled
@@ -48,4 +55,4 @@ audit:
 
 - Continue with [Deployment Modes and Configuration](./install-and-configure)
 - Continue with [Create Your First Secure Access Path](./publish-your-first-service)
-- If devices look offline or policies reject access, open [Troubleshooting](../troubleshooting/common-issues)
+- If issues appear, open [Troubleshooting](../troubleshooting/common-issues)

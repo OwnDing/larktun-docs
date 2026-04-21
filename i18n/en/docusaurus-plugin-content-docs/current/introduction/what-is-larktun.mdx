@@ -1,33 +1,50 @@
 ---
 title: Product Overview
-description: Understand Larktun's positioning, capabilities, and common deployment scenarios.
+description: Understand Larktun's SaaS multi-tenant model, tenant-level ACL, and relay strategy.
 sidebar_position: 1
 ---
 
 # Product Overview
 
-Larktun combines zero-trust networking, low-latency remote access, and centralized operations into a single platform for distributed teams.
-
-![Larktun homepage preview](/img/larktun-homepage.png)
+Larktun is a SaaS zero-trust networking platform for secure device and service access. It unifies network onboarding, access control, audit, and remote access experience in one control plane for engineering, operations, and enterprise remote-work teams.
 
 ## Positioning
 
-- A secure networking and remote access platform for distributed teams
-- One control plane for devices, policies, session logs, and security audit trails
-- Stable connectivity across regions and platforms without relying on a legacy VPN model
+- A multi-tenant remote networking and access governance platform
+- One control plane for devices, users, policies, and audit trails
+- Stable, low-disruption, and scalable cross-network access
 
 ## Core capabilities
 
-- Zero-trust networking built on top of WireGuard and Headscale
-- Low-latency remote control paths for RDP, SSH, and VNC
-- Identity and compliance features such as MFA, enterprise SSO, approvals, and audit logs
-- Flexible rollout choices including shared relay, dedicated relay, and private or hybrid deployment
+### 1. SaaS and multi-tenant isolation
+
+- SaaS delivery enables fast onboarding and lower maintenance cost
+- Each tenant has an isolated network boundary
+- Device inventory, access records, and security events remain separated between tenants
+
+### 2. Independent ACL per tenant
+
+- ACL is configured and enforced with tenant scope
+- Fine-grained authorization by user group, device tag, and time window
+- Optional approvals, temporary grants, and automatic expiration to reduce permission sprawl
+
+### 3. User-managed relay servers
+
+- Shared relay for fast initial rollout
+- Dedicated relay for stronger path control
+- User-managed relay for region, performance, or compliance-specific requirements
+
+### 4. Low memory, non-intrusive, stable
+
+- Low memory footprint for long-running background sessions
+- Non-intrusive behavior that does not interrupt daily endpoint use
+- Stable connectivity and auto-recovery in cross-region and NAT-heavy environments
 
 ## Common scenarios
 
-- Secure access to code repositories, build nodes, and debugging environments for distributed engineering teams
-- Centralized management of customer servers and desktop assets for IT operations and MSP teams
-- Audited, approval-based remote access to internal systems for enterprise remote work
+- Distributed engineering teams accessing repositories, build nodes, and debug targets
+- IT operations and MSP teams managing multi-customer fleets with strict tenant boundaries
+- Enterprise remote work requiring audited and approval-based access to internal systems
 
 ## Continue reading
 

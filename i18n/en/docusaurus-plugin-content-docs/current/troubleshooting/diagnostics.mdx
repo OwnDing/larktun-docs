@@ -1,28 +1,37 @@
 ---
 title: Diagnostics
-description: Build a repeatable workflow for narrowing down service and network problems.
+description: A standard troubleshooting workflow for tenant ACL, relay paths, and runtime stability.
 sidebar_position: 2
 ---
 
 # Diagnostics
 
-Troubleshooting works better when it follows a repeatable flow. That also makes the process easier to reuse in blog posts and showcase stories.
+Use a fixed diagnostic flow to avoid repeated trial-and-error.
 
 ## Step 1: confirm scope
 
-- Is the issue limited to one device or affecting the whole workspace?
-- Is it isolated to one region, account, or time window, or broadly reproducible?
+- Is the issue limited to one tenant?
+- Is it tied to a specific ACL rule set or device category?
+- Is it isolated to a relay node or region?
 
-## Step 2: collect signals
+## Step 2: collect key signals
 
-- Current workspace, policy template, and relay mode
-- Device online state, session analytics, and latency indicators
-- Request timestamp, request origin, error logs, and security events
+- Tenant ID, policy version, and ACL decision records
+- Relay mode (shared/dedicated/user-managed) and node health
+- Session latency, reconnect count, and failure timestamps
+- Client memory usage and background runtime state
 
-## Step 3: trace the path
+## Step 3: troubleshoot by layer
 
-Move from identity validation to access policy, relay path, and then the destination device. Avoid changing multiple variables at once.
+Inspect in order: identity validation -> ACL evaluation -> relay path -> destination service. Avoid changing multiple variables at once.
 
-## Step 4: document the conclusion
+## Step 4: document and harden
 
-Capture the root cause, temporary mitigation, long-term fix, and whether policy templates, monitoring, or audit retention rules need to be updated.
+Record root cause, short-term mitigation, long-term fix, and update tenant templates plus alerting rules.
+
+## Suggested report template
+
+- Impact scope: tenant / user group / device tags
+- Root-cause class: policy, network, relay, endpoint, destination
+- Remediation: immediate actions and follow-up actions
+- Regression checks: stability, low footprint, non-intrusive behavior

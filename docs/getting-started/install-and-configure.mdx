@@ -1,69 +1,68 @@
 ---
 title: 部署方式与配置
-description: 根据团队规模与安全要求选择 SaaS、专用中继或私有/混合部署路径。
+description: 按团队规模选择 SaaS、多租户 ACL 与中继策略的组合方案。
 sidebar_position: 2
 ---
 
 # 部署方式与配置
 
-Larktun 官网当前强调了“几分钟内搭建零信任网络”“共享中继 / 专用中继”“私有或混合部署”等能力。本页将这些信息整理成文档骨架，方便后续补齐正式交付说明。
+Larktun 的部署核心不是单一拓扑，而是按租户边界、ACL 策略和中继模式组合出可持续运行的方案。
 
-## 推荐部署方式
+## 推荐部署模型
 
-### SaaS 云端控制台
+### SaaS 控制平面
 
-适合快速试用、小团队接入和希望尽快完成首轮验证的场景。优点是上线速度快、基础设施负担小。
+适合大多数团队快速上线。你可以直接获得租户管理、策略分发、审计与运维能力。
 
-### 专用中继
+### SaaS + 专用中继
 
-适合成长型团队，需要比共享中继更可控的链路质量和容量边界，同时继续使用托管控制平面。
+适合对延迟、容量和故障隔离有更高要求的团队。控制平面仍由 SaaS 托管，但网络路径更可控。
 
-### 私有或混合部署
+### SaaS + 自建中继
 
-适合对合规、审计、内网控制边界和定制集成要求更高的团队。通常需要更明确的网络规划和交付流程。
+适合需要自定义地域、网络边界或合规落点的团队。你可以自行规划中继节点生命周期。
 
-## 环境规划
+## 关键规划项
 
-- 确认待接入设备分布，是办公终端、服务器还是跨地域研发节点
-- 明确访问目标是远程桌面、SSH、VNC 还是内部系统入口
-- 规划中继方式、出口区域、身份体系和日志留存方式
-- 提前确认是否要接入企业 SSO、MFA、审批和告警推送
+- 租户划分：按客户、业务线或环境拆分租户
+- ACL 设计：按角色和设备标签构建最小权限策略
+- 中继布局：确定共享、专用或自建模式及区域分布
+- 稳定性策略：设置重连、健康检查和链路监控
+- 终端体验：确保客户端低占用并尽量后台无感运行
 
-## 核心配置项
+## 用户自建中继建议
 
-- 网络模式：Headscale 结合托管控制台，还是进一步采用私有/混合控制平面
-- 中继策略：共享中继、专用中继或区域化链路规划
-- 身份体系：账号密码、企业 SSO、MFA 与邀请机制
-- 访问策略：按角色、项目、设备标签或时间窗口限制访问
-- 审计配置：会话记录、安全事件、异常登录与越权行为监测
+1. 先选距离主要用户群最近的区域部署首个中继节点。
+2. 通过健康检查和告警保证中继可用性。
+3. 在高并发场景增加冗余节点并做故障切换演练。
+4. 对中继节点执行最小暴露面原则和定期安全更新。
 
-## 示意配置
-
-以下配置仅用于说明部署思路，不代表最终的产品字段格式：
+## 配置示意
 
 ```yaml
 deployment:
   controlPlane: saas
-  relayMode: dedicated
-  regions:
-    - ap-east
-    - ap-southeast
-identity:
-  sso: enterprise
-  mfa: required
-access:
-  policyTemplate: corp-remote-access
-  temporaryApproval: true
-  expirationHours: 8
-audit:
-  sessionAnalytics: enabled
-  securityCenter: enabled
-  alertWebhook: https://example.com/hooks/security
+  tenantStrategy: by-customer
+relay:
+  mode: custom
+  nodes:
+    - name: cn-east-relay-1
+      endpoint: relay-a.example.com:443
+    - name: eu-central-relay-1
+      endpoint: relay-b.example.com:443
+acl:
+  baseline: least-privilege
+  approval: required-for-privileged-targets
+stability:
+  healthCheck: enabled
+  autoFailover: enabled
+agent:
+  lowMemoryProfile: enabled
+  silentMode: enabled
 ```
 
-## 配置建议
+## 配置落地建议
 
-- 小团队试用时，先从托管控制台和默认接入能力开始，缩短首次上线时间
-- 涉及审批、合规审计或跨客户资产管理时，优先规划身份体系与日志留存
-- 对延迟、容量和网络边界更敏感的团队，尽早评估专用中继或私有/混合部署
-- 在正式交付文档里，补齐每种模式的拓扑图、网络端口要求和故障回退方式
+- 先完成一个租户的模板化配置，再复制到其他租户
+- 优先把 ACL 与审计规则标准化，再扩展设备规模
+- 自建中继场景要先做故障切换验证再进入生产

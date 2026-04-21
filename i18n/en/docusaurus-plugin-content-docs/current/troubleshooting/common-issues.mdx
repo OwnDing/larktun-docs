@@ -1,25 +1,29 @@
 ---
 title: Common Issues
-description: Summarize the most common access and configuration problems in the initial version.
+description: Focus on tenant ACL, relay reachability, client footprint, and stability problems.
 sidebar_position: 1
 ---
 
 # Common Issues
 
-This page should focus first on device onboarding, denied policies, unstable traffic paths, and missing audit visibility.
+This page focuses on early-stage blockers: ACL denials, unavailable user-managed relay, abnormal client resource usage, and unstable sessions.
 
-## Service is unreachable
+## Access denied by ACL
 
-Confirm the target device is online first, then inspect policy matching, relay state, and whether the destination itself is healthy.
+First verify the request is made in the correct tenant, then inspect ACL match status, grant expiration, and approval completion.
 
-## Domain access problems
+## User-managed relay unavailable
 
-If you expose internal web systems, verify DNS, certificate state, and whether the published entry point matches the intended workspace configuration.
+Validate relay endpoint and port, node health status, and network constraints such as firewall or certificate issues.
 
-## Authorized users are still blocked
+## Higher-than-expected client usage
 
-Check whether the right template matched, whether temporary access expired, whether approval completed, and whether SSO or MFA was satisfied.
+Confirm low-memory profile is enabled and check for abnormal retry loops or excessive logging levels.
 
-## Intermittent timeouts
+## Intermittent disconnects
 
-Investigate relay quality, cross-region jitter, destination load, and session path behavior. Use logs and analytics to identify where the timeout appears.
+Check network quality and relay path first, then verify reconnect behavior and destination host load.
+
+## End-user reports disruption
+
+Confirm client mode is silent background runtime and review whether any unnecessary prompts or foreground interruptions are configured.

@@ -1,43 +1,39 @@
 ---
 title: Core Concepts
-description: Establish a shared vocabulary for the Larktun documentation site.
+description: Shared terminology for Larktun architecture, policy, and operations.
 sidebar_position: 3
 ---
 
 # Core Concepts
 
-To keep deployment guidance, operations runbooks, and showcase stories aligned, it helps to define a few key terms up front.
+To keep overview, onboarding, and troubleshooting content aligned, define the following terms first.
 
-## Project or workspace
+## Tenant
 
-Use this boundary to separate teams, business lines, or customer environments. Devices, policies, logs, and member permissions can all be organized around the workspace.
+A tenant is the primary management boundary. Each tenant has its own network, members, ACL, and audit data.
 
-## Device
+## Isolated network
 
-Any machine connected to the Larktun network, such as a developer laptop, bastion host, server, or managed desktop.
+Tenant networks are isolated by default. Devices and policies from one tenant do not automatically connect to another tenant.
 
-## Headscale control plane
+## ACL (Access Control List)
 
-Larktun is described publicly as extending Headscale with lifecycle management, fine-grained access control, and anomaly detection. You can think of it as the foundation for secure network orchestration.
+ACL defines who can access which targets under what conditions. In Larktun, ACL is scoped and enforced per tenant.
 
-## Relay and path
+## Relay server
 
-Relays carry cross-network and cross-region traffic. Depending on scale and compliance needs, a team may start with shared relays, move to dedicated relays, or choose a private or hybrid deployment model.
+Relay servers forward traffic when direct paths are unavailable. Teams can use shared relay, dedicated relay, or user-managed relay.
 
-## Remote access policy
+## Client agent
 
-Policies define who can reach which devices, during what time window, whether approval is required, and when access should expire automatically.
+The endpoint agent establishes encrypted paths and enforces ACL. It is designed for low memory usage, low interruption, and stable long-running sessions.
 
-## Identity and security controls
+## Audit and diagnostics
 
-Larktun supports MFA, enterprise SSO, temporary approvals, and abnormal behavior detection so that identity and security stay part of the access flow.
+Audit data includes session records, policy decisions, anomaly events, and path quality signals. Diagnostics depends on this data for root-cause analysis.
 
-## Diagnostic data
+## Documentation guidance
 
-Diagnostic data includes device state, session analytics, access logs, error context, and security events. It forms the basis for the troubleshooting section.
-
-## Documentation writing guidance
-
-- Explain the business goal before the configuration details.
-- Explain shared relay, dedicated relay, and private deployment with their trade-offs.
-- Add validation steps, audit entry points, and rollback guidance after important actions.
+- Describe tenant boundaries before policy and path details
+- Explicitly state which relay mode a scenario uses
+- Include validation checkpoints, especially around stability and resource usage

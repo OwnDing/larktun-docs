@@ -1,6 +1,6 @@
 ---
 title: Product Architecture
-description: Use the embedded topology simulator to understand the control plane, Headscale cluster, and DERP relay paths in Larktun.
+description: Understand how Larktun maps SaaS control, tenant isolation, ACL, and relay paths.
 sidebar_position: 2
 ---
 
@@ -8,34 +8,38 @@ import ArchitectureDemoEmbed from '@site/src/components/ArchitectureDemoEmbed';
 
 # Product Architecture
 
-The Larktun architecture can be read in four layers: the SaaS control site, the Headscale gateway and cluster, the relay network, and the client devices at each end. The embedded simulator on this page makes the key login, registration, direct path, and DERP relay flows much easier to understand.
+Larktun can be described in four layers: SaaS control, tenant network control, relay, and endpoint execution. The goal is to deliver stable and lightweight remote access while keeping strict tenant isolation.
 
 ## Architecture layers
 
-- SaaS control site: handles sign-in, identity checks, access orchestration, and forwards control requests to the gateway.
-- Headscale gateway and cluster: manage device registration, PreAuthKey delivery, node metadata, and secure network orchestration.
-- Relay servers: carry traffic when P2P connectivity is unavailable and help maintain stability across regions or more complex network environments.
-- Larktun clients: run on user laptops, managed desktops, or servers to establish encrypted paths and enforce access policy.
+- SaaS control layer: tenant lifecycle, identity verification, policy distribution, and audit aggregation
+- Tenant network control layer: isolated network state, device inventory, and ACL state per tenant
+- Relay layer: traffic forwarding fallback with shared, dedicated, or user-managed relay options
+- Endpoint execution layer: encrypted path setup and ACL enforcement with low-memory background runtime
+
+## How tenant isolation is enforced
+
+- Devices, user groups, and policy sets are maintained per tenant
+- ACL evaluation is tenant-scoped with no cross-tenant inheritance
+- Audit logs are archived per tenant for traceability and compliance reviews
+
+## Choosing relay strategy
+
+- Shared relay: best for quick validation and small rollouts
+- Dedicated relay: best for higher stability and predictable capacity
+- User-managed relay: best for custom boundary, region, or compliance requirements
+
+## Stability and footprint design
+
+- Prefer direct path first, then relay fallback when needed
+- Keep path health monitoring and auto-reconnect enabled
+- Maintain low endpoint memory footprint for long-running sessions
 
 ## Interactive simulator
 
 <ArchitectureDemoEmbed />
 
-> The embedded simulator currently keeps the original Chinese UI labels from the architecture demo, while the interaction flow is the same for English readers.
-
-## Suggested walkthrough
-
-1. Log in client A and client B one by one to observe how SaaS, the gateway, and Headscale participate in authentication and registration.
-2. Adjust the Headscale and relay counts to see how the topology changes as the control plane expands.
-3. Trigger direct networking to inspect how the clients establish a P2P data path.
-4. Then trigger relay networking to compare how traffic falls back to DERP forwarding when direct connectivity is unavailable.
-
-## What to observe
-
-- The login path represents control-plane traffic rather than the final business data path.
-- Direct connectivity stays the preferred route so traffic avoids relay when possible and latency remains lower.
-- Relay is a resilience layer that helps in NAT-heavy, cross-region, or less predictable network conditions.
-- Changing Headscale and relay counts is a useful way to explain scaling and high-availability choices in deployment guidance.
+> The embedded simulator currently uses Chinese UI labels, while the interaction flow is the same.
 
 ## Continue reading
 

@@ -57,19 +57,19 @@
     "message": "Larktun"
   },
   "homepage.panel.title": {
-    "message": "Networking, remote control, and compliance audit converge in one control plane"
+    "message": "SaaS multi-tenant networking, tenant-level ACL, custom relay, and stable low-footprint runtime"
   },
   "homepage.panel.item.docs": {
-    "message": "A zero-trust mesh built on Headscale and WireGuard supports stable connectivity across regions and platforms"
+    "message": "Each tenant has an isolated network boundary so devices and access data remain separated across tenants"
   },
   "homepage.panel.item.blog": {
-    "message": "Low-latency access for RDP, SSH, and VNC comes with session analytics and path-quality visibility"
+    "message": "ACL is configured and enforced per tenant, with fine-grained authorization by group, tags, and time windows"
   },
   "homepage.panel.item.showcase": {
-    "message": "Temporary approval flows, MFA, enterprise SSO, and audit logs help satisfy security and compliance requirements"
+    "message": "Shared, dedicated, and user-managed relay options support different network and compliance requirements"
   },
   "homepage.panel.item.i18n": {
-    "message": "Shared relay, dedicated relay, and private or hybrid rollout paths support teams from pilot to enterprise scale"
+    "message": "The client runs with low memory in the background, remains non-intrusive, and keeps cross-region access stable"
   },
   "homepage.panel.meta.primary": {
     "message": "Official copy synced"
@@ -84,82 +84,82 @@
     "message": "Larktun documentation and help entry."
   },
   "showcase.principles.value.title": {
-    "message": "Start with the team type"
+    "message": "Start with tenant boundaries"
   },
   "showcase.principles.value.description": {
-    "message": "Organize content around distributed engineering, IT operations and MSPs, and enterprise remote work to map directly to real delivery scenarios."
+    "message": "Define tenant scope, isolated networks, and access targets first to avoid cross-tenant ambiguity."
   },
   "showcase.principles.path.title": {
-    "message": "Then map the access path"
+    "message": "Then describe ACL and relay paths"
   },
   "showcase.principles.path.description": {
-    "message": "Include relay mode, identity policy, approvals, and audit behavior so readers can understand how the solution lands in practice."
+    "message": "Each case should explain ACL enforcement and why shared, dedicated, or user-managed relay was selected."
   },
   "showcase.principles.reuse.title": {
-    "message": "Finally link back into docs"
+    "message": "Finally validate user experience and stability"
   },
   "showcase.principles.reuse.description": {
-    "message": "Every scenario should connect back to quick start, deployment modes, or troubleshooting so presales and delivery teams do not repeat the same explanations."
+    "message": "Include low-footprint, non-intrusive behavior, and connection stability results in every case."
   },
   "showcase.cases.preview.category": {
-    "message": "Distributed Engineering"
+    "message": "SaaS Multi-Tenant Platform"
   },
   "showcase.cases.preview.title": {
-    "message": "Give remote engineering teams secure access to repositories, build nodes, and debug environments"
+    "message": "Provide strict tenant isolation and independent ACL management for multi-customer delivery teams"
   },
   "showcase.cases.preview.problem": {
-    "message": "Distributed engineering teams need access to build nodes, staging systems, and internal resources, but legacy VPNs are expensive, slow, and hard to scope precisely."
+    "message": "Delivery teams operate multiple customer environments and must keep network, policy, and logs fully isolated per customer."
   },
   "showcase.cases.preview.solution": {
-    "message": "Use zero-trust networking, shared or dedicated relay, policy templates, and session analytics so engineers can reach the right targets on demand while preserving a full audit trail."
+    "message": "Create one tenant per customer, apply tenant-specific ACL templates, and archive audit logs by tenant."
   },
   "showcase.cases.preview.outcome": {
-    "message": "A good fit for cross-region development, branch debugging, on-call coverage, and remote desktop support where path stability matters."
+    "message": "Enables parallel multi-customer operations with clear boundaries and lower cross-tenant authorization risk."
   },
   "showcase.cases.intranet.category": {
-    "message": "IT Operations & MSP"
+    "message": "Custom Relay Scenario"
   },
   "showcase.cases.intranet.title": {
-    "message": "Manage customer servers, desktop assets, and device health from one place"
+    "message": "Use user-managed relay to improve path control for cross-region engineering teams"
   },
   "showcase.cases.intranet.problem": {
-    "message": "Operations teams and MSPs need to manage multiple fleets while balancing response speed, permission boundaries, and customer isolation."
+    "message": "Cross-region teams face latency jitter on public networks, and default paths may miss stability targets."
   },
   "showcase.cases.intranet.solution": {
-    "message": "Workspace separation, device lifecycle management, dedicated relay, and a centralized security event view bring multi-tenant device governance into one control plane."
+    "message": "Deploy user-managed relay nodes in key regions with health checks and failover policies."
   },
   "showcase.cases.intranet.outcome": {
-    "message": "A strong fit for asset inspection, desktop operations, incident response, long-term managed service delivery, and multi-team collaboration."
+    "message": "Improves path control and reduces cross-region latency and disconnect rates."
   },
   "showcase.cases.support.category": {
-    "message": "Enterprise Remote Work"
+    "message": "Endpoint Experience"
   },
   "showcase.cases.support.title": {
-    "message": "Provide secure entry to internal systems with temporary approvals and full behavior audit"
+    "message": "Run the client long-term on office endpoints with low footprint and minimal interruption"
   },
   "showcase.cases.support.problem": {
-    "message": "Internal systems must stay reachable for remote work without letting permissions sprawl, audit trails disappear, or cross-team access linger indefinitely."
+    "message": "Endpoint users care about performance and interruption, while operations teams need persistent remote access stability."
   },
   "showcase.cases.support.solution": {
-    "message": "Combine approvals, temporary authorization, MFA, enterprise SSO, and security logs to offer one governed access path for remote work without sacrificing speed."
+    "message": "Enable low-memory background runtime with auto-reconnect and alerting for maintainable operations."
   },
   "showcase.cases.support.outcome": {
-    "message": "Useful for headquarters and branch collaboration, time-boxed partner access, compliance review, and remote entry into internal systems."
+    "message": "The client stays unobtrusive for daily work while keeping remote capabilities continuously available."
   },
   "showcase.meta.title": {
     "message": "Showcase"
   },
   "showcase.meta.description": {
-    "message": "Larktun scenarios and showcase page for presenting customer stories, solution patterns, and business value."
+    "message": "Larktun scenario page focused on tenant isolation, independent ACL, custom relay, and stable endpoint experience."
   },
   "showcase.hero.eyebrow": {
     "message": "Use Cases"
   },
   "showcase.hero.title": {
-    "message": "Support hybrid work and secure remote access for teams of different sizes"
+    "message": "Build a reusable case library around tenant isolation and stable remote access"
   },
   "showcase.hero.description": {
-    "message": "The official site currently centers on distributed engineering teams, IT operations and MSPs, and enterprise remote work. This page turns those tracks into a showcase structure you can keep expanding."
+    "message": "This page covers SaaS multi-tenant governance, user-managed relay deployment, and low-footprint endpoint experience as reusable case templates."
   },
   "showcase.hero.primaryCta": {
     "message": "Read the docs"
@@ -171,25 +171,25 @@
     "message": "Suggested structure"
   },
   "showcase.summary.item.problem": {
-    "message": "Define the team and resource boundary first, then explain whether the rollout uses shared relay, dedicated relay, or private deployment"
+    "message": "Define tenant boundaries and isolation goals first, then explain the access flow"
   },
   "showcase.summary.item.architecture": {
-    "message": "Keep Headscale, access policy, approvals, and audit in the same end-to-end access path"
+    "message": "State ACL enforcement logic and relay selection rationale explicitly"
   },
   "showcase.summary.item.outcome": {
-    "message": "Present scenario value in terms of stability, response efficiency, and compliance gains"
+    "message": "Summarize outcomes with low-footprint, non-intrusive, and stability metrics"
   },
   "showcase.principles.eyebrow": {
     "message": "Showcase Framework"
   },
   "showcase.principles.heading": {
-    "message": "The showcase page already has an expandable structure"
+    "message": "Use one structure for case write-ups to reuse across presales and delivery"
   },
   "showcase.cases.eyebrow": {
     "message": "Example Cases"
   },
   "showcase.cases.heading": {
-    "message": "These example cards can be replaced directly with real customer scenarios"
+    "message": "These sample cards can be replaced by real projects and expanded continuously"
   },
   "showcase.cases.problem.label": {
     "message": "Challenge"

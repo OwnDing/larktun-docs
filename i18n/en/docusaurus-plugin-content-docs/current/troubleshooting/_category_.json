@@ -4,6 +4,6 @@
   "link": {
     "type": "generated-index",
     "title": "Troubleshooting",
-    "description": "Diagnose offline devices, denied policies, unstable paths, and audit anomalies."
+    "description": "Diagnose ACL denials, relay issues, abnormal client usage, and stability problems."
   }
 }

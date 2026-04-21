@@ -4,6 +4,6 @@
   "link": {
     "type": "generated-index",
     "title": "Getting Started",
-    "description": "Move from account setup and device onboarding to deployment configuration and first validation."
+    "description": "Move from tenant setup and ACL baselines to user-managed relay and first validation."
   }
 }
