@@ -1,0 +1,128 @@
+---
+title: 路由介绍
+description: 了解 Larktun 多租户路由能力：子网路由、出口节点、ACL 限制与自动审批。
+sidebar_position: 5
+---
+
+# 路由介绍
+
+Larktun 的路由能力参考 Headscale Routes 模型，并针对 SaaS 多租户场景做了租户级隔离。每个租户独立管理可发布路由、出口节点授权、审批状态与审计记录。
+
+## 路由能力概览
+
+- 子网路由（Subnet Router）：把未安装客户端的内网网段接入租户网络
+- 出口节点（Exit Node）：为指定设备提供统一公网出口
+- 路由 ACL 控制：通过 ACL 精确限制谁可以访问哪些路由目标
+- 自动审批：通过 `autoApprovers` 自动批准符合条件的路由或出口能力
+
+## 多租户路由隔离原则
+
+- 租户 A 发布的子网路由不会自动出现在租户 B
+- 出口节点的可见性与可用性按租户独立控制
+- 路由审批、撤销、命中与审计均在租户内闭环执行
+
+## 子网路由（Subnet Router）
+
+子网路由用于访问传统内网资源，例如办公网段、机房网段或工业现场网络。
+
+### 1. 路由节点发布网段（Larktun CLI）
+
+```bash
+# 节点首次接入并发布路由（示例）
+sudo larktun up --advertise-routes=192.168.6.0/24 --advertise-tags=tag:router
+
+# 已接入节点更新或追加路由（示例）
+sudo larktun set --advertise-routes=192.168.6.0/24,10.20.0.0/16
+```
+
+### 2. 租户侧审批路由
+
+- 路由发布后，需在 Larktun 控制台或管理 API 完成审批，路由才会生效
+- 可使用 `autoApprovers.routes` 为符合标签条件的路由做自动审批
+
+### 3. 客户端使用子网路由
+
+```bash
+# 接受租户内已批准的路由（示例）
+sudo larktun set --accept-routes
+```
+
+## 出口节点（Exit Node）
+
+出口节点用于承载终端的公网流量，常用于固定出口 IP、安全上网与跨地域统一出口策略。
+
+### 1. 节点声明出口能力（Larktun CLI）
+
+```bash
+# 节点首次接入并声明出口能力（示例）
+sudo larktun up --advertise-exit-node --advertise-tags=tag:exit
+
+# 已接入节点声明出口能力（示例）
+sudo larktun set --advertise-exit-node
+```
+
+### 2. 租户侧审批出口节点
+
+- 出口节点同样采用“双向确认”：节点声明 + 租户侧审批
+- 可使用 `autoApprovers.exitNode` 自动批准符合条件的出口节点
+
+### 3. 客户端选择出口节点
+
+```bash
+# 使用指定出口节点（示例）
+sudo larktun set --exit-node=exit-hk
+
+# 取消出口节点（示例）
+sudo larktun set --exit-node=
+```
+
+## 路由与 ACL 联动
+
+- 子网路由访问可通过 `hosts` 或网段目标在 `acls` 中精确限制
+- 出口能力可通过 `autogroup:internet` 控制可用范围
+- 可为不同用户组分配不同出口节点，实现“可见即授权”
+
+示例 ACL 片段（节选）：
+
+```json
+{
+  "tagOwners": {
+    "tag:router": ["group:ops"],
+    "tag:exit": ["group:ops"]
+  },
+  "autoApprovers": {
+    "routes": {
+      "192.168.6.0/24": ["tag:router"]
+    },
+    "exitNode": ["tag:exit"]
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["group:ops"],
+      "dst": ["autogroup:internet:*"]
+    }
+  ]
+}
+```
+
+## 高可用与排障建议
+
+- 使用多台子网路由节点发布重叠网段，提升故障切换能力
+- 使用多台出口节点，降低单点故障风险
+- 确保路由节点与出口节点开启 IP 转发
+- 建议持续监控路由健康状态、审批状态与链路延迟指标
+
+## 参考模型
+
+- [Headscale Routes 参考文档](https://headscale.net/0.27.1/ref/routes/)
+
+## 命令说明
+
+本文命令以 `larktun` CLI 为示例，参数可能随版本演进。请以当前版本 `larktun --help` 与产品发布说明为准。
+
+## 继续阅读
+
+- [产品介绍](./what-is-larktun)
+- [ACLs介绍](./acls-introduction)
+- [核心概念](./core-concepts)

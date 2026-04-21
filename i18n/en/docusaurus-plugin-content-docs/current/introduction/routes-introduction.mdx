@@ -1,0 +1,128 @@
+---
+title: Routes Introduction
+description: Understand Larktun multi-tenant routing with subnet routers, exit nodes, ACL controls, and auto-approval.
+sidebar_position: 5
+---
+
+# Routes Introduction
+
+Larktun routing follows the Headscale Routes model and adds tenant-scoped isolation for SaaS environments. Each tenant manages its own announced routes, exit-node authorization, approval state, and audit records.
+
+## Routing capability overview
+
+- Subnet Router: connect private networks where endpoint agents are not installed
+- Exit Node: provide unified internet egress for selected endpoints
+- ACL-based route control: precisely restrict who can access which routed targets
+- Auto-approval: use `autoApprovers` to approve qualified routes and exit capabilities automatically
+
+## Multi-tenant routing isolation
+
+- Routes announced in tenant A are not visible in tenant B
+- Exit node visibility and usability are controlled per tenant
+- Route approval, revocation, enforcement, and auditing stay within tenant boundaries
+
+## Subnet Router
+
+Subnet routers expose legacy private networks such as office, datacenter, or industrial subnets to tenant endpoints.
+
+### 1. Advertise routes from a router node (Larktun CLI)
+
+```bash
+# Initial join and route advertisement (example)
+sudo larktun up --advertise-routes=192.168.6.0/24 --advertise-tags=tag:router
+
+# Update or add routes on an existing node (example)
+sudo larktun set --advertise-routes=192.168.6.0/24,10.20.0.0/16
+```
+
+### 2. Approve routes in tenant control plane
+
+- Announced routes require approval in Larktun Console or Admin API before becoming effective
+- `autoApprovers.routes` can auto-approve routes for qualified tagged nodes
+
+### 3. Use approved subnet routes on a client
+
+```bash
+# Accept approved routes in the tenant (example)
+sudo larktun set --accept-routes
+```
+
+## Exit Node
+
+Exit nodes route internet traffic for endpoints and are commonly used for fixed egress IP, secure network egress, and region-specific policy control.
+
+### 1. Advertise exit-node capability (Larktun CLI)
+
+```bash
+# Initial join and advertise exit-node capability (example)
+sudo larktun up --advertise-exit-node --advertise-tags=tag:exit
+
+# Advertise exit-node capability on an existing node (example)
+sudo larktun set --advertise-exit-node
+```
+
+### 2. Approve exit nodes in tenant control plane
+
+- Exit nodes also require double opt-in: node advertisement + tenant-side approval
+- `autoApprovers.exitNode` can automate approval for qualified exit nodes
+
+### 3. Select an exit node on a client
+
+```bash
+# Use a specific exit node (example)
+sudo larktun set --exit-node=exit-hk
+
+# Disable exit-node usage (example)
+sudo larktun set --exit-node=
+```
+
+## Route and ACL integration
+
+- Subnet route access can be restricted in `acls` via `hosts` aliases or route targets
+- Exit capability can be governed through `autogroup:internet`
+- Different user groups can be mapped to different exit nodes for scoped egress
+
+Example ACL snippet:
+
+```json
+{
+  "tagOwners": {
+    "tag:router": ["group:ops"],
+    "tag:exit": ["group:ops"]
+  },
+  "autoApprovers": {
+    "routes": {
+      "192.168.6.0/24": ["tag:router"]
+    },
+    "exitNode": ["tag:exit"]
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["group:ops"],
+      "dst": ["autogroup:internet:*"]
+    }
+  ]
+}
+```
+
+## High availability and troubleshooting guidance
+
+- Use multiple subnet routers with overlapping routes for failover
+- Use multiple exit nodes to reduce single-point risk
+- Ensure IP forwarding is enabled on routing/egress nodes
+- Continuously monitor route health, approval state, and path latency
+
+## Reference model
+
+- [Headscale Routes reference](https://headscale.net/0.27.1/ref/routes/)
+
+## Command notes
+
+Command examples use `larktun` CLI. Flags may evolve by version; always validate with `larktun --help` and current release notes.
+
+## Continue reading
+
+- [Product Overview](./what-is-larktun)
+- [ACLs Introduction](./acls-introduction)
+- [Core Concepts](./core-concepts)
