@@ -49,13 +49,31 @@ Larktun is a SaaS zero-trust networking platform for secure device and service a
 - Dedicated relay for stronger path control
 - User-managed relay for region, performance, or compliance-specific requirements
 
-### 6. Customized clients and notification integration
+### 6. Subnet Router
+
+- Publish private subnets into a tenant network even when target devices do not run the client agent
+- Control reachability and ACL scope at subnet granularity
+- Suitable for branch offices, datacenter networks, and industrial on-site environments
+
+### 7. Exit Node
+
+- Designate specific devices as exit nodes for unified internet egress
+- Remote endpoints can use the exit node for fixed egress IP and consistent network policy
+- Combine with ACL and approval flow to control who can use egress capability
+
+### 8. Magic DNS
+
+- Provide stable private DNS names for devices inside each tenant network
+- Access endpoints by device or service names instead of memorizing IP addresses
+- Reduce operational impact when endpoint IP addresses change
+
+### 9. Customized clients and notification integration
 
 - Customized desktop clients for Windows, macOS, and Linux
 - Mobile apps for Android and iOS
 - Notification integration with third-party clients, for example Tailscale login notifications
 
-### 7. Low memory, non-intrusive, stable
+### 10. Low memory, non-intrusive, stable
 
 - Low memory footprint for long-running background sessions
 - Non-intrusive behavior that does not interrupt daily endpoint use

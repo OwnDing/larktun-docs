@@ -56,6 +56,30 @@ Relay servers handle encrypted traffic forwarding when direct paths fail. Choose
 - Dedicated relay: suitable for enterprises needing stronger stability, capacity, and path control
 - User-managed relay: suitable for organizations with strict region, boundary, or compliance requirements
 
+## Subnet Router
+
+Subnet routers connect private networks that do not run endpoint agents directly into the Larktun tenant network.
+
+- Publish one or more internal subnets into a tenant network
+- Combine with ACL for fine-grained access control within routed subnets
+- Common for HQ-branch connectivity, datacenter service access, and industrial on-site integration
+
+## Exit Node
+
+An exit node provides unified internet egress for selected devices in a tenant network.
+
+- Useful when a fixed public egress IP is required
+- Helps enforce consistent outbound policy and audit trails across regions
+- Recommended with ACL, approval flow, and session audit for controlled usage
+
+## Magic DNS
+
+Magic DNS provides stable naming and resolution so endpoints can connect by names instead of raw IPs.
+
+- Automatically maps device and service names to private network addresses
+- Reduces connection breakage caused by endpoint reinstallation or IP changes
+- Improves daily operations, troubleshooting, and cross-team collaboration
+
 ## Client agent
 
 The endpoint agent runs on devices or servers to establish encrypted links and enforce ACL policies.
@@ -77,7 +101,7 @@ Audit and diagnostics support both security governance and troubleshooting workf
 The following flow describes the key stages from request initiation to final access result:
 
 1. The device joins a tenant network and completes identity authentication
-2. The user or device matches applicable ACL rules
-3. The system evaluates target resource conditions and authorization state
-4. The connection attempts direct path first, then switches to relay if required
+2. The target is resolved via Magic DNS or direct address
+3. The user or device matches applicable ACL rules and authorization checks
+4. The system selects the path by target type: direct, relay, subnet route, or exit node
 5. The access activity is written to audit logs for diagnostics and compliance lookup
