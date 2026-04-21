@@ -81,7 +81,7 @@
     "message": "{siteTitle} Home"
   },
   "homepage.meta.description": {
-    "message": "Larktun documentation for zero-trust networking, remote access, deployment guidance, troubleshooting, blog content, and scenarios."
+    "message": "Larktun documentation and help entry."
   },
   "showcase.principles.value.title": {
     "message": "Start with the team type"
@@ -265,6 +265,51 @@
   },
   "homepage.features.subheading": {
     "message": "The help center is now ready to carry formal content for zero-trust networking, remote access, security controls, deployment models, and scenario guidance."
+  },
+  "homepage.link.product": {
+    "message": "Product Overview"
+  },
+  "homepage.link.architecture": {
+    "message": "Product Architecture"
+  },
+  "homepage.link.quickStart": {
+    "message": "Quick Start"
+  },
+  "homepage.link.troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "homepage.link.concepts": {
+    "message": "Core Concepts"
+  },
+  "homepage.link.deploy": {
+    "message": "Deployment Modes and Configuration"
+  },
+  "homepage.link.firstPath": {
+    "message": "Create Your First Secure Access Path"
+  },
+  "homepage.link.blog": {
+    "message": "Blog"
+  },
+  "homepage.link.showcase": {
+    "message": "Showcase"
+  },
+  "homepage.section.common": {
+    "message": "Common Links"
+  },
+  "homepage.section.all": {
+    "message": "All Content"
+  },
+  "homepage.title": {
+    "message": "Documentation Hub"
+  },
+  "homepage.group.product": {
+    "message": "Product"
+  },
+  "homepage.group.setup": {
+    "message": "Access & Deployment"
+  },
+  "homepage.group.support": {
+    "message": "Support & Content"
   },
   "architectureDemo.card.title": {
     "message": "Interactive architecture simulator"
