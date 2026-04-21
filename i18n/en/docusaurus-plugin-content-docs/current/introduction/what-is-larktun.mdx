@@ -1,16 +1,18 @@
 ---
 title: Product Overview
-description: Understand Larktun's SaaS multi-tenant model, tenant-level ACL, and relay strategy.
+description: Understand how Larktun serves both individuals and enterprises with SaaS multi-tenancy, tenant ACL, custom network ranges, and cross-platform clients.
 sidebar_position: 1
 ---
 
 # Product Overview
 
-Larktun is a SaaS zero-trust networking platform for secure device and service access. It unifies network onboarding, access control, audit, and remote access experience in one control plane for engineering, operations, and enterprise remote-work teams.
+Larktun is a SaaS zero-trust networking platform for secure device and service access. It unifies network onboarding, access control, audit, and remote access in one control plane for personal home networks, engineering, operations, and enterprise remote-work teams.
 
 ## Positioning
 
-- A multi-tenant remote networking and access governance platform
+- A remote networking and access governance platform for both individuals and enterprises
+- One user can be one tenant, so individual users can build home and office networks freely
+- Enterprises can map tenants and policy boundaries to organizations, departments, or projects
 - One control plane for devices, users, policies, and audit trails
 - Stable, low-disruption, and scalable cross-network access
 
@@ -19,6 +21,7 @@ Larktun is a SaaS zero-trust networking platform for secure device and service a
 ### 1. SaaS and multi-tenant isolation
 
 - SaaS delivery enables fast onboarding and lower maintenance cost
+- Individual users get an independent tenant by default and can build private networks out of the box
 - Each tenant has an isolated network boundary
 - Device inventory, access records, and security events remain separated between tenants
 
@@ -28,13 +31,31 @@ Larktun is a SaaS zero-trust networking platform for secure device and service a
 - Fine-grained authorization by user group, device tag, and time window
 - Optional approvals, temporary grants, and automatic expiration to reduce permission sprawl
 
-### 3. User-managed relay servers
+### 3. Custom private network IP ranges
+
+- Default overlay range is `100.64.0.0/16`
+- Can be changed to custom ranges such as `192.168.6.0/24`
+- Helps avoid overlap with existing home, office, or datacenter subnets
+
+### 4. Custom device naming
+
+- Rename devices by owner, location, or purpose
+- Improve readability in large endpoint lists
+- Reduce operational mistakes in multi-device environments
+
+### 5. User-managed relay servers
 
 - Shared relay for fast initial rollout
 - Dedicated relay for stronger path control
 - User-managed relay for region, performance, or compliance-specific requirements
 
-### 4. Low memory, non-intrusive, stable
+### 6. Customized clients and notification integration
+
+- Customized desktop clients for Windows, macOS, and Linux
+- Mobile apps for Android and iOS
+- Notification integration with third-party clients, for example Tailscale login notifications
+
+### 7. Low memory, non-intrusive, stable
 
 - Low memory footprint for long-running background sessions
 - Non-intrusive behavior that does not interrupt daily endpoint use
@@ -42,9 +63,20 @@ Larktun is a SaaS zero-trust networking platform for secure device and service a
 
 ## Common scenarios
 
-- Distributed engineering teams accessing repositories, build nodes, and debug targets
-- IT operations and MSP teams managing multi-customer fleets with strict tenant boundaries
-- Enterprise remote work requiring audited and approval-based access to internal systems
+- Personal and enterprise NAS access
+- Accessing home office computers remotely
+- Secure server access for engineering and operations
+- Server networking with permission control (tenant isolation + ACL)
+- CCTV and monitoring camera access
+- Industrial on-site device networking
+- Remote device control and maintenance
+- Secure connections for AI Agents to internal resources
+
+## Enterprise custom application development
+
+- Support custom application development on top of Larktun for enterprise-specific business and security workflows
+- Integrate with existing enterprise systems such as identity platforms, asset management, approval workflows, and operations tools
+- Extend access policies, automation flows, and operational controls based on enterprise requirements for faster, more consistent rollout
 
 ## Continue reading
 
