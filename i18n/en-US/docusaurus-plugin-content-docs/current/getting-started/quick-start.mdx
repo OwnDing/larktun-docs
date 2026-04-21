@@ -1,0 +1,43 @@
+---
+title: Quick Start
+description: Complete a first Larktun validation flow using the shortest possible path.
+sidebar_position: 1
+---
+
+# Quick Start
+
+This page should carry the "five-minute path" that helps new users complete their first onboarding and validation flow as quickly as possible.
+
+## Prerequisites
+
+- A reachable target service, such as `http://127.0.0.1:8080`
+- A domain or subdomain that can be assigned as an entry point
+- An account with project creation and configuration permissions
+
+## Recommended flow
+
+1. Create a project or workspace.
+2. Register the target service and fill in the upstream address.
+3. Assign an external entry point and configure access control.
+4. Publish the configuration and verify the service is reachable.
+5. Review logs and diagnostics to confirm the path is stable.
+
+## Placeholder configuration example
+
+The following sample is only part of the scaffold and can later be replaced with real CLI, API, or console steps.
+
+```yaml
+project: demo
+service:
+  name: demo-web
+  upstream: http://127.0.0.1:8080
+access:
+  publicHost: demo.larktun.com
+  auth: token
+```
+
+## After validation
+
+- Continue with [Installation and Configuration](./install-and-configure)
+- Continue with [Publish Your First Service](./publish-your-first-service)
+- If access fails, open [Troubleshooting](../troubleshooting/common-issues)

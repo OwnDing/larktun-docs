@@ -1,0 +1,14 @@
+{
+  "title": {
+    "message": "Larktun Blog",
+    "description": "The title for the blog used in SEO"
+  },
+  "description": {
+    "message": "Release notes, implementation insights, and case studies.",
+    "description": "The description for the blog used in SEO"
+  },
+  "sidebar.title": {
+    "message": "Latest posts",
+    "description": "The label for the left sidebar"
+  }
+}

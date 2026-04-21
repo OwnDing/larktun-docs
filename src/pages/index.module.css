@@ -1,0 +1,194 @@
+.heroBanner {
+  overflow: hidden;
+  padding: 5rem 0 4rem;
+  position: relative;
+}
+
+.heroBanner::before {
+  background:
+    radial-gradient(circle at top left, rgba(73, 147, 255, 0.32), transparent 36%),
+    radial-gradient(circle at right center, rgba(28, 201, 166, 0.18), transparent 32%);
+  content: '';
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.heroGrid {
+  align-items: center;
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.9fr);
+  position: relative;
+  z-index: 1;
+}
+
+.heroContent {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.heroBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.heroBadge {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(29, 111, 242, 0.12);
+  border-radius: 999px;
+  color: var(--ifm-color-primary-darkest);
+  display: inline-flex;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.45rem 0.9rem;
+}
+
+.heroTitle {
+  font-size: clamp(2.7rem, 6vw, 4.6rem);
+  line-height: 1.05;
+  margin: 0;
+  max-width: 12ch;
+}
+
+.heroSubtitle {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin: 0;
+  max-width: 46rem;
+}
+
+.heroActions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.ghostLink {
+  color: var(--ifm-color-primary-darkest);
+  font-weight: 700;
+}
+
+.ghostLink:hover {
+  color: var(--ifm-color-primary-dark);
+  text-decoration: none;
+}
+
+.statGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0.5rem;
+  max-width: 42rem;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(29, 111, 242, 0.12);
+  border-radius: 1.25rem;
+  box-shadow: 0 24px 80px rgba(15, 58, 122, 0.08);
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.1rem 1.2rem;
+}
+
+.statCard strong {
+  color: var(--ifm-color-primary-darkest);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.statCard span {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.9rem;
+}
+
+.heroPanel {
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.95), rgba(240, 247, 255, 0.95));
+  border: 1px solid rgba(29, 111, 242, 0.14);
+  border-radius: 1.6rem;
+  box-shadow: 0 32px 100px rgba(15, 58, 122, 0.12);
+  display: grid;
+  gap: 1rem;
+  padding: 1.75rem;
+}
+
+.panelEyebrow {
+  color: var(--ifm-color-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.panelTitle {
+  font-size: 1.6rem;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.panelList {
+  color: var(--ifm-color-emphasis-800);
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.panelList li::marker {
+  color: var(--ifm-color-primary);
+}
+
+.panelMeta {
+  border-top: 1px solid rgba(29, 111, 242, 0.12);
+  color: var(--ifm-color-emphasis-700);
+  display: flex;
+  font-size: 0.9rem;
+  justify-content: space-between;
+  padding-top: 1rem;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 3.5rem 0 2.5rem;
+  }
+
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroTitle {
+    max-width: 100%;
+  }
+
+  .statGrid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .panelMeta {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .heroActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heroActions :global(.button) {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .ghostLink {
+    text-align: center;
+  }
+}

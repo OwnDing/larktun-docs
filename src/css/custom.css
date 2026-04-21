@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+:root {
+  --ifm-color-primary: #1d6ff2;
+  --ifm-color-primary-dark: #0d61ea;
+  --ifm-color-primary-darker: #0c5bdc;
+  --ifm-color-primary-darkest: #0a4ab4;
+  --ifm-color-primary-light: #3680f4;
+  --ifm-color-primary-lighter: #4c8df6;
+  --ifm-color-primary-lightest: #77a9f9;
+  --ifm-background-color: #f7fbff;
+  --ifm-font-family-base:
+    'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Helvetica Neue', sans-serif;
+  --ifm-heading-font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+  --ifm-heading-color: #0f172a;
+  --ifm-navbar-background-color: rgba(255, 255, 255, 0.86);
+  --ifm-footer-background-color: #08152d;
+  --ifm-link-hover-decoration: none;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(29, 111, 242, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #77a9f9;
+  --ifm-color-primary-dark: #5b98f8;
+  --ifm-color-primary-darker: #4c8df6;
+  --ifm-color-primary-darkest: #2370f4;
+  --ifm-color-primary-light: #93baf9;
+  --ifm-color-primary-lighter: #a3c3fb;
+  --ifm-color-primary-lightest: #cadefc;
+  --ifm-background-color: #06101e;
+  --ifm-heading-color: #f8fafc;
+  --ifm-navbar-background-color: rgba(8, 21, 45, 0.78);
+  --ifm-footer-background-color: #020817;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(circle at top, rgba(63, 131, 248, 0.08), transparent 24%),
+    linear-gradient(180deg, #f7fbff 0%, #f2f8ff 42%, #f7fbff 100%);
+}
+
+[data-theme='dark'] body {
+  background:
+    radial-gradient(circle at top, rgba(79, 70, 229, 0.18), transparent 28%),
+    linear-gradient(180deg, #06101e 0%, #09172b 42%, #06101e 100%);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.navbar__title,
+.hero__title {
+  font-family: var(--ifm-heading-font-family);
+}
+
+.navbar {
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(15, 58, 122, 0.08);
+}
+
+.navbar__link--active {
+  font-weight: 700;
+}
+
+.button {
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.button--primary {
+  box-shadow: 0 14px 36px rgba(29, 111, 242, 0.22);
+}
+
+.footer {
+  background:
+    linear-gradient(180deg, rgba(8, 21, 45, 0.98), rgba(2, 6, 23, 1));
+}
+
+.footer__title {
+  color: #dbeafe;
+}
+
+.footer__link-item,
+.footer__copyright {
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.theme-doc-markdown > h2,
+.theme-doc-markdown > h3,
+.theme-doc-markdown > h4 {
+  scroll-margin-top: 5.5rem;
+}

@@ -1,0 +1,26 @@
+{
+  "title": {
+    "message": "Larktun",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "Larktun Logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.文档": {
+    "message": "Docs",
+    "description": "Navbar item with label 文档"
+  },
+  "item.label.博客": {
+    "message": "Blog",
+    "description": "Navbar item with label 博客"
+  },
+  "item.label.案例展示": {
+    "message": "Showcase",
+    "description": "Navbar item with label 案例展示"
+  },
+  "item.label.官方网站": {
+    "message": "Official Site",
+    "description": "Navbar item with label 官方网站"
+  }
+}

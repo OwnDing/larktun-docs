@@ -1,0 +1,9 @@
+{
+  "label": "问题处理",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "title": "问题处理",
+    "description": "定位连接失败、权限异常和链路不稳定等常见问题。"
+  }
+}

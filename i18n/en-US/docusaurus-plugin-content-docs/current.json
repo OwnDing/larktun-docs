@@ -1,0 +1,42 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.docsSidebar.category.网站介绍": {
+    "message": "Overview",
+    "description": "The label for category '网站介绍' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.网站介绍.link.generated-index.title": {
+    "message": "Overview",
+    "description": "The generated-index page title for category '网站介绍' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.网站介绍.link.generated-index.description": {
+    "message": "Understand Larktun's positioning, capabilities, and typical scenarios.",
+    "description": "The generated-index page description for category '网站介绍' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.开始上手": {
+    "message": "Getting Started",
+    "description": "The label for category '开始上手' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.开始上手.link.generated-index.title": {
+    "message": "Getting Started",
+    "description": "The generated-index page title for category '开始上手' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.开始上手.link.generated-index.description": {
+    "message": "From environment setup to first release, walk through the Larktun onboarding path.",
+    "description": "The generated-index page description for category '开始上手' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.问题处理": {
+    "message": "Troubleshooting",
+    "description": "The label for category '问题处理' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.问题处理.link.generated-index.title": {
+    "message": "Troubleshooting",
+    "description": "The generated-index page title for category '问题处理' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.问题处理.link.generated-index.description": {
+    "message": "Diagnose connection failures, permission issues, and unstable traffic paths.",
+    "description": "The generated-index page description for category '问题处理' in sidebar 'docsSidebar'"
+  }
+}

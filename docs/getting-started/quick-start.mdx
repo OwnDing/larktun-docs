@@ -1,0 +1,43 @@
+---
+title: 快速开始
+description: 用一条最短路径完成 Larktun 的首次接入验证。
+sidebar_position: 1
+---
+
+# 快速开始
+
+本页适合承载“5 分钟上手”路径，帮助新用户在最短时间内完成首次接入和验证。
+
+## 前置准备
+
+- 一个可访问的目标服务，例如 `http://127.0.0.1:8080`
+- 可用于分配访问入口的域名或子域名
+- 具备项目创建与配置权限的账号
+
+## 推荐路径
+
+1. 创建项目或工作空间。
+2. 注册目标服务，并填写服务地址或上游实例信息。
+3. 分配外部访问入口，设置访问控制方式。
+4. 发布配置并验证服务是否可达。
+5. 查看日志与诊断信息，确认链路稳定。
+
+## 占位配置示例
+
+下面的配置仅作为文档骨架示例，后续可替换成真实 CLI、API 或控制台步骤。
+
+```yaml
+project: demo
+service:
+  name: demo-web
+  upstream: http://127.0.0.1:8080
+access:
+  publicHost: demo.larktun.com
+  auth: token
+```
+
+## 完成验证后
+
+- 继续阅读 [安装与配置](./install-and-configure)
+- 继续阅读 [发布第一个服务](./publish-your-first-service)
+- 如果访问失败，先查看 [问题处理](../troubleshooting/common-issues)
