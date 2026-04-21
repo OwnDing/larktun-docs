@@ -1,0 +1,43 @@
+---
+title: 产品架构
+description: 通过在线拓扑模拟理解 Larktun 的控制平面、Headscale 集群与 DERP 中继链路。
+sidebar_position: 2
+---
+
+import ArchitectureDemoEmbed from '@site/src/components/ArchitectureDemoEmbed';
+
+# 产品架构
+
+Larktun 的产品架构可以分成四层：SaaS 控制网站、Headscale Gateway 与集群、中继网络，以及接入两端的客户端设备。文档页里的这个在线演示，正好可以把登录、注册、直连与 DERP 中继这些关键路径串起来。
+
+## 架构分层
+
+- SaaS 控制网站：负责承接登录、身份验证、下发接入指令，并把控制请求转发到 Gateway。
+- Headscale Gateway 与集群：负责管理设备注册、PreAuthKey、节点元数据与控制平面编排。
+- 中继服务器：在 P2P 不可达时承接流量转发，帮助跨地域或复杂网络环境下维持连接稳定。
+- Larktun 客户端：安装在用户电脑、桌面资产或服务器上，用于建立加密链路并执行访问策略。
+
+## 在线模拟
+
+<ArchitectureDemoEmbed />
+
+## 推荐体验路径
+
+1. 先分别让客户端 A 与 B 执行“开始登录”，观察 SaaS、Gateway 和 Headscale 之间的认证与注册流程。
+2. 调整 Headscale 节点和中继服务器数量，理解控制平面横向扩展后的拓扑变化。
+3. 点击“模拟网络直连”，观察客户端之间如何建立 P2P 数据链路。
+4. 再点击“模拟网络中继”，对比直连失败后流量如何切换为 DERP 转发路径。
+
+## 观察重点
+
+- 登录路径体现的是控制面流量，不是最终的业务数据面。
+- 直连优先意味着业务流量会尽量绕过中继，以降低时延并减少转发成本。
+- 中继是稳定性兜底能力，适合 NAT 复杂、跨地域或网络质量不可控的环境。
+- Headscale 与中继的数量变化，适合配合后续部署文档一起解释扩容和高可用设计。
+
+## 继续阅读
+
+- [产品介绍](./what-is-larktun)
+- [核心概念](./core-concepts)
+- [快速开始](../getting-started/quick-start)
+- [部署方式与配置](../getting-started/install-and-configure)

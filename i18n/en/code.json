@@ -266,6 +266,18 @@
   "homepage.features.subheading": {
     "message": "The help center is now ready to carry formal content for zero-trust networking, remote access, security controls, deployment models, and scenario guidance."
   },
+  "architectureDemo.card.title": {
+    "message": "Interactive architecture simulator"
+  },
+  "architectureDemo.card.description": {
+    "message": "Run login, direct path, and DERP relay flows directly inside the docs page, or open the full demo in a separate tab."
+  },
+  "architectureDemo.card.action": {
+    "message": "Open full demo"
+  },
+  "architectureDemo.frame.title": {
+    "message": "Larktun product architecture interactive demo"
+  },
   "theme.ErrorPageContent.title": {
     "message": "This page crashed.",
     "description": "The title of the fallback page when the page crashed"
