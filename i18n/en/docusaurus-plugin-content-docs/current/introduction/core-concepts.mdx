@@ -1,39 +1,83 @@
 ---
 title: Core Concepts
-description: Shared terminology for Larktun architecture, policy, and operations.
+description: Understand Larktun's key entities, access paths, and policy boundaries for consistent deployment, operations, and troubleshooting.
 sidebar_position: 3
 ---
 
 # Core Concepts
 
-To keep overview, onboarding, and troubleshooting content aligned, define the following terms first.
+This page defines the core entities and boundaries used across Larktun product, deployment, and operations workflows. These concepts provide a common baseline for network planning, policy design, endpoint onboarding, and incident diagnosis.
 
 ## Tenant
 
-A tenant is the primary management boundary. Each tenant has its own network, members, ACL, and audit data.
+A tenant is the top-level management boundary in Larktun. Each tenant owns an isolated network space, member model, ACL policies, and audit data.
 
-## Isolated network
+- Individual users can run in a one-user-one-tenant model
+- Enterprises can map tenant boundaries to organizations, departments, or projects
+- Devices, policies, and logs are isolated by default across tenants
 
-Tenant networks are isolated by default. Devices and policies from one tenant do not automatically connect to another tenant.
+## Network space and IP pool
+
+Each tenant has its own virtual address space for endpoint networking and service access.
+
+- Default address pool is `100.64.0.0/16`
+- Custom ranges such as `192.168.6.0/24` are supported
+- Use non-overlapping ranges to avoid conflicts with home, office, or datacenter networks
 
 ## ACL (Access Control List)
 
-ACL defines who can access which targets under what conditions. In Larktun, ACL is scoped and enforced per tenant.
+ACL defines who can access which target resources under what conditions, and is enforced per tenant.
 
-## Relay server
+- Subjects can be defined by users, groups, and device tags
+- Conditions can include time windows, source endpoints, and target ports
+- Approval, temporary grants, and automatic expiration help reduce over-permission
 
-Relay servers forward traffic when direct paths are unavailable. Teams can use shared relay, dedicated relay, or user-managed relay.
+## Devices and device naming
+
+Devices are the basic nodes connected to the Larktun network, including office endpoints, servers, NAS, industrial equipment, and mobile terminals.
+
+- Device names are customizable by owner, location, or purpose
+- Tags can be used to group devices for policy management at scale
+- A naming convention is recommended for enterprise operations
+
+## Connection paths (direct and relay)
+
+Larktun prefers direct peer-to-peer paths first and automatically falls back to relay forwarding when direct connectivity is unavailable.
+
+- Direct path: lower latency and higher transfer efficiency
+- Relay path: stable reachability in NAT-heavy or restricted cross-network environments
+- Path switching is automatic with minimal user disruption
+
+## Relay strategy
+
+Relay servers handle encrypted traffic forwarding when direct paths fail. Choose the mode based on requirements:
+
+- Shared relay: suitable for individual free users, quick validation, and small-team rollouts
+- Dedicated relay: suitable for enterprises needing stronger stability, capacity, and path control
+- User-managed relay: suitable for organizations with strict region, boundary, or compliance requirements
 
 ## Client agent
 
-The endpoint agent establishes encrypted paths and enforces ACL. It is designed for low memory usage, low interruption, and stable long-running sessions.
+The endpoint agent runs on devices or servers to establish encrypted links and enforce ACL policies.
+
+- Desktop: Windows, macOS, and Linux
+- Mobile: Android and iOS
+- Designed for low memory footprint, low disruption, and stable long-running sessions
 
 ## Audit and diagnostics
 
-Audit data includes session records, policy decisions, anomaly events, and path quality signals. Diagnostics depends on this data for root-cause analysis.
+Audit and diagnostics support both security governance and troubleshooting workflows.
 
-## Documentation guidance
+- Audit data includes session records, policy decisions, anomaly events, and path quality signals
+- Diagnostics uses logs and path state for faster root-cause analysis
+- Data can be used for permission reviews, risk tracking, and compliance retention
 
-- Describe tenant boundaries before policy and path details
-- Explicitly state which relay mode a scenario uses
-- Include validation checkpoints, especially around stability and resource usage
+## How an access request is applied
+
+The following flow describes the key stages from request initiation to final access result:
+
+1. The device joins a tenant network and completes identity authentication
+2. The user or device matches applicable ACL rules
+3. The system evaluates target resource conditions and authorization state
+4. The connection attempts direct path first, then switches to relay if required
+5. The access activity is written to audit logs for diagnostics and compliance lookup
