@@ -3,7 +3,7 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'Larktun Docs',
+  title: '云雀通',
   tagline: 'Zero-trust networking and remote access documentation',
   favicon: 'img/larktun.png',
 
@@ -46,7 +46,7 @@ const config: Config = {
         },
         blog: {
           showReadingTime: true,
-          blogTitle: 'Larktun 博客',
+          blogTitle: '云雀通博客',
           blogDescription: '发布记录、实践经验与案例沉淀',
           blogSidebarTitle: '最新文章',
           blogSidebarCount: 'ALL',
@@ -78,7 +78,7 @@ const config: Config = {
       },
     },
     navbar: {
-      title: 'Larktun',
+      title: '云雀通',
       hideOnScroll: true,
       logo: {
         alt: 'Larktun Logo',

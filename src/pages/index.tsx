@@ -1,7 +1,6 @@
 import type {ReactNode} from 'react';
 import Link from '@docusaurus/Link';
 import Translate, {translate} from '@docusaurus/Translate';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 
@@ -177,22 +176,18 @@ function GroupList({groups}: {groups: NavGroup[]}): ReactNode {
 }
 
 export default function Home(): ReactNode {
-  const {siteConfig} = useDocusaurusContext();
   const primaryItems = getPrimaryItems();
   const groups = getGroups();
 
   return (
     <Layout
-      title={translate(
-        {
-          id: 'homepage.meta.title',
-          message: '{siteTitle} 首页',
-        },
-        {siteTitle: siteConfig.title},
-      )}
+      title={translate({
+        id: 'homepage.meta.title',
+        message: '文档中心',
+      })}
       description={translate({
         id: 'homepage.meta.description',
-        message: 'Larktun 文档与帮助入口。',
+        message: '云雀通文档与帮助入口。',
       })}>
       <main className={styles.page}>
         <div className="container">
@@ -201,7 +196,7 @@ export default function Home(): ReactNode {
               <div className={styles.brandMark}>
                 <div className={styles.brandCopy}>
                   <span className={styles.brandName}>
-                    <Translate id="homepage.panel.brand">Larktun</Translate>
+                    <Translate id="homepage.panel.brand">云雀通</Translate>
                   </span>
                   <Heading as="h1" className={styles.title}>
                     <Translate id="homepage.title">文档中心</Translate>
