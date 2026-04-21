@@ -1,0 +1,94 @@
+---
+title: ACLs Introduction
+description: Understand Larktun ACLs policy structure, authorization model, and tenant isolation.
+sidebar_position: 4
+---
+
+# ACLs Introduction
+
+Larktun ACLs follows a policy style similar to Headscale/Tailscale, with additional tenant-scoped guarantees for SaaS multi-tenancy. Each tenant has an independent ACL document, policy compilation flow, and audit trail.
+
+## What ACLs solves
+
+- Define who can access which resources
+- Restrict access by protocol, port, and destination scope
+- Apply unified authorization to advanced capabilities such as subnet routers and exit nodes
+
+## Multi-tenant ACLs design principles
+
+- Each tenant owns a complete ACL policy space: `groups`, `hosts`, `tagOwners`, `acls`, `autoApprovers`, and more
+- Policies are fully isolated across tenants with no cross-tenant object references
+- Policy compilation, distribution, and enforcement are tenant-scoped
+- Audit data is retained per tenant for governance and compliance
+
+## Policy structure
+
+- `groups`: user group definitions
+- `tagOwners`: tag ownership and assignment rights
+- `hosts`: alias-to-IP/CIDR mappings
+- `acls`: core network access rules (`src` -> `dst`)
+- `autoApprovers`: automatic approvals for subnet routes and exit nodes
+- `ssh`: SSH session authorization rules (optional)
+- `tests`: policy regression checks (optional)
+
+## Example: single-tenant ACLs policy
+
+```json
+{
+  "groups": {
+    "group:dev": ["alice@", "bob@"],
+    "group:ops": ["carol@"]
+  },
+  "tagOwners": {
+    "tag:router": ["group:ops"],
+    "tag:exit": ["group:ops"]
+  },
+  "hosts": {
+    "db.prod": "10.20.0.10/32",
+    "nas.office": "192.168.6.20/32",
+    "exit.hk": "100.64.0.30/32"
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["group:dev"],
+      "dst": ["db.prod:5432", "nas.office:445"]
+    },
+    {
+      "action": "accept",
+      "src": ["group:ops"],
+      "dst": ["autogroup:internet:*"]
+    }
+  ],
+  "autoApprovers": {
+    "routes": {
+      "192.168.6.0/24": ["tag:router"]
+    },
+    "exitNode": ["tag:exit"]
+  }
+}
+```
+
+## Subnet router and exit node authorization
+
+- Subnet route access can be tightly scoped in `acls` via host aliases or route targets
+- Exit node usage can be controlled with `autogroup:internet` or explicit exit-node targets
+- `autoApprovers` can auto-approve routes or exit-node capabilities from tagged nodes
+
+## Policy rollout and validation flow
+
+1. Maintain ACLs policy changes within a tenant
+2. Run policy validation and `tests` checks
+3. Publish and compile policy in control plane, then distribute to tenant nodes
+4. Verify effective results through audit logs
+
+## Reference model
+
+- [Headscale ACLs reference](https://headscale.net/0.27.1/ref/acls/)
+- [Headscale Routes (subnet router and exit node ACL)](https://headscale.net/0.27.1/ref/routes/)
+
+## Continue reading
+
+- [Product Overview](./what-is-larktun)
+- [Product Architecture](./product-architecture)
+- [Core Concepts](./core-concepts)

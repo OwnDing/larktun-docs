@@ -32,6 +32,18 @@ ACL defines who can access which target resources under what conditions, and is 
 - Conditions can include time windows, source endpoints, and target ports
 - Approval, temporary grants, and automatic expiration help reduce over-permission
 
+## ACLs policy model (multi-tenant)
+
+In Larktun, ACLs is not just a list of rules, but a complete tenant-scoped policy document. The structure is similar to Headscale ACL concepts, with strict tenant-level isolation for definition and enforcement.
+
+- Identity layer: `users/groups/tagOwners/autogroups`
+- Resource layer: `hosts/tags/subnets/autogroup:internet`
+- Authorization layer: `acls` (network access) and `ssh` (session access)
+- Automation layer: `autoApprovers` (route and exit node auto-approval)
+- Validation layer: `tests` (policy regression checks)
+
+Policy evaluation is tenant-contained: identity and resource resolution happen only within the current tenant scope.
+
 ## Devices and device naming
 
 Devices are the basic nodes connected to the Larktun network, including office endpoints, servers, NAS, industrial equipment, and mobile terminals.

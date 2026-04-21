@@ -1,0 +1,94 @@
+---
+title: ACLs介绍
+description: 了解 Larktun ACLs 的策略结构、授权模型与多租户隔离机制。
+sidebar_position: 4
+---
+
+# ACLs介绍
+
+Larktun 的 ACLs 采用与 Headscale/Tailscale 相近的策略表达方式，并在 SaaS 多租户场景中实现租户级完整隔离。每个租户都有独立的 ACL 文档、独立的策略编译与独立的审计结果。
+
+## ACLs 解决什么问题
+
+- 定义“谁”可以访问“哪些资源”
+- 限制访问的协议、端口与范围
+- 把子网路由、出口节点等高级能力纳入统一授权体系
+
+## 多租户 ACLs 设计原则
+
+- 每个租户拥有完整 ACLs 策略空间：`groups`、`hosts`、`tagOwners`、`acls`、`autoApprovers` 等
+- 租户间策略完全隔离，不允许跨租户引用对象
+- 策略编译、下发与命中判定都在租户边界内执行
+- 策略审计日志按租户独立留存，便于治理与合规追踪
+
+## 策略结构
+
+- `groups`：用户组定义
+- `tagOwners`：标签归属与可分配权限
+- `hosts`：主机别名与 IP/CIDR 映射
+- `acls`：核心网络访问规则（`src` -> `dst`）
+- `autoApprovers`：子网路由与出口节点自动审批
+- `ssh`：SSH 会话授权规则（可选）
+- `tests`：策略回归测试规则（可选）
+
+## 示例：单租户 ACLs 策略
+
+```json
+{
+  "groups": {
+    "group:dev": ["alice@", "bob@"],
+    "group:ops": ["carol@"]
+  },
+  "tagOwners": {
+    "tag:router": ["group:ops"],
+    "tag:exit": ["group:ops"]
+  },
+  "hosts": {
+    "db.prod": "10.20.0.10/32",
+    "nas.office": "192.168.6.20/32",
+    "exit.hk": "100.64.0.30/32"
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["group:dev"],
+      "dst": ["db.prod:5432", "nas.office:445"]
+    },
+    {
+      "action": "accept",
+      "src": ["group:ops"],
+      "dst": ["autogroup:internet:*"]
+    }
+  ],
+  "autoApprovers": {
+    "routes": {
+      "192.168.6.0/24": ["tag:router"]
+    },
+    "exitNode": ["tag:exit"]
+  }
+}
+```
+
+## 子网路由与出口节点授权
+
+- 子网路由访问可通过 `hosts` 或网段目标在 `acls` 中精确限制
+- 出口节点使用可通过 `autogroup:internet` 或指定出口节点目标做授权
+- `autoApprovers` 可用于自动批准指定标签设备发布路由或出口能力
+
+## 策略发布与验证流程
+
+1. 在租户内维护 ACLs 文档并提交变更
+2. 执行策略检查与 `tests` 回归验证
+3. 发布后由控制面编译并下发到租户相关节点
+4. 通过审计日志验证命中结果与访问行为
+
+## 参考模型
+
+- [Headscale ACLs 参考文档](https://headscale.net/0.27.1/ref/acls/)
+- [Headscale Routes（子网路由与出口节点 ACL）](https://headscale.net/0.27.1/ref/routes/)
+
+## 继续阅读
+
+- [产品介绍](./what-is-larktun)
+- [产品架构](./product-architecture)
+- [核心概念](./core-concepts)
