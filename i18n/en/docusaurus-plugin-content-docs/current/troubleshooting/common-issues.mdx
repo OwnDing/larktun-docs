@@ -1,0 +1,25 @@
+---
+title: Common Issues
+description: Summarize the most common access and configuration problems in the initial version.
+sidebar_position: 1
+---
+
+# Common Issues
+
+This page should focus first on device onboarding, denied policies, unstable traffic paths, and missing audit visibility.
+
+## Service is unreachable
+
+Confirm the target device is online first, then inspect policy matching, relay state, and whether the destination itself is healthy.
+
+## Domain access problems
+
+If you expose internal web systems, verify DNS, certificate state, and whether the published entry point matches the intended workspace configuration.
+
+## Authorized users are still blocked
+
+Check whether the right template matched, whether temporary access expired, whether approval completed, and whether SSO or MFA was satisfied.
+
+## Intermittent timeouts
+
+Investigate relay quality, cross-region jitter, destination load, and session path behavior. Use logs and analytics to identify where the timeout appears.

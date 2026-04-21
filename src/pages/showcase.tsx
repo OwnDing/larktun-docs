@@ -25,34 +25,34 @@ function getPrinciples(): PrincipleItem[] {
     {
       title: translate({
         id: 'showcase.principles.value.title',
-        message: '先讲业务价值',
+        message: '先界定团队类型',
       }),
       description: translate({
         id: 'showcase.principles.value.description',
         message:
-          '每个案例先说明业务背景、挑战和预期目标，避免只展示功能点而缺少上下文。',
+          '按远程研发、IT 运维与 MSP、企业远程办公等团队类型拆分内容，更容易映射真实交付场景。',
       }),
     },
     {
       title: translate({
         id: 'showcase.principles.path.title',
-        message: '再讲落地路径',
+        message: '再说明访问路径',
       }),
       description: translate({
         id: 'showcase.principles.path.description',
         message:
-          '通过部署方式、配置建议和连接链路，帮助访问者理解方案是如何真正跑起来的。',
+          '把中继方式、身份策略、审批和审计放进案例中，帮助读者理解方案如何真正落地。',
       }),
     },
     {
       title: translate({
         id: 'showcase.principles.reuse.title',
-        message: '最后给出复用入口',
+        message: '最后连接文档入口',
       }),
       description: translate({
         id: 'showcase.principles.reuse.description',
         message:
-          '每条案例都应链接到对应文档或博客，让用户可以沿着场景继续深入阅读。',
+          '每个场景都应回链到快速开始、部署方式或排障文档，减少售前与交付阶段的重复解释。',
       }),
     },
   ];
@@ -63,78 +63,78 @@ function getCases(): CaseItem[] {
     {
       category: translate({
         id: 'showcase.cases.preview.category',
-        message: '预发布环境',
+        message: '远程研发团队',
       }),
       title: translate({
         id: 'showcase.cases.preview.title',
-        message: '让测试与产品团队远程访问分支环境',
+        message: '让海外或异地研发团队安全访问代码仓库与构建节点',
       }),
       problem: translate({
         id: 'showcase.cases.preview.problem',
         message:
-          '研发团队需要把本地或临时环境暴露给外部同事验证，但又不希望手工维护复杂的网络策略。',
+          '分布式研发团队需要访问构建节点、调试环境和内部资源，但传统 VPN 成本高、体验差且策略难以细化。',
       }),
       solution: translate({
         id: 'showcase.cases.preview.solution',
         message:
-          '通过 Larktun 建立临时公网入口，绑定访问策略与回收机制，减少联调过程中的等待成本。',
+          '通过零信任网络、共享或专用中继、策略模板和会话分析，研发成员可以按需访问目标资源，同时保留完整审计链路。',
       }),
       outcome: translate({
         id: 'showcase.cases.preview.outcome',
         message:
-          '适合承载“功能演示”“测试验证”“设计评审”这类需要快速上线和快速回收的场景。',
+          '适合跨地域研发、分支联调、夜间值守和远程桌面支持等需要稳定远程控制的场景。',
       }),
       href: '/docs/getting-started/quick-start',
     },
     {
       category: translate({
         id: 'showcase.cases.intranet.category',
-        message: '内网服务发布',
+        message: 'IT 运维与 MSP',
       }),
       title: translate({
         id: 'showcase.cases.intranet.title',
-        message: '将企业内网服务按最小暴露原则对外开放',
+        message: '集中管理多客户服务器、桌面资产与设备健康状态',
       }),
       problem: translate({
         id: 'showcase.cases.intranet.problem',
         message:
-          '运维团队需要对外开放部分内部系统，但不能直接暴露整个网络边界或放宽过多防火墙规则。',
+          '运维团队或 MSP 需要统一管理多套设备资产，同时还要平衡响应速度、权限边界与客户隔离要求。',
       }),
       solution: translate({
         id: 'showcase.cases.intranet.solution',
         message:
-          '为指定服务建立单独的访问入口、访问策略和日志追踪，确保开放范围、责任人和审计信息清晰可控。',
+          '通过工作空间隔离、设备生命周期管理、专用中继和安全事件中心，把多客户设备治理放到一个控制台里。',
       }),
       outcome: translate({
         id: 'showcase.cases.intranet.outcome',
         message:
-          '适合承载“管理后台”“内部 API”“灰度接口”这类对可见性和可回溯性要求较高的场景。',
+          '适合资产巡检、桌面运维、故障响应、长期代维和多团队协作交付等场景。',
       }),
       href: '/docs/troubleshooting/diagnostics',
     },
     {
       category: translate({
         id: 'showcase.cases.support.category',
-        message: '远程排障支持',
+        message: '企业远程办公',
       }),
       title: translate({
         id: 'showcase.cases.support.title',
-        message: '为客户支持团队提供可控的临时访问通道',
+        message: '为内部系统提供安全入口，并支持临时授权、审批与行为审计',
       }),
       problem: translate({
         id: 'showcase.cases.support.problem',
         message:
-          '当客户现场出现网络或服务问题时，支持团队需要快速进入现场环境查看问题，但不能留下长期开放的入口。',
+          '企业内部系统需要支持远程访问，但又不能让授权失控、审计缺失或跨部门权限长期滞留。',
       }),
       solution: translate({
         id: 'showcase.cases.support.solution',
         message:
-          '使用临时授权、访问时效与日志采集组合策略，支持团队可以在有限时间窗口内完成诊断和协助。',
+          '结合审批、临时授权、MFA、企业 SSO 与安全日志，可以在不牺牲效率的前提下给远程办公提供统一入口。',
       }),
       outcome: translate({
         id: 'showcase.cases.support.outcome',
         message:
-          '适合承载“问题复现”“联合诊断”“交付支持”这类需要限时、限范围访问的服务场景。',
+          '适合总部与分支协作、外部合作方限时访问、合规审计和内部系统远程接入等场景。',
       }),
       href: '/docs/troubleshooting/common-issues',
     },
@@ -162,16 +162,16 @@ export default function ShowcasePage(): ReactNode {
             <div className={styles.heroTop}>
               <div className={styles.heroCopy}>
                 <span className={styles.eyebrow}>
-                  <Translate id="showcase.hero.eyebrow">Use Cases</Translate>
+                  <Translate id="showcase.hero.eyebrow">使用场景</Translate>
                 </span>
                 <Heading as="h1" className={styles.title}>
                   <Translate id="showcase.hero.title">
-                    用案例展示 Larktun 的业务价值与落地方式
+                    满足不同规模团队的混合办公与远程访问需求
                   </Translate>
                 </Heading>
                 <p className={styles.lead}>
                   <Translate id="showcase.hero.description">
-                    这里适合持续补充客户故事、典型场景、部署方式与效果说明，让潜在用户快速理解产品边界与使用收益。
+                    Larktun 官网当前重点覆盖远程研发团队、IT 运维与 MSP、企业远程办公三类场景，本页已经把这些主线整理成可继续扩展的案例框架。
                   </Translate>
                 </p>
                 <div className={styles.actions}>
@@ -190,17 +190,17 @@ export default function ShowcasePage(): ReactNode {
                 <ul className={styles.summaryList}>
                   <li>
                     <Translate id="showcase.summary.item.problem">
-                      先说明业务问题，再介绍方案，而不是直接罗列功能点
+                      先说明团队与资源边界，再说明采用共享中继、专用中继或私有部署
                     </Translate>
                   </li>
                   <li>
                     <Translate id="showcase.summary.item.architecture">
-                      为每个案例补充接入结构、访问链路和权限策略
+                      把 Headscale、访问策略、审批和审计放进同一条访问路径里
                     </Translate>
                   </li>
                   <li>
                     <Translate id="showcase.summary.item.outcome">
-                      用结果、收益或时间成本变化增强案例说服力
+                      用稳定性、响应效率与合规收益来呈现场景价值
                     </Translate>
                   </li>
                 </ul>
@@ -212,7 +212,9 @@ export default function ShowcasePage(): ReactNode {
         <section className={styles.principles}>
           <div className="container">
             <div className={styles.sectionHeader}>
-              <span className={styles.sectionEyebrow}>Showcase Framework</span>
+              <span className={styles.sectionEyebrow}>
+                <Translate id="showcase.principles.eyebrow">展示框架</Translate>
+              </span>
               <Heading as="h2" className={styles.sectionTitle}>
                 <Translate id="showcase.principles.heading">
                   当前案例页已经具备可扩展的展示框架
@@ -235,7 +237,9 @@ export default function ShowcasePage(): ReactNode {
         <section className={styles.caseSection}>
           <div className="container">
             <div className={styles.sectionHeader}>
-              <span className={styles.sectionEyebrow}>Example Cases</span>
+              <span className={styles.sectionEyebrow}>
+                <Translate id="showcase.cases.eyebrow">示例案例</Translate>
+              </span>
               <Heading as="h2" className={styles.sectionTitle}>
                 <Translate id="showcase.cases.heading">
                   示例案例卡片可直接替换为真实客户场景

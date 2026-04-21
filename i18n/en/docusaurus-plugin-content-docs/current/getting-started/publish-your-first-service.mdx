@@ -1,0 +1,36 @@
+---
+title: Create Your First Secure Access Path
+description: Use a real scenario to validate the first remote access flow.
+sidebar_position: 3
+---
+
+# Create Your First Secure Access Path
+
+Once the workspace and baseline configuration are ready, validate the product with a real access scenario rather than stopping at static setup.
+
+## Suggested examples
+
+- SSH access to a build node or debugging host
+- RDP access to a preview desktop environment
+- A temporary, approval-based path to an internal admin system or desktop asset
+
+## Configuration flow
+
+1. Select the target device or destination and confirm it is connected to the workspace.
+2. Choose relay mode and region so the access path is explicit and controlled.
+3. Attach the right policy template, such as user-group restrictions, approval requirements, or time windows.
+4. Run the first access validation with SSH, RDP, VNC, or the internal system endpoint.
+5. Review session analytics, latency, logs, and abnormal signals before rolling the path out more broadly.
+
+## Verification checklist
+
+- Devices are online
+- Unauthorized users are blocked by policy
+- Authorized users can access the destination reliably across regions
+- Logs and audit events contain enough context for traceability
+
+## Next step
+
+- Move on to [Common Issues](../troubleshooting/common-issues)
+- Review [Deployment Modes and Configuration](./install-and-configure)
+- Expand the story further with the [Showcase](/showcase)

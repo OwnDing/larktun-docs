@@ -11,72 +11,114 @@ type FeatureItem = {
   description: string;
   cta: string;
   href: string;
-  tone: 'docs' | 'blog' | 'showcase';
+  tone: 'mesh' | 'control' | 'security';
+};
+
+type EntryItem = {
+  title: string;
+  description: string;
+  href: string;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     eyebrow: translate({
-      id: 'homepage.features.docs.eyebrow',
-      message: 'Documentation',
+      id: 'homepage.features.mesh.eyebrow',
+      message: 'Zero-Trust Mesh',
     }),
     title: translate({
-      id: 'homepage.features.docs.title',
-      message: '网站介绍、开始上手、问题处理',
+      id: 'homepage.features.mesh.title',
+      message: '零信任安全网络',
     }),
     description: translate({
-      id: 'homepage.features.docs.description',
+      id: 'homepage.features.mesh.description',
       message:
-        '用结构化文档承接产品概览、核心概念、快速配置和常见故障排查，方便后续持续扩充。',
+        '基于 WireGuard 与 Headscale 构建跨地域稳定互联，默认按最小信任原则接入每台设备。',
     }),
     cta: translate({
-      id: 'homepage.features.docs.cta',
-      message: '进入文档',
+      id: 'homepage.features.mesh.cta',
+      message: '阅读产品介绍',
+    }),
+    href: '/docs/introduction/what-is-larktun',
+    tone: 'mesh',
+  },
+  {
+    eyebrow: translate({
+      id: 'homepage.features.control.eyebrow',
+      message: 'Remote Control',
+    }),
+    title: translate({
+      id: 'homepage.features.control.title',
+      message: '极速远程控制',
+    }),
+    description: translate({
+      id: 'homepage.features.control.description',
+      message:
+        '针对 RDP、SSH、VNC 等协议优化链路，支持临时授权、自动回收与跨区域访问体验。',
+    }),
+    cta: translate({
+      id: 'homepage.features.control.cta',
+      message: '查看快速开始',
+    }),
+    href: '/docs/getting-started/quick-start',
+    tone: 'control',
+  },
+  {
+    eyebrow: translate({
+      id: 'homepage.features.security.eyebrow',
+      message: 'Security & Audit',
+    }),
+    title: translate({
+      id: 'homepage.features.security.title',
+      message: '默认安全，全链路可追溯',
+    }),
+    description: translate({
+      id: 'homepage.features.security.description',
+      message:
+        '通过 MFA、企业 SSO、策略模板、审计日志与异常检测，帮助团队把安全治理沉到日常访问流程里。',
+    }),
+    cta: translate({
+      id: 'homepage.features.security.cta',
+      message: '查看排障与审计',
+    }),
+    href: '/docs/troubleshooting/diagnostics',
+    tone: 'security',
+  },
+];
+
+const EntryList: EntryItem[] = [
+  {
+    title: translate({
+      id: 'homepage.entries.docs.title',
+      message: '文档',
+    }),
+    description: translate({
+      id: 'homepage.entries.docs.description',
+      message: '覆盖产品介绍、部署方式、接入流程和问题处理。',
     }),
     href: '/docs',
-    tone: 'docs',
   },
   {
-    eyebrow: translate({
-      id: 'homepage.features.blog.eyebrow',
-      message: 'Blog',
-    }),
     title: translate({
-      id: 'homepage.features.blog.title',
-      message: '发布记录、实践经验与内容更新',
+      id: 'homepage.entries.blog.title',
+      message: '博客',
     }),
     description: translate({
-      id: 'homepage.features.blog.description',
-      message:
-        '把版本动态、最佳实践、排障总结沉淀成时间线内容，形成可持续维护的知识流。',
-    }),
-    cta: translate({
-      id: 'homepage.features.blog.cta',
-      message: '查看博客',
+      id: 'homepage.entries.blog.description',
+      message: '发布记录、最佳实践和内容更新都会沉淀在这里。',
     }),
     href: '/blog',
-    tone: 'blog',
   },
   {
-    eyebrow: translate({
-      id: 'homepage.features.showcase.eyebrow',
-      message: 'Showcase',
-    }),
     title: translate({
-      id: 'homepage.features.showcase.title',
-      message: '案例展示与典型业务场景',
+      id: 'homepage.entries.showcase.title',
+      message: '使用场景',
     }),
     description: translate({
-      id: 'homepage.features.showcase.description',
-      message:
-        '用案例页展示客户价值、接入方式和落地路径，让访问者快速理解 Larktun 的使用边界。',
-    }),
-    cta: translate({
-      id: 'homepage.features.showcase.cta',
-      message: '浏览案例',
+      id: 'homepage.entries.showcase.description',
+      message: '远程研发、IT 运维与企业远程办公等场景入口。',
     }),
     href: '/showcase',
-    tone: 'showcase',
   },
 ];
 
@@ -100,24 +142,37 @@ export default function HomepageFeatures(): ReactNode {
     <section className={styles.features}>
       <div className="container">
         <div className={styles.sectionHeading}>
-          <span className={styles.sectionEyebrow}>Content Architecture</span>
+          <span className={styles.sectionEyebrow}>
+            {translate({
+              id: 'homepage.features.eyebrow',
+              message: '内容架构',
+            })}
+          </span>
           <Heading as="h2" className={styles.sectionTitle}>
             {translate({
               id: 'homepage.features.heading',
-              message: '三类内容共同构成完整的帮助中心',
+              message: '围绕真实产品能力组织文档内容',
             })}
           </Heading>
           <p className={styles.sectionDescription}>
             {translate({
               id: 'homepage.features.subheading',
               message:
-                '这套框架既能承载产品说明，也便于后续逐步沉淀博客文章、客户故事和解决方案内容。',
+                '帮助中心现在已经能直接承接零信任网络、远程控制、安全能力、部署方式与使用场景的正式内容。',
             })}
           </p>
         </div>
         <div className={styles.featureGrid}>
           {FeatureList.map((props) => (
             <Feature key={props.title} {...props} />
+          ))}
+        </div>
+        <div className={styles.entryGrid}>
+          {EntryList.map((item) => (
+            <Link key={item.title} className={styles.entryCard} to={item.href}>
+              <strong>{item.title}</strong>
+              <span>{item.description}</span>
+            </Link>
           ))}
         </div>
       </div>

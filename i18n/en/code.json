@@ -1,216 +1,270 @@
 {
-  "homepage.stats.locales": {
-    "message": "Languages"
+  "homepage.stats.devices": {
+    "message": "Free device quota"
   },
-  "homepage.stats.sections": {
-    "message": "Core sections"
+  "homepage.stats.rollout": {
+    "message": "Fast rollout"
   },
-  "homepage.stats.version": {
-    "message": "Docusaurus version"
+  "homepage.stats.controlPlane": {
+    "message": "Docs on Docusaurus 3.10"
   },
-  "homepage.hero.badge.i18n": {
-    "message": "Chinese and English"
+  "homepage.snapshots.console.title": {
+    "message": "Official site and control-plane overview"
   },
-  "homepage.hero.badge.content": {
-    "message": "Docs + Blog + Showcase"
+  "homepage.snapshots.console.description": {
+    "message": "This screenshot introduces zero-trust networking, remote access, security features, and primary scenarios in one view."
+  },
+  "homepage.snapshots.pricing.title": {
+    "message": "Plans and expansion path preview"
+  },
+  "homepage.snapshots.pricing.description": {
+    "message": "The current public pricing section helps explain rollout choices alongside deployment guidance."
+  },
+  "homepage.snapshots.eyebrow": {
+    "message": "Product Preview"
+  },
+  "homepage.snapshots.heading": {
+    "message": "Bring official product screens directly into the help center"
+  },
+  "homepage.snapshots.subheading": {
+    "message": "The docs site now includes real homepage captures and can grow with deeper control-plane, device, and audit screenshots later."
+  },
+  "homepage.hero.badge.mesh": {
+    "message": "Zero-Trust Mesh"
+  },
+  "homepage.hero.badge.remote": {
+    "message": "RDP / SSH / VNC Remote Control"
+  },
+  "homepage.hero.badge.audit": {
+    "message": "MFA / SSO / Audit Trail"
   },
   "homepage.hero.title": {
-    "message": "The documentation, blog, and showcase hub for Larktun"
+    "message": "Operate a safer remote network and govern every device from one console"
   },
   "homepage.hero.subtitle": {
-    "message": "A single place for product overviews, onboarding guides, troubleshooting, and implementation knowledge for larktun.com."
+    "message": "Larktun combines zero-trust networking, reliable remote access, and centralized operations so distributed teams can move quickly without compromising security."
   },
   "homepage.hero.primaryCta": {
-    "message": "Read the docs"
+    "message": "Start onboarding"
   },
   "homepage.hero.secondaryCta": {
-    "message": "Browse showcase"
+    "message": "Deployment modes"
   },
   "homepage.hero.tertiaryCta": {
-    "message": "Read the blog"
+    "message": "Browse scenarios"
   },
-  "homepage.panel.eyebrow": {
-    "message": "Framework ready"
+  "homepage.panel.brand": {
+    "message": "Larktun"
   },
   "homepage.panel.title": {
-    "message": "Start filling in real product content right away"
+    "message": "Networking, remote control, and compliance audit converge in one control plane"
   },
   "homepage.panel.item.docs": {
-    "message": "Docs are already organized into overview, getting started, and troubleshooting sections"
+    "message": "A zero-trust mesh built on Headscale and WireGuard supports stable connectivity across regions and platforms"
   },
   "homepage.panel.item.blog": {
-    "message": "The blog includes starter posts for release notes and content planning"
+    "message": "Low-latency access for RDP, SSH, and VNC comes with session analytics and path-quality visibility"
   },
   "homepage.panel.item.showcase": {
-    "message": "The showcase page is ready for customer stories, solution patterns, and use cases"
+    "message": "Temporary approval flows, MFA, enterprise SSO, and audit logs help satisfy security and compliance requirements"
   },
   "homepage.panel.item.i18n": {
-    "message": "Chinese is the default locale, with an English translation structure already prepared"
+    "message": "Shared relay, dedicated relay, and private or hybrid rollout paths support teams from pilot to enterprise scale"
   },
-  "homepage.panel.meta": {
-    "message": "Help center scaffold"
+  "homepage.panel.meta.primary": {
+    "message": "Official copy synced"
+  },
+  "homepage.panel.meta.secondary": {
+    "message": "Screens and deployment guidance included"
   },
   "homepage.meta.title": {
     "message": "{siteTitle} Home"
   },
   "homepage.meta.description": {
-    "message": "A Larktun documentation site scaffold with docs, blog, showcase pages, and bilingual support."
+    "message": "Larktun documentation for zero-trust networking, remote access, deployment guidance, troubleshooting, blog content, and scenarios."
   },
   "showcase.principles.value.title": {
-    "message": "Start with business value"
+    "message": "Start with the team type"
   },
   "showcase.principles.value.description": {
-    "message": "Each case should explain the business context, challenge, and expected outcome before listing features."
+    "message": "Organize content around distributed engineering, IT operations and MSPs, and enterprise remote work to map directly to real delivery scenarios."
   },
   "showcase.principles.path.title": {
-    "message": "Then explain implementation"
+    "message": "Then map the access path"
   },
   "showcase.principles.path.description": {
-    "message": "Use deployment patterns, configuration guidance, and traffic flow details to show how the solution actually works."
+    "message": "Include relay mode, identity policy, approvals, and audit behavior so readers can understand how the solution lands in practice."
   },
   "showcase.principles.reuse.title": {
-    "message": "End with follow-up links"
+    "message": "Finally link back into docs"
   },
   "showcase.principles.reuse.description": {
-    "message": "Every case should point to related docs or blog posts so readers can continue exploring the scenario."
+    "message": "Every scenario should connect back to quick start, deployment modes, or troubleshooting so presales and delivery teams do not repeat the same explanations."
   },
   "showcase.cases.preview.category": {
-    "message": "Preview environments"
+    "message": "Distributed Engineering"
   },
   "showcase.cases.preview.title": {
-    "message": "Give QA and product teams remote access to branch environments"
+    "message": "Give remote engineering teams secure access to repositories, build nodes, and debug environments"
   },
   "showcase.cases.preview.problem": {
-    "message": "Engineering teams need to expose local or temporary environments for review without manually managing complex network policies."
+    "message": "Distributed engineering teams need access to build nodes, staging systems, and internal resources, but legacy VPNs are expensive, slow, and hard to scope precisely."
   },
   "showcase.cases.preview.solution": {
-    "message": "Use Larktun to create temporary public entry points with access policies and cleanup rules, reducing waiting time during collaboration."
+    "message": "Use zero-trust networking, shared or dedicated relay, policy templates, and session analytics so engineers can reach the right targets on demand while preserving a full audit trail."
   },
   "showcase.cases.preview.outcome": {
-    "message": "A good fit for feature demos, QA validation, and design reviews that need fast setup and quick teardown."
+    "message": "A good fit for cross-region development, branch debugging, on-call coverage, and remote desktop support where path stability matters."
   },
   "showcase.cases.intranet.category": {
-    "message": "Intranet publishing"
+    "message": "IT Operations & MSP"
   },
   "showcase.cases.intranet.title": {
-    "message": "Expose internal services with a minimal-surface security model"
+    "message": "Manage customer servers, desktop assets, and device health from one place"
   },
   "showcase.cases.intranet.problem": {
-    "message": "Operations teams need to open access to selected internal systems without exposing the whole network boundary or loosening too many firewall rules."
+    "message": "Operations teams and MSPs need to manage multiple fleets while balancing response speed, permission boundaries, and customer isolation."
   },
   "showcase.cases.intranet.solution": {
-    "message": "Create dedicated entry points, access policies, and log tracking for each service so scope, ownership, and audit data stay clear and controlled."
+    "message": "Workspace separation, device lifecycle management, dedicated relay, and a centralized security event view bring multi-tenant device governance into one control plane."
   },
   "showcase.cases.intranet.outcome": {
-    "message": "Ideal for admin panels, internal APIs, and staged interfaces that require strong visibility and traceability."
+    "message": "A strong fit for asset inspection, desktop operations, incident response, long-term managed service delivery, and multi-team collaboration."
   },
   "showcase.cases.support.category": {
-    "message": "Remote support"
+    "message": "Enterprise Remote Work"
   },
   "showcase.cases.support.title": {
-    "message": "Provide customer support teams with controlled temporary access"
+    "message": "Provide secure entry to internal systems with temporary approvals and full behavior audit"
   },
   "showcase.cases.support.problem": {
-    "message": "When customer environments experience service or network issues, support teams need fast access without leaving a permanent opening behind."
+    "message": "Internal systems must stay reachable for remote work without letting permissions sprawl, audit trails disappear, or cross-team access linger indefinitely."
   },
   "showcase.cases.support.solution": {
-    "message": "Combine time-limited authorization, access windows, and log capture so support teams can diagnose issues within a controlled time box."
+    "message": "Combine approvals, temporary authorization, MFA, enterprise SSO, and security logs to offer one governed access path for remote work without sacrificing speed."
   },
   "showcase.cases.support.outcome": {
-    "message": "Useful for issue reproduction, joint diagnosis, and delivery support scenarios that require time-bounded, scoped access."
+    "message": "Useful for headquarters and branch collaboration, time-boxed partner access, compliance review, and remote entry into internal systems."
   },
   "showcase.meta.title": {
     "message": "Showcase"
   },
   "showcase.meta.description": {
-    "message": "A showcase page for Larktun use cases, customer stories, solution patterns, and business value narratives."
+    "message": "Larktun scenarios and showcase page for presenting customer stories, solution patterns, and business value."
   },
   "showcase.hero.eyebrow": {
     "message": "Use Cases"
   },
   "showcase.hero.title": {
-    "message": "Show Larktun's business value through real use cases"
+    "message": "Support hybrid work and secure remote access for teams of different sizes"
   },
   "showcase.hero.description": {
-    "message": "Use this page to keep adding customer stories, common scenarios, deployment patterns, and results so visitors quickly understand where Larktun fits."
+    "message": "The official site currently centers on distributed engineering teams, IT operations and MSPs, and enterprise remote work. This page turns those tracks into a showcase structure you can keep expanding."
   },
   "showcase.hero.primaryCta": {
-    "message": "Read related docs"
+    "message": "Read the docs"
   },
   "showcase.hero.secondaryCta": {
-    "message": "Read implementation posts"
+    "message": "Open blog posts"
   },
   "showcase.summary.label": {
-    "message": "Recommended structure"
+    "message": "Suggested structure"
   },
   "showcase.summary.item.problem": {
-    "message": "Lead with the business problem before describing the solution"
+    "message": "Define the team and resource boundary first, then explain whether the rollout uses shared relay, dedicated relay, or private deployment"
   },
   "showcase.summary.item.architecture": {
-    "message": "Add architecture, access flow, and permission strategy for every case"
+    "message": "Keep Headscale, access policy, approvals, and audit in the same end-to-end access path"
   },
   "showcase.summary.item.outcome": {
-    "message": "Use outcomes, benefits, or time savings to make each case more convincing"
+    "message": "Present scenario value in terms of stability, response efficiency, and compliance gains"
+  },
+  "showcase.principles.eyebrow": {
+    "message": "Showcase Framework"
   },
   "showcase.principles.heading": {
-    "message": "The showcase page already has an expandable presentation framework"
+    "message": "The showcase page already has an expandable structure"
+  },
+  "showcase.cases.eyebrow": {
+    "message": "Example Cases"
   },
   "showcase.cases.heading": {
-    "message": "The sample cards can be replaced directly with real customer scenarios"
+    "message": "These example cards can be replaced directly with real customer scenarios"
   },
   "showcase.cases.problem.label": {
     "message": "Challenge"
   },
   "showcase.cases.solution.label": {
-    "message": "Approach"
+    "message": "Recommended approach"
   },
   "showcase.cases.outcome.label": {
-    "message": "Outcome"
+    "message": "Best fit"
   },
   "showcase.cases.link": {
     "message": "Open related docs"
   },
-  "homepage.features.docs.eyebrow": {
-    "message": "Documentation"
+  "homepage.features.eyebrow": {
+    "message": "Content Architecture"
   },
-  "homepage.features.docs.title": {
-    "message": "Overview, onboarding, and troubleshooting"
+  "homepage.features.mesh.eyebrow": {
+    "message": "Zero-Trust Mesh"
   },
-  "homepage.features.docs.description": {
-    "message": "Use structured docs for product overviews, core concepts, quick configuration, and common issue diagnosis."
+  "homepage.features.mesh.title": {
+    "message": "Zero-trust networking"
   },
-  "homepage.features.docs.cta": {
-    "message": "Open docs"
+  "homepage.features.mesh.description": {
+    "message": "Build stable cross-region connectivity on top of WireGuard and Headscale, with every device enrolled under least-privilege access by default."
   },
-  "homepage.features.blog.eyebrow": {
+  "homepage.features.mesh.cta": {
+    "message": "Read the overview"
+  },
+  "homepage.features.control.eyebrow": {
+    "message": "Remote Control"
+  },
+  "homepage.features.control.title": {
+    "message": "Fast remote control"
+  },
+  "homepage.features.control.description": {
+    "message": "Optimize access paths for RDP, SSH, and VNC with temporary approval, automatic recovery, and better cross-region operator experience."
+  },
+  "homepage.features.control.cta": {
+    "message": "Open quick start"
+  },
+  "homepage.features.security.eyebrow": {
+    "message": "Security & Audit"
+  },
+  "homepage.features.security.title": {
+    "message": "Secure by default, traceable end to end"
+  },
+  "homepage.features.security.description": {
+    "message": "Use MFA, enterprise SSO, policy templates, audit logs, and anomaly signals to bring security governance into day-to-day access flows."
+  },
+  "homepage.features.security.cta": {
+    "message": "View troubleshooting and audit"
+  },
+  "homepage.entries.docs.title": {
+    "message": "Docs"
+  },
+  "homepage.entries.docs.description": {
+    "message": "Product overview, deployment modes, onboarding flows, and troubleshooting."
+  },
+  "homepage.entries.blog.title": {
     "message": "Blog"
   },
-  "homepage.features.blog.title": {
-    "message": "Release notes, implementation insight, and updates"
+  "homepage.entries.blog.description": {
+    "message": "Release notes, best practices, and content updates live here."
   },
-  "homepage.features.blog.description": {
-    "message": "Turn release notes, best practices, and troubleshooting summaries into a maintainable stream of knowledge."
+  "homepage.entries.showcase.title": {
+    "message": "Scenarios"
   },
-  "homepage.features.blog.cta": {
-    "message": "Open blog"
-  },
-  "homepage.features.showcase.eyebrow": {
-    "message": "Showcase"
-  },
-  "homepage.features.showcase.title": {
-    "message": "Showcase pages for real business scenarios"
-  },
-  "homepage.features.showcase.description": {
-    "message": "Use showcase pages to explain customer value, integration patterns, and rollout paths."
-  },
-  "homepage.features.showcase.cta": {
-    "message": "Open showcase"
+  "homepage.entries.showcase.description": {
+    "message": "Entry points for distributed engineering, IT operations, and enterprise remote work."
   },
   "homepage.features.heading": {
-    "message": "Three content types together form a complete help center"
+    "message": "Structure content around real product capabilities"
   },
   "homepage.features.subheading": {
-    "message": "This framework can hold product guidance now and grow into a long-term home for posts, customer stories, and solution content."
+    "message": "The help center is now ready to carry formal content for zero-trust networking, remote access, security controls, deployment models, and scenario guidance."
   },
   "theme.ErrorPageContent.title": {
     "message": "This page crashed.",
@@ -252,6 +306,10 @@
     "message": "Older post",
     "description": "The blog post button label to navigate to the older/next post"
   },
+  "theme.tags.tagsPageLink": {
+    "message": "View all tags",
+    "description": "The label of the link targeting the tag list page"
+  },
   "theme.colorToggle.ariaLabel.mode.system": {
     "message": "system mode",
     "description": "The name for the system color mode"
@@ -267,10 +325,6 @@
   "theme.colorToggle.ariaLabel": {
     "message": "Switch between dark and light mode (currently {mode})",
     "description": "The ARIA label for the color mode toggle"
-  },
-  "theme.tags.tagsPageLink": {
-    "message": "View all tags",
-    "description": "The label of the link targeting the tag list page"
   },
   "theme.docs.breadcrumbs.navAriaLabel": {
     "message": "Breadcrumbs",
@@ -288,17 +342,6 @@
     "message": "Next",
     "description": "The label used to navigate to the next doc"
   },
-  "theme.docs.tagDocListPageTitle.nDocsTagged": {
-    "message": "One doc tagged|{count} docs tagged",
-    "description": "Pluralized label for \"{count} docs tagged\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
-  },
-  "theme.docs.tagDocListPageTitle": {
-    "message": "{nDocsTagged} with \"{tagName}\"",
-    "description": "The title of the page for a docs tag"
-  },
-  "theme.docs.versionBadge.label": {
-    "message": "Version: {versionLabel}"
-  },
   "theme.docs.versions.unreleasedVersionLabel": {
     "message": "This is unreleased documentation for {siteTitle} {versionLabel} version.",
     "description": "The label used to tell the user that he's browsing an unreleased doc version"
@@ -314,6 +357,21 @@
   "theme.docs.versions.latestVersionLinkLabel": {
     "message": "latest version",
     "description": "The label used for the latest version suggestion link label"
+  },
+  "theme.docs.versionBadge.label": {
+    "message": "Version: {versionLabel}"
+  },
+  "theme.docs.tagDocListPageTitle.nDocsTagged": {
+    "message": "One doc tagged|{count} docs tagged",
+    "description": "Pluralized label for \"{count} docs tagged\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.docs.tagDocListPageTitle": {
+    "message": "{nDocsTagged} with \"{tagName}\"",
+    "description": "The title of the page for a docs tag"
+  },
+  "theme.common.headingLinkTitle": {
+    "message": "Direct link to {heading}",
+    "description": "Title for link to heading"
   },
   "theme.common.editThisPage": {
     "message": "Edit this page",
@@ -331,21 +389,21 @@
     "message": "Last updated{atDate}{byUser}",
     "description": "The sentence used to display when a page has been last updated, and by who"
   },
-  "theme.common.headingLinkTitle": {
-    "message": "Direct link to {heading}",
-    "description": "Title for link to heading"
+  "theme.navbar.mobileVersionsDropdown.label": {
+    "message": "Versions",
+    "description": "The label for the navbar versions dropdown on mobile view"
   },
   "theme.NotFound.title": {
     "message": "Page Not Found",
     "description": "The title of the 404 page"
   },
-  "theme.navbar.mobileVersionsDropdown.label": {
-    "message": "Versions",
-    "description": "The label for the navbar versions dropdown on mobile view"
-  },
   "theme.tags.tagsListLabel": {
     "message": "Tags:",
     "description": "The label alongside a tag list"
+  },
+  "theme.AnnouncementBar.closeButtonAriaLabel": {
+    "message": "Close",
+    "description": "The ARIA label for close button of announcement bar"
   },
   "theme.admonition.caution": {
     "message": "caution",
@@ -371,10 +429,6 @@
     "message": "warning",
     "description": "The default label used for the Warning admonition (:::warning)"
   },
-  "theme.AnnouncementBar.closeButtonAriaLabel": {
-    "message": "Close",
-    "description": "The ARIA label for close button of announcement bar"
-  },
   "theme.blog.sidebar.navAriaLabel": {
     "message": "Blog recent posts navigation",
     "description": "The ARIA label for recent posts in the blog sidebar"
@@ -391,6 +445,14 @@
     "message": "(opens in new tab)",
     "description": "The ARIA label for the external link icon"
   },
+  "theme.NavBar.navAriaLabel": {
+    "message": "Main",
+    "description": "The ARIA label for the main navigation"
+  },
+  "theme.navbar.mobileLanguageDropdown.label": {
+    "message": "Languages",
+    "description": "The label for the mobile language switcher dropdown"
+  },
   "theme.NotFound.p1": {
     "message": "We could not find what you were looking for.",
     "description": "The first paragraph of the 404 page"
@@ -398,14 +460,6 @@
   "theme.NotFound.p2": {
     "message": "Please contact the owner of the site that linked you to the original URL and let them know their link is broken.",
     "description": "The 2nd paragraph of the 404 page"
-  },
-  "theme.navbar.mobileLanguageDropdown.label": {
-    "message": "Languages",
-    "description": "The label for the mobile language switcher dropdown"
-  },
-  "theme.NavBar.navAriaLabel": {
-    "message": "Main",
-    "description": "The ARIA label for the main navigation"
   },
   "theme.TOCCollapsible.toggleButtonLabel": {
     "message": "On this page",
@@ -443,10 +497,6 @@
     "message": "Home page",
     "description": "The ARIA label for the home page in the breadcrumbs"
   },
-  "theme.docs.sidebar.navAriaLabel": {
-    "message": "Docs sidebar",
-    "description": "The ARIA label for the sidebar navigation"
-  },
   "theme.docs.sidebar.collapseButtonTitle": {
     "message": "Collapse sidebar",
     "description": "The title attribute for collapse button of doc sidebar"
@@ -455,13 +505,9 @@
     "message": "Collapse sidebar",
     "description": "The title attribute for collapse button of doc sidebar"
   },
-  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
-    "message": "Expand the dropdown",
-    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
-  },
-  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
-    "message": "Collapse the dropdown",
-    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
+  "theme.docs.sidebar.navAriaLabel": {
+    "message": "Docs sidebar",
+    "description": "The ARIA label for the sidebar navigation"
   },
   "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
     "message": "Close navigation bar",
@@ -474,6 +520,14 @@
   "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
     "message": "Toggle navigation bar",
     "description": "The ARIA label for hamburger menu button of mobile navigation"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+    "message": "Expand the dropdown",
+    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+    "message": "Collapse the dropdown",
+    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
   },
   "theme.docs.sidebar.expandButtonTitle": {
     "message": "Expand sidebar",

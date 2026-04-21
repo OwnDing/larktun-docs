@@ -1,0 +1,69 @@
+---
+title: Deployment Modes and Configuration
+description: Choose between SaaS, dedicated relay, and private or hybrid rollout paths.
+sidebar_position: 2
+---
+
+# Deployment Modes and Configuration
+
+Larktun's current public positioning already emphasizes fast SaaS rollout, shared or dedicated relays, and private or hybrid deployment. This page turns that into a documentation structure you can extend later.
+
+## Recommended rollout models
+
+### SaaS control plane
+
+Best for quick trials, smaller teams, and fast onboarding. It minimizes infrastructure overhead and gets teams to first validation quickly.
+
+### Dedicated relay
+
+Best for growing teams that need more predictable path quality and capacity while still using a hosted control plane.
+
+### Private or hybrid deployment
+
+Best for organizations with stricter compliance, logging, network boundary, or integration requirements.
+
+## Environment planning
+
+- Map the devices you need to onboard across laptops, servers, and internal network segments
+- Decide whether the main workloads are remote desktops, SSH paths, VNC sessions, or internal web systems
+- Plan relay mode, regions, identity integration, and log retention up front
+- Confirm whether enterprise SSO, MFA, approvals, or alerting should be part of the first rollout
+
+## Core configuration sections
+
+- Control plane choice: hosted, private, or hybrid
+- Relay strategy: shared, dedicated, or region-specific
+- Identity model: account login, enterprise SSO, and MFA
+- Access policy: roles, device tags, approval windows, and expiration
+- Audit model: session analytics, security events, and webhook-based alerts
+
+## Illustrative configuration
+
+This sample is only for documentation structure and not a canonical product schema:
+
+```yaml
+deployment:
+  controlPlane: saas
+  relayMode: dedicated
+  regions:
+    - ap-east
+    - ap-southeast
+identity:
+  sso: enterprise
+  mfa: required
+access:
+  policyTemplate: corp-remote-access
+  temporaryApproval: true
+  expirationHours: 8
+audit:
+  sessionAnalytics: enabled
+  securityCenter: enabled
+  alertWebhook: https://example.com/hooks/security
+```
+
+## Guidance
+
+- Start with the hosted control plane for initial trials unless compliance requires otherwise
+- Plan identity and audit before scaling beyond the first devices
+- Evaluate dedicated relay or private deployment early if latency, capacity, or network boundaries are critical
+- In the formal delivery guide, add topology diagrams, port requirements, and rollback paths for every model

@@ -1,0 +1,43 @@
+---
+title: Core Concepts
+description: Establish a shared vocabulary for the Larktun documentation site.
+sidebar_position: 2
+---
+
+# Core Concepts
+
+To keep deployment guidance, operations runbooks, and showcase stories aligned, it helps to define a few key terms up front.
+
+## Project or workspace
+
+Use this boundary to separate teams, business lines, or customer environments. Devices, policies, logs, and member permissions can all be organized around the workspace.
+
+## Device
+
+Any machine connected to the Larktun network, such as a developer laptop, bastion host, server, or managed desktop.
+
+## Headscale control plane
+
+Larktun is described publicly as extending Headscale with lifecycle management, fine-grained access control, and anomaly detection. You can think of it as the foundation for secure network orchestration.
+
+## Relay and path
+
+Relays carry cross-network and cross-region traffic. Depending on scale and compliance needs, a team may start with shared relays, move to dedicated relays, or choose a private or hybrid deployment model.
+
+## Remote access policy
+
+Policies define who can reach which devices, during what time window, whether approval is required, and when access should expire automatically.
+
+## Identity and security controls
+
+Larktun supports MFA, enterprise SSO, temporary approvals, and abnormal behavior detection so that identity and security stay part of the access flow.
+
+## Diagnostic data
+
+Diagnostic data includes device state, session analytics, access logs, error context, and security events. It forms the basis for the troubleshooting section.
+
+## Documentation writing guidance
+
+- Explain the business goal before the configuration details.
+- Explain shared relay, dedicated relay, and private deployment with their trade-offs.
+- Add validation steps, audit entry points, and rollback guidance after important actions.

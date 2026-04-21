@@ -4,8 +4,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Larktun Docs',
-  tagline: 'Documentation hub for larktun.com',
-  favicon: 'img/favicon.ico',
+  tagline: 'Zero-trust networking and remote access documentation',
+  favicon: 'img/larktun.png',
 
   future: {
     v4: true,
@@ -23,13 +23,13 @@ const config: Config = {
 
   i18n: {
     defaultLocale: 'zh-Hans',
-    locales: ['zh-Hans', 'en-US'],
+    locales: ['zh-Hans', 'en'],
     localeConfigs: {
       'zh-Hans': {
         htmlLang: 'zh-CN',
         label: '简体中文',
       },
-      'en-US': {
+      en: {
         htmlLang: 'en-US',
         label: 'English',
         path: 'en',
@@ -82,7 +82,7 @@ const config: Config = {
       hideOnScroll: true,
       logo: {
         alt: 'Larktun Logo',
-        src: 'img/logo.svg',
+        src: 'img/larktun.png',
       },
       items: [
         {
@@ -111,7 +111,7 @@ const config: Config = {
           title: '文档',
           items: [
             {
-              label: '网站介绍',
+              label: '产品介绍',
               to: '/docs/introduction/what-is-larktun',
             },
             {

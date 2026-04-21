@@ -4,6 +4,6 @@
   "link": {
     "type": "generated-index",
     "title": "问题处理",
-    "description": "定位连接失败、权限异常和链路不稳定等常见问题。"
+    "description": "定位设备离线、策略拒绝、链路抖动和审计异常等常见问题。"
   }
 }

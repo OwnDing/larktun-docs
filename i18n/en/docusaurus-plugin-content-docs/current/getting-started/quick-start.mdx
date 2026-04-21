@@ -1,0 +1,51 @@
+---
+title: Quick Start
+description: Complete a first Larktun validation flow using the shortest possible path.
+sidebar_position: 1
+---
+
+# Quick Start
+
+This page is for the shortest onboarding path: open an account, connect the first devices, and verify the first secure access flow.
+
+## Prerequisites
+
+- A Larktun account
+- At least one device to onboard, such as a developer laptop, bastion host, or test server
+- One access path to validate, such as SSH, RDP, VNC, or an internal web system
+- If you already run Headscale, the current network and identity constraints you want to preserve
+
+## Recommended flow
+
+1. Create your first workspace.
+2. Onboard the first devices and confirm they appear online.
+3. Choose the relay mode and establish the first access path.
+4. Configure identity and policy controls such as temporary approval or MFA.
+5. Validate access with SSH, RDP, VNC, or the target internal system.
+6. Review session analytics, logs, and audit events to confirm the path is stable and traceable.
+
+## Placeholder configuration example
+
+The sample below is only a deployment illustration. Final field names should follow the real console or CLI version.
+
+```yaml
+workspace: engineering-demo
+network:
+  mode: headscale
+  relay: shared
+identity:
+  mfa: enabled
+  sso: optional
+policy:
+  template: remote-dev
+  temporaryApproval: true
+audit:
+  sessionLogs: enabled
+  securityEvents: enabled
+```
+
+## After validation
+
+- Continue with [Deployment Modes and Configuration](./install-and-configure)
+- Continue with [Create Your First Secure Access Path](./publish-your-first-service)
+- If devices look offline or policies reject access, open [Troubleshooting](../troubleshooting/common-issues)

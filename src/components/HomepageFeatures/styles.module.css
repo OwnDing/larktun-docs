@@ -56,17 +56,17 @@
   transform: translateY(-4px);
 }
 
-.docs {
+.mesh {
   background:
     linear-gradient(180deg, rgba(236, 244, 255, 0.96), rgba(255, 255, 255, 0.92));
 }
 
-.blog {
+.control {
   background:
     linear-gradient(180deg, rgba(239, 255, 252, 0.96), rgba(255, 255, 255, 0.92));
 }
 
-.showcase {
+.security {
   background:
     linear-gradient(180deg, rgba(246, 243, 255, 0.96), rgba(255, 255, 255, 0.92));
 }
@@ -101,8 +101,43 @@
   text-decoration: none;
 }
 
+.entryGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1.25rem;
+}
+
+.entryCard {
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(29, 111, 242, 0.12);
+  border-radius: 1.2rem;
+  color: inherit;
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem 1.1rem;
+}
+
+.entryCard:hover {
+  text-decoration: none;
+}
+
+.entryCard strong {
+  color: var(--ifm-color-emphasis-900);
+  font-size: 1rem;
+}
+
+.entryCard span {
+  color: var(--ifm-color-emphasis-700);
+  line-height: 1.7;
+}
+
 @media screen and (max-width: 996px) {
   .featureGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .entryGrid {
     grid-template-columns: 1fr;
   }
 }

@@ -1,0 +1,28 @@
+---
+title: Diagnostics
+description: Build a repeatable workflow for narrowing down service and network problems.
+sidebar_position: 2
+---
+
+# Diagnostics
+
+Troubleshooting works better when it follows a repeatable flow. That also makes the process easier to reuse in blog posts and showcase stories.
+
+## Step 1: confirm scope
+
+- Is the issue limited to one device or affecting the whole workspace?
+- Is it isolated to one region, account, or time window, or broadly reproducible?
+
+## Step 2: collect signals
+
+- Current workspace, policy template, and relay mode
+- Device online state, session analytics, and latency indicators
+- Request timestamp, request origin, error logs, and security events
+
+## Step 3: trace the path
+
+Move from identity validation to access policy, relay path, and then the destination device. Avoid changing multiple variables at once.
+
+## Step 4: document the conclusion
+
+Capture the root cause, temporary mitigation, long-term fix, and whether policy templates, monitoring, or audit retention rules need to be updated.
