@@ -1,0 +1,91 @@
+---
+slug: headscale-source-build-docker-image
+title: "Headscale Series: Packaging Source-Built Headscale as a Docker Image"
+authors: [ownding]
+tags: [headscale, Docker, ko, image-build]
+---
+
+The official `Headscale` image is usually around `80MB` in `docker images`. In contrast, custom images built from a handwritten `Dockerfile` are often much larger.
+
+This post documents a closer-to-official approach: use `ko` to package Headscale into a container image, instead of maintaining a Dockerfile.
+
+Original post:
+[Headscale series: package source-built headscale as Docker image](https://ownding.com/2025/08/08/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%B0%86%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E7%9A%84headscale%E6%89%93%E5%8C%85%E6%88%90docker%E9%95%9C%E5%83%8F/)
+
+{/* truncate */}
+
+## Why ko
+
+`ko` is a lightweight tool for building and packaging Go applications for container platforms (Docker / Kubernetes). It can build container images directly from Go source, without writing a Dockerfile.
+
+## Install ko
+
+Install `ko` as a regular user:
+
+```bash
+go install github.com/google/ko@latest
+```
+
+After installation, the binary is typically available at `~/go/bin/ko`.
+
+## Build Headscale Image with ko
+
+Run in the Headscale source directory:
+
+```bash
+# --local means build locally without pushing to a registry
+/home/djc/go/bin/ko build --local ./cmd/headscale
+```
+
+After build, local images named `ko.local/...` will be created. Example `docker images` output:
+
+```bash
+REPOSITORY                                            TAG                                                                IMAGE ID       CREATED      SIZE
+headscale                                             v0.26.1-r                                                          bf66da388ca1   6 days ago   87.5MB
+ko.local/headscale-f40b3d8640713cd381403459ebd67e78   38aefca56cab7d9b11692c61968915fb59fdf1dce134e52fed02ae2fa3a0e871   bf66da388ca1   6 days ago   87.5MB
+ko.local/headscale-f40b3d8640713cd381403459ebd67e78   latest                                                             bf66da388ca1   6 days ago   87.5MB
+ghcr.io/juanfont/headscale                            v0.26.1                                                            b9e7b75fd3b0   N/A          80.8MB
+```
+
+You can rename the generated image with `docker tag`.
+
+## Runtime Notes
+
+At runtime, prepare:
+
+- `config.yaml`
+- Read/write permissions for `/var/run/headscale/` and `/var/lib/headscale/`
+
+In `config.yaml`, you can change:
+
+```yaml
+unix_socket: /var/run/headscale/headscale.sock
+```
+
+to:
+
+```yaml
+unix_socket: /var/lib/headscale/headscale.sock
+```
+
+Then run the container with only `/var/lib/headscale/` mounted:
+
+```bash
+docker run -d \
+  -v ./headscale/config.yaml:/etc/headscale/config.yaml \
+  -v ./doc:/var/lib/headscale \
+  --name headscale \
+  -p 8080:8080 \
+  -p 9090:9090 \
+  headscale:v0.26.1-r serve
+```
+
+## Reference
+
+- Source build article:
+  [Build Headscale from Source](https://ownding.com/2025/07/30/%E4%BD%BF%E7%94%A8Headscale%E6%BA%90%E7%A0%81%E8%87%AA%E8%A1%8C%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/)
+
+---
+
+This article is mirrored on the Larktun blog. For source updates and original context, refer to:
+[Headscale series: package source-built headscale as Docker image](https://ownding.com/2025/08/08/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%B0%86%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E7%9A%84headscale%E6%89%93%E5%8C%85%E6%88%90docker%E9%95%9C%E5%83%8F/)

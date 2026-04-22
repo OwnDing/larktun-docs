@@ -1,0 +1,91 @@
+---
+slug: headscale-source-build-docker-image
+title: headscale 系列：如何将源码编译的 headscale 打包成 Docker 镜像
+authors: [ownding]
+tags: [headscale, Docker, ko, 镜像构建]
+---
+
+`Headscale` 官方镜像用 `docker images` 查看通常只有约 `80MB`。如果我们直接写 `Dockerfile` 打包，镜像往往会明显更大。
+
+这篇文章记录一个更贴近官方体积的做法：使用 `ko` 构建 Headscale 容器镜像，而不是手写 Dockerfile。
+
+原文链接：
+[headscale系列：如何将源码编译的headscale打包成docker镜像](https://ownding.com/2025/08/08/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%B0%86%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E7%9A%84headscale%E6%89%93%E5%8C%85%E6%88%90docker%E9%95%9C%E5%83%8F/)
+
+{/* truncate */}
+
+## 为什么使用 ko
+
+`ko` 是一个用于构建和打包 Go 应用的轻量工具，适合容器化场景（Docker / Kubernetes）。它可以直接把 Go 项目打包成镜像，省去 Dockerfile 维护成本。
+
+## ko 安装
+
+在普通用户环境下安装 `ko`：
+
+```bash
+go install github.com/google/ko@latest
+```
+
+安装后可在 `~/go/bin/ko` 找到可执行文件。
+
+## 使用 ko 打包 headscale
+
+在 Headscale 源码目录执行：
+
+```bash
+# --local 表示不推送镜像到仓库
+/home/djc/go/bin/ko build --local ./cmd/headscale
+```
+
+构建完成后，会生成 `ko.local/...` 命名的本地镜像。可用 `docker images` 查看：
+
+```bash
+REPOSITORY                                            TAG                                                                IMAGE ID       CREATED      SIZE
+headscale                                             v0.26.1-r                                                          bf66da388ca1   6 days ago   87.5MB
+ko.local/headscale-f40b3d8640713cd381403459ebd67e78   38aefca56cab7d9b11692c61968915fb59fdf1dce134e52fed02ae2fa3a0e871   bf66da388ca1   6 days ago   87.5MB
+ko.local/headscale-f40b3d8640713cd381403459ebd67e78   latest                                                             bf66da388ca1   6 days ago   87.5MB
+ghcr.io/juanfont/headscale                            v0.26.1                                                            b9e7b75fd3b0   N/A          80.8MB
+```
+
+后续可通过 `docker tag` 给镜像重命名。
+
+## 镜像运行要点
+
+运行时需要：
+
+- `config.yaml` 配置文件
+- `/var/run/headscale/`、`/var/lib/headscale/` 的读写权限
+
+可在 `config.yaml` 中把：
+
+```yaml
+unix_socket: /var/run/headscale/headscale.sock
+```
+
+改成：
+
+```yaml
+unix_socket: /var/lib/headscale/headscale.sock
+```
+
+这样运行容器时只挂载 `/var/lib/headscale/` 即可：
+
+```bash
+docker run -d \
+  -v ./headscale/config.yaml:/etc/headscale/config.yaml \
+  -v ./doc:/var/lib/headscale \
+  --name headscale \
+  -p 8080:8080 \
+  -p 9090:9090 \
+  headscale:v0.26.1-r serve
+```
+
+## 参考
+
+- 源码编译文章：
+  [使用 Headscale 源码自行编译打包](https://ownding.com/2025/07/30/%E4%BD%BF%E7%94%A8Headscale%E6%BA%90%E7%A0%81%E8%87%AA%E8%A1%8C%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/)
+
+---
+
+本文已同步到 Larktun 博客，原始内容与更新请以原文为准：
+[headscale系列：如何将源码编译的headscale打包成docker镜像](https://ownding.com/2025/08/08/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%B0%86%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E7%9A%84headscale%E6%89%93%E5%8C%85%E6%88%90docker%E9%95%9C%E5%83%8F/)
