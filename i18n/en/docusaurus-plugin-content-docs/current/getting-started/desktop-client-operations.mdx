@@ -1,0 +1,136 @@
+---
+title: Desktop Client Guide
+description: Install, sign in, and use core desktop client features on Windows and macOS.
+sidebar_position: 4
+---
+
+# Desktop Client Guide
+
+This page is adapted from the desktop client operation manual and covers installation, sign-in, and day-to-day operations for both Windows and macOS.
+All screenshots on this page are converted to `webp` format for better bandwidth efficiency and faster loading.
+
+## 1. Install the Larktun desktop client
+
+### 1.1 Windows
+
+1. Download `larktun.msi` from [larktun.com](https://larktun.com).
+2. Double-click the installer; if Windows asks for admin permission, choose "Yes".
+3. After installation, the `Larktun IPN` icon appears on the desktop.
+4. Double-click `Larktun IPN` to launch the client.
+
+![Figure 1-1 App icon](/img/desktop-client/fig1-1-app-icon.webp)
+
+![Figure 1-2 Windows login screen](/img/desktop-client/fig1-2-windows-login.webp)
+
+### 1.2 macOS
+
+1. Download `larktun-client.pkg` from [larktun.com](https://larktun.com).
+2. Double-click the package and complete the setup wizard.
+3. After installation, find `Larktun IPN` in `Applications`.
+4. Open `Larktun IPN` to launch the client.
+
+![Figure 1-3 macOS installation](/img/desktop-client/fig1-3-macos-install.webp)
+
+![Figure 1-4 macOS app](/img/desktop-client/fig1-4-macos-app.webp)
+
+## 2. Sign in to Larktun
+
+### 2.1 Windows sign-in flow
+
+1. Open `Larktun IPN`.
+2. Enter username, password, and verification code.
+3. The verification code refreshes every minute; if invalid, re-enter it.
+4. Click "Login" to enter the device list page.
+
+![Figure 2-1 Login screen](/img/desktop-client/fig2-1-login-screen.webp)
+
+![Figure 2-2 Login action](/img/desktop-client/fig2-2-login-submit.webp)
+
+![Figure 2-3 Device list page](/img/desktop-client/fig2-3-device-list.webp)
+
+### 2.2 Main screen field reference
+
+- `Connected`: client is connected to the server.
+- `100.x.x.x` (example virtual IP): devices can communicate over virtual IP.
+- `Disconnect`: disconnects this device from the server.
+- `Exit Node`: shows available exit nodes.
+- `Total Devices`: number of devices under this account.
+- `Online Devices`: number of currently online devices.
+- `Network Status`: normal or abnormal.
+- `My Devices`: device list and status under this account.
+
+### 2.3 macOS sign-in flow
+
+The sign-in flow and main UI structure on macOS are functionally the same as Windows.
+
+![Figure 2-4 macOS device list](/img/desktop-client/fig2-4-macos-device-list.webp)
+
+## 3. Core features
+
+### 3.1 Settings
+
+- `Close Action`
+- Ask every time: prompts whether to minimize or quit when closing.
+- Minimize to tray: closes window and keeps client running in tray.
+- Exit app: quits immediately.
+- `Start on boot`: auto-start the client after system reboot.
+- `Network diagnostics`: run diagnostics to view network type and recommended relay.
+
+![Figure 3-1 Settings page](/img/desktop-client/fig3-1-settings.webp)
+
+![Figure 3-2 Network diagnostics](/img/desktop-client/fig3-2-network-diagnostics.webp)
+
+### 3.2 About
+
+The About page shows version, runtime platform, and vendor information.
+
+![Figure 3-3 About page](/img/desktop-client/fig3-3-about.webp)
+
+### 3.3 Language menu
+
+Supports Chinese and English; language can be switched while running.
+
+![Figure 3-4 English UI](/img/desktop-client/fig3-4-english-ui.webp)
+
+### 3.4 Disconnect/Connect
+
+- Click `Disconnect` to stop server connectivity.
+- Click `Connect` to re-establish connectivity.
+
+![Figure 3-5 Disconnect function](/img/desktop-client/fig3-5-disconnect.webp)
+
+### 3.5 Device actions
+
+Device menu includes:
+
+- `Copy IP address`: copies virtual IP to clipboard.
+- `Ping`: checks connectivity and shows latency plus direct/relay path type.
+- `Details`: shows detailed device information.
+- `Send File`: sends a local file to the selected device.
+- `Cancel`: closes the device action menu.
+
+![Figure 3-6 Device action menu](/img/desktop-client/fig3-6-device-actions.webp)
+
+![Figure 3-7 Ping view](/img/desktop-client/fig3-7-ping.webp)
+
+![Figure 3-8 Device details](/img/desktop-client/fig3-8-device-details.webp)
+
+![Figure 3-9 Send file](/img/desktop-client/fig3-9-send-file.webp)
+
+## 4. Tray menu
+
+- `Connected`: current connection state.
+- `Update`: update notice when a newer version is available.
+- `Show Window`: restores main window when minimized.
+- `User Account`: current signed-in account info.
+- `Disconnect`: disconnect current session.
+- `Exit Node`: view exit node list.
+- `Exit`: quit the client.
+
+![Figure 3-10 Tray menu](/img/desktop-client/fig3-10-tray-menu.webp)
+
+## 5. Operational suggestions
+
+1. After first sign-in, confirm network status is normal before device-to-device access tests.
+2. If connectivity is unstable, run network diagnostics first, then check [Troubleshooting](../troubleshooting/common-issues).
+3. For policy-level control, continue with [Quick Start](./quick-start) for ACL and relay setup.

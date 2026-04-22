@@ -1,0 +1,136 @@
+---
+title: 电脑客户端操作
+description: Windows 与 macOS 客户端安装、登录、常用功能与托盘菜单说明。
+sidebar_position: 4
+---
+
+# 电脑客户端操作
+
+本文基于《云雀通（Larktun）电脑端 V1.0 操作说明书》整理，覆盖 Windows 与 macOS 客户端的安装、登录与日常操作。
+本文中的操作配图已统一转换为 `webp` 格式，以降低带宽占用并提升页面加载速度。
+
+## 1. 安装云雀通客户端
+
+### 1.1 Windows 安装
+
+1. 在 [larktun.com](https://larktun.com) 下载 `larktun.msi` 安装包。
+2. 双击安装包开始安装；如系统提示管理员权限，选择“是”。
+3. 安装完成后，桌面会出现 `Larktun IPN` 图标。
+4. 双击 `Larktun IPN` 启动客户端。
+
+![图1-1 软件图标](/img/desktop-client/fig1-1-app-icon.webp)
+
+![图1-2 Windows 云雀通登录界面](/img/desktop-client/fig1-2-windows-login.webp)
+
+### 1.2 macOS 安装
+
+1. 在 [larktun.com](https://larktun.com) 下载 `larktun-client.pkg`。
+2. 双击安装包并按向导持续点击“继续”完成安装。
+3. 安装完成后，在 `Applications` 中找到 `Larktun IPN`。
+4. 点击 `Larktun IPN` 启动客户端。
+
+![图1-3 macOS 安装界面](/img/desktop-client/fig1-3-macos-install.webp)
+
+![图1-4 云雀通 Mac 应用](/img/desktop-client/fig1-4-macos-app.webp)
+
+## 2. 登录云雀通
+
+### 2.1 Windows 登录流程
+
+1. 双击桌面 `Larktun IPN` 图标。
+2. 输入用户名、密码和验证码。
+3. 验证码每 1 分钟刷新一次；若输入错误，按界面提示重新输入。
+4. 点击“登录”进入设备列表。
+
+![图2-1 云雀通登录界面](/img/desktop-client/fig2-1-login-screen.webp)
+
+![图2-2 点击登录](/img/desktop-client/fig2-2-login-submit.webp)
+
+![图2-3 设备列表界面](/img/desktop-client/fig2-3-device-list.webp)
+
+### 2.2 登录后主界面说明
+
+- `已连接`：表示程序已连接服务器。
+- `100.x.x.x`（示例虚拟 IP）：设备之间可通过虚拟 IP 互访。
+- `断开`：断开当前设备与服务器连接。
+- `出口节点`：显示可用出口节点列表。
+- `总设备数`：当前账号下设备总量。
+- `在线设备`：当前账号下在线设备数量。
+- `网络状态`：显示正常或异常。
+- `我的设备`：展示当前账号的设备列表与状态。
+
+### 2.3 macOS 登录流程
+
+macOS 的登录流程与主界面结构与 Windows 基本一致。
+
+![图2-4 macOS 设备列表界面](/img/desktop-client/fig2-4-macos-device-list.webp)
+
+## 3. 常用功能
+
+### 3.1 设置
+
+- `关闭动作`
+- 每次询问：关闭时询问“最小化”或“退出”。
+- 最小化托盘：关闭时转入托盘后台运行。
+- 退出程序：直接退出客户端。
+- `开机自启动`：启用后，系统重启时客户端自动启动。
+- `网络诊断`：点击“运行诊断”查看当前网络类型与推荐中继服务器。
+
+![图3-1 设置界面](/img/desktop-client/fig3-1-settings.webp)
+
+![图3-2 网络诊断信息](/img/desktop-client/fig3-2-network-diagnostics.webp)
+
+### 3.2 关于
+
+“关于”页展示客户端版本、运行平台、开发公司等信息。
+
+![图3-3 关于界面](/img/desktop-client/fig3-3-about.webp)
+
+### 3.3 语言菜单
+
+支持中文与英文，可在客户端运行期间随时切换。
+
+![图3-4 英文界面示例](/img/desktop-client/fig3-4-english-ui.webp)
+
+### 3.4 断开/连接
+
+- 点击“断开”可主动断开与服务器连接。
+- 点击“连接”可重新建立连接。
+
+![图3-5 断开功能](/img/desktop-client/fig3-5-disconnect.webp)
+
+### 3.5 设备菜单
+
+在设备项中可使用以下操作：
+
+- `复制 IP 地址`：复制设备虚拟 IP 到剪贴板。
+- `Ping`：测试设备连通性，并展示延迟、虚拟地址和直连/中继状态。
+- `详情`：查看设备详细信息。
+- `发送文件`：从本机选择文件发送到目标设备。
+- `取消`：关闭当前设备操作菜单。
+
+![图3-6 设备功能菜单](/img/desktop-client/fig3-6-device-actions.webp)
+
+![图3-7 Ping 功能](/img/desktop-client/fig3-7-ping.webp)
+
+![图3-8 设备信息详情](/img/desktop-client/fig3-8-device-details.webp)
+
+![图3-9 发送文件](/img/desktop-client/fig3-9-send-file.webp)
+
+## 4. 托盘菜单
+
+- `已连接`：当前网络连接状态。
+- `更新`：有新版本时显示更新提示。
+- `显示窗口`：客户端最小化后恢复主窗口。
+- `用户账户`：显示当前登录账号信息。
+- `断开`：断开当前连接。
+- `出口节点`：查看出口节点设备。
+- `退出`：退出客户端。
+
+![图3-10 托盘功能](/img/desktop-client/fig3-10-tray-menu.webp)
+
+## 5. 操作建议
+
+1. 首次登录后先确认“网络状态”为正常，再进行设备互访。
+2. 遇到连接不稳定时先执行“网络诊断”，再查看 [问题处理](../troubleshooting/common-issues)。
+3. 若需策略层面控制设备互访，请继续阅读 [快速开始](./quick-start) 中的 ACL 与中继配置说明。
