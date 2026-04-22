@@ -1,34 +1,69 @@
 ---
 title: Create Your First Secure Access Path
-description: Validate a real path with tenant isolation, ACL controls, and relay strategy.
+description: Create your first secure access path in a few steps for personal NAS, personal dev workstation, or team services.
 sidebar_position: 4
 ---
 
 # Create Your First Secure Access Path
 
-Use a real workload for the first path validation so tenant isolation, ACL policy, relay behavior, and stability are all tested together.
+This page is written for end users. It helps you set up your first secure access path with clear, practical steps.
 
-## Suggested examples
+## Common use cases
 
-- SSH access to build or debug hosts
-- RDP access to remote desktop environments
-- Web access to internal admin systems for operations teams
+- Individual users: personal NAS access, home devices, and personal dev workstation access (SSH / Web / RDP)
+- Team users: build hosts, ops hosts, and internal platforms (SSH / RDP / Web)
 
-## Configuration flow
+## Personal scenarios (NAS / dev workstation)
 
-1. Select the destination device and confirm it belongs to the intended tenant.
-2. Create or reuse tenant ACL rules for subject and time-window limits.
-3. Select relay mode (shared, dedicated, or user-managed) for this path.
-4. Initiate access and verify authorization plus connectivity.
-5. Review session logs, ACL hit data, and stability signals.
+### Scenario A: Personal NAS secure access
 
-## Validation checklist
+- Goal: access your NAS admin/file services securely from outside your local network
+- Recommendation: allow only your own account to the NAS device and only required ports (for example HTTPS)
 
-- Unauthorized users are blocked by ACL
-- Authorized users can access reliably across network conditions
-- Relay unavailability triggers expected retry or fallback behavior
-- Client runtime remains low-footprint and non-intrusive
-- Audit records are complete and traceable
+### Scenario B: Personal dev workstation remote access
+
+- Goal: access your personal dev machine for debugging, builds, or maintenance
+- Recommendation: allow only your own account to the dev machine (SSH or RDP first), then expand ports only when needed
+
+## Before you start
+
+- You are signed in to the Larktun client and your source device is online
+- The target device (NAS/dev machine/server) is online and identifiable
+- You know the protocol and port you need (for example `SSH 22`, `HTTPS 443`, `RDP 3389`)
+
+## Setup steps
+
+1. In `Nodes`, confirm both source and target devices are online and clearly renamed.
+2. If subnet access is required, approve the subnet route in `Routers`.
+3. In `ACLs`, create an access rule:
+   - Subject: your own account (personal) or a specific user group (team)
+   - Target: NAS/dev machine/internal service device
+   - Protocol/port: only what is required now
+4. `Derper` usually needs no action: free shared relay is enabled by default for all users.
+   - Choose dedicated relay only when you need lower latency or higher stability
+   - Configure user-managed relay only when you need custom network boundaries
+5. Start a real connection test from source (SSH/Web/RDP).
+6. Run one negative test with an unauthorized account/device and confirm it is blocked.
+
+## Recommended first-path strategy
+
+- Default deny, then allow one explicit path
+- Enable one target service at a time
+- Prefer one common protocol first (SSH or Web)
+- Expand devices/ports only after validation succeeds
+
+## Success criteria
+
+- Authorized users can access the target service reliably
+- Unauthorized users are blocked
+- When failures happen, logs are enough to identify the cause quickly
+
+## Quick troubleshooting hints
+
+- Cannot connect: verify device online state and selected target in `Nodes`
+- Subnet resource unreachable: verify route approval in `Routers`
+- Online but denied: verify subject, target, and port match in `ACLs`
+- High latency: free relay is already available by default; for optimization, use dedicated relay or configure user-managed relay in `Derper`
 
 ## Next step
 
