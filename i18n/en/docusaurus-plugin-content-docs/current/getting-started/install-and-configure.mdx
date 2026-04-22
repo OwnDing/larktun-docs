@@ -6,21 +6,40 @@ sidebar_position: 3
 
 # Deployment Modes and Configuration
 
-Larktun deployment is usually a combination of tenant boundaries, ACL strategy, and relay model rather than one fixed topology.
+Larktun is delivered as a SaaS service for both individual users and teams. Deployment planning is usually a combination of tenant boundaries, ACL strategy, and relay model rather than one fixed topology.
+
+## Target users and common scenarios
+
+- Individual users: remote access to home devices, personal servers, and development machines with low operational overhead.
+- Team users: collaborative access to internal resources with centralized ACL and audit controls.
+
+## SaaS relay capabilities
+
+Under the same SaaS control plane, you can choose among three relay options:
+
+- Free relay (shared): available by default, ideal for fast onboarding and lightweight validation.
+- Dedicated relay: for paid teams that need tighter latency, capacity, isolation, and stability.
+- User-managed relay: customer-operated DERP nodes for custom geography, network boundaries, or compliance.
+
+Recommended progression:
+
+1. Start with free shared relay for initial rollout and path verification.
+2. Move to dedicated relay when traffic volume or SLA requirements grow.
+3. Add user-managed relay when compliance or strict network boundaries are required.
 
 ## Recommended deployment models
 
 ### SaaS control plane
 
-Best for most teams that need fast onboarding with managed tenant, policy, audit, and operations capabilities.
+Best for fast onboarding for both individuals and teams, with managed account/tenant, policy, audit, and operations capabilities.
 
 ### SaaS + dedicated relay
 
-Best for teams that require tighter latency and capacity control while keeping SaaS control-plane operations.
+Best for paid users (individuals or teams) that require tighter latency, capacity, and fault-isolation control while keeping SaaS control-plane operations.
 
 ### SaaS + user-managed relay
 
-Best for teams that need custom geography, network boundaries, or compliance placement.
+Best for users who need custom geography, network boundaries, or compliance placement.
 
 ## Planning checklist
 
@@ -39,30 +58,35 @@ Best for teams that need custom geography, network boundaries, or compliance pla
 
 ## Configuration example
 
-```yaml
-deployment:
-  controlPlane: saas
-  tenantStrategy: by-customer
-relay:
-  mode: custom
-  nodes:
-    - name: cn-east-relay-1
-      endpoint: relay-a.example.com:443
-    - name: eu-central-relay-1
-      endpoint: relay-b.example.com:443
-acl:
-  baseline: least-privilege
-  approval: required-for-privileged-targets
-stability:
-  healthCheck: enabled
-  autoFailover: enabled
-agent:
-  lowMemoryProfile: enabled
-  silentMode: enabled
+Example DERP JSON for tenant `t01`:
+
+```json
+{
+  "omitDefaultRegions": false,
+  "regions": {
+    "903": {
+      "regionID": 903,
+      "avoid": false,
+      "regionCode": "t01",
+      "regionName": "Tenant t01 DERP",
+      "nodes": [
+        {
+          "ipv4": "18.138.241.18",
+          "name": "t01-903a",
+          "hostName": "derper.example.com",
+          "regionID": 903,
+          "derpport": 8088,
+          "stunport": 3478
+        }
+      ]
+    }
+  }
+}
 ```
 
 ## Rollout guidance
 
-- Template one tenant first, then replicate safely
+- For individual users, start with one tenant, one relay region, and one validated ACL path
+- For teams, template one tenant first, then replicate safely
 - Standardize ACL and audit before scaling device count
 - Validate failover for user-managed relay before production
