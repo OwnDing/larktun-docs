@@ -1,58 +1,91 @@
 ---
 title: 快速开始
-description: 用最短路径完成租户开通、ACL 生效与首条访问链路验证。
+description: 按控制台页面完成首轮接入、权限与中继配置。
 sidebar_position: 1
 ---
 
 # 快速开始
 
-本页帮助你在最短时间内完成一次有效验证：创建租户、配置独立 ACL、选择中继方式并验证稳定访问。
+本页帮助你在第一次使用云雀通时，按控制台页面完成一轮完整配置：设备接入、路由审批、用户管理、访问控制、中继设置与个人信息核对。
+
+> 下方截图均使用 `webp` 格式，减少带宽占用并加快文档加载。
 
 ## 前置准备
 
 - 一个可用的 Larktun 账号
-- 至少一台待接入设备（电脑、服务器或跳板机）
-- 一个要访问的目标服务（SSH、RDP、VNC 或内部 Web）
-- 如需自建中继，提前准备一台公网可达主机
+- 至少 1 台待接入设备（桌面、服务器或网关）
+- 已创建租户（或工作空间）
+- 如需自建中继，准备一台公网可达主机
 
-## 推荐路径
+## 1. Nodes：管理设备
 
-1. 创建首个租户（或工作空间），确认租户边界。
-2. 接入首批设备，确认设备在线。
-3. 配置该租户的 ACL 基线策略（最小权限优先）。
-4. 选择中继模式：共享、专用或自建。
-5. 发起首次访问验证并观察连通性。
-6. 检查审计日志、策略命中和会话稳定性。
-7. 在客户端观察内存占用，确认可长期后台运行。
+`nodes` 页面用于查看当前用户名下设备。免费用户默认可管理 **5 台免费设备**。
 
-## 示例配置（示意）
+在这里你可以：
 
-```yaml
-tenant: engineering-prod
-network:
-  isolation: enabled
-  relayMode: custom
-  customRelay:
-    endpoint: relay.example.com:443
-acl:
-  default: deny
-  rules:
-    - subject: group:devops
-      action: allow
-      resource: tag:build-node
-      window: workhours
-session:
-  autoReconnect: true
-agent:
-  lowMemoryProfile: enabled
-  runInBackground: true
-audit:
-  sessionLogs: enabled
-  securityEvents: enabled
-```
+- 查看设备状态与基础信息
+- 删除不再使用的设备
+- 重命名设备名称
+
+初始设备名称通常使用 `HOSTNAME`，不利于记忆，建议按用途重命名，例如 `dev-macbook`、`prod-gateway`。
+
+![Nodes 页面（设备信息、删除、重命名）](/img/view/nodes.webp)
+
+## 2. Routers：批准子网路由
+
+`routers` 页面用于处理子网路由审批。若某台设备需要作为子网出口，需在此批准对应路由。
+
+建议做法：
+
+- 仅批准明确需要暴露的子网段
+- 路由变更后立即做连通性验证
+
+![Routers 页面（子网路由审批）](/img/view/routers.webp)
+
+## 3. Users：查看租户用户
+
+`users` 页面显示该租户内的全部用户，方便你核对成员范围与权限归属。
+
+建议做法：
+
+- 定期检查是否有无效账号
+- 团队变更时及时更新用户
+
+![Users 页面（租户内用户列表）](/img/view/users.webp)
+
+## 4. ACLs：配置访问控制
+
+`acls` 页面用于定义设备之间的访问规则，支持灵活控制“谁可以访问谁”。
+
+界面能力包括：
+
+- 内置多种 ACL 模板，便于快速落地
+- 图形化编辑，适合日常运维操作
+- JSON 编辑模式，适合资深用户精细化管理
+
+建议先用模板建立最小权限策略，再按业务逐步放开。
+
+![ACLs 页面（图形化与 JSON 双模式）](/img/view/acls.webp)
+
+## 5. Derper：配置中继服务器
+
+`derper` 页面用于管理中继服务器配置：
+
+- 支持使用平台默认中继
+- 支持接入用户自建中继服务器
+- 付费用户可看到 VIP 专用服务器
+- 同时支持图形化配置与 JSON 编辑
+
+![Derper 页面（中继服务器配置）](/img/view/derper.webp)
+
+## 6. Me：个人中心
+
+`me` 页面用于展示个人信息与账号基础资料，可用于确认当前登录身份。
+
+![Me 页面（个人信息）](/img/view/me.webp)
 
 ## 完成后建议
 
-- 继续阅读 [部署方式与配置](./install-and-configure)
-- 继续阅读 [开通第一条安全访问链路](./publish-your-first-service)
-- 出现异常时查看 [问题处理](../troubleshooting/common-issues)
+1. 在 `nodes` 中挑选两台设备，按 `acls` 放行一条最小权限访问规则并立即验证。
+2. 若跨地域访问延迟较高，在 `derper` 中切换到更近的中继或接入自建中继。
+3. 出现异常时查看 [问题处理](../troubleshooting/common-issues)。

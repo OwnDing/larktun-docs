@@ -1,58 +1,91 @@
 ---
 title: Quick Start
-description: Validate tenant onboarding, ACL enforcement, and first secure path in the shortest flow.
+description: Complete first-time onboarding through the console pages.
 sidebar_position: 1
 ---
 
 # Quick Start
 
-This page helps you complete one effective first validation: create a tenant, apply tenant ACL, choose relay mode, and verify stable access.
+This page walks through your first full setup in the Larktun console: device onboarding, route approval, user visibility, access policy, relay configuration, and profile verification.
+
+> All screenshots below are in `webp` format to reduce bandwidth and speed up page loading.
 
 ## Prerequisites
 
 - An active Larktun account
-- At least one device to onboard (laptop, server, or bastion)
-- A target service to reach (SSH, RDP, VNC, or internal web)
+- At least one device to onboard (desktop, server, or gateway)
+- A created tenant (or workspace)
 - If using user-managed relay, one publicly reachable host
 
-## Recommended flow
+## 1. Nodes: Manage devices
 
-1. Create your first tenant (or workspace) and confirm the boundary.
-2. Onboard initial devices and confirm online state.
-3. Configure tenant ACL baseline (least privilege first).
-4. Select relay mode: shared, dedicated, or user-managed.
-5. Run the first access validation and confirm connectivity.
-6. Verify audit logs, ACL decisions, and session stability.
-7. Observe client memory profile for long-running background use.
+The `nodes` page shows devices under the current user. Free users can manage **up to 5 free devices** by default.
 
-## Example configuration (illustrative)
+You can:
 
-```yaml
-tenant: engineering-prod
-network:
-  isolation: enabled
-  relayMode: custom
-  customRelay:
-    endpoint: relay.example.com:443
-acl:
-  default: deny
-  rules:
-    - subject: group:devops
-      action: allow
-      resource: tag:build-node
-      window: workhours
-session:
-  autoReconnect: true
-agent:
-  lowMemoryProfile: enabled
-  runInBackground: true
-audit:
-  sessionLogs: enabled
-  securityEvents: enabled
-```
+- View device status and details
+- Remove unused devices
+- Rename device display names
 
-## After validation
+Initial names are usually based on `HOSTNAME`, which is hard to remember. Rename them to meaningful names like `dev-macbook` or `prod-gateway`.
 
-- Continue with [Deployment Modes and Configuration](./install-and-configure)
-- Continue with [Create Your First Secure Access Path](./publish-your-first-service)
-- If issues appear, open [Troubleshooting](../troubleshooting/common-issues)
+![Nodes page (device details, remove, rename)](/img/view/nodes.webp)
+
+## 2. Routers: Approve subnet routes
+
+Use the `routers` page to approve subnet routes. If a node should advertise a subnet, approve it here.
+
+Recommended practice:
+
+- Approve only the subnets that are explicitly required
+- Validate connectivity right after route changes
+
+![Routers page (subnet route approval)](/img/view/routers.webp)
+
+## 3. Users: Tenant member visibility
+
+The `users` page lists all users in the tenant so you can verify membership and ownership clearly.
+
+Recommended practice:
+
+- Review stale accounts regularly
+- Update users promptly when team membership changes
+
+![Users page (tenant user list)](/img/view/users.webp)
+
+## 4. ACLs: Access control policy
+
+The `acls` page controls which devices can access which targets.
+
+Built-in capabilities:
+
+- Several ACL templates for fast setup
+- Visual editor for daily operations
+- JSON editor for advanced users
+
+Start from a least-privilege template, then open access incrementally for real workloads.
+
+![ACLs page (visual + JSON editing)](/img/view/acls.webp)
+
+## 5. Derper: Relay server configuration
+
+Use the `derper` page to manage relay servers:
+
+- Use platform default relays
+- Bring your own relay servers
+- Paid users can access VIP dedicated relay servers
+- Both visual configuration and JSON editing are available
+
+![Derper page (relay server settings)](/img/view/derper.webp)
+
+## 6. Me: Personal center
+
+The `me` page shows your personal profile and account details for identity confirmation.
+
+![Me page (personal profile)](/img/view/me.webp)
+
+## Next steps
+
+1. Pick two nodes and validate one least-privilege ACL path immediately.
+2. If cross-region latency is high, switch relay region or connect your own relay in `derper`.
+3. If anything looks off, go to [Troubleshooting](../troubleshooting/common-issues).
