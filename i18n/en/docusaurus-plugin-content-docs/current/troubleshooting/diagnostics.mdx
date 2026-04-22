@@ -1,37 +1,52 @@
 ---
 title: Diagnostics
-description: A standard troubleshooting workflow for tenant ACL, relay paths, and runtime stability.
+description: A practical user-side troubleshooting flow to quickly isolate connection and access issues.
 sidebar_position: 2
 ---
 
 # Diagnostics
 
-Use a fixed diagnostic flow to avoid repeated trial-and-error.
+If you see access failure, denial, latency, or disconnects, follow this order. In most cases, you can isolate the issue direction in about 10 minutes.
 
-## Step 1: confirm scope
+## Step 1: confirm device online state
 
-- Is the issue limited to one tenant?
-- Is it tied to a specific ACL rule set or device category?
-- Is it isolated to a relay node or region?
+1. In `Nodes`, confirm source device is online.
+2. In `Nodes`, confirm target device is online.
+3. Verify device names to avoid selecting stale or similarly named nodes.
 
-## Step 2: collect key signals
+If a device is offline, fix that first before moving on.
 
-- Tenant ID, policy version, and ACL decision records
-- Relay mode (shared/dedicated/user-managed) and node health
-- Session latency, reconnect count, and failure timestamps
-- Client memory usage and background runtime state
+## Step 2: confirm ACL allow rules
 
-## Step 3: troubleshoot by layer
+1. In `ACLs`, confirm the subject is your account or expected user group.
+2. Confirm target device is correct.
+3. Confirm protocol and port match your real request.
 
-Inspect in order: identity validation -> ACL evaluation -> relay path -> destination service. Avoid changing multiple variables at once.
+If ACL was just updated, wait a few seconds and retry.
 
-## Step 4: document and harden
+## Step 3: confirm subnet routing (if subnet is involved)
 
-Record root cause, short-term mitigation, long-term fix, and update tenant templates plus alerting rules.
+1. In `Routers`, confirm subnet route approval status.
+2. Verify the subnet range is correct.
+3. Retry the subnet endpoint.
 
-## Suggested report template
+## Step 4: confirm relay path
 
-- Impact scope: tenant / user group / device tags
-- Root-cause class: policy, network, relay, endpoint, destination
-- Remediation: immediate actions and follow-up actions
-- Regression checks: stability, low footprint, non-intrusive behavior
+1. Free shared relay is already available by default for all users.
+2. If you need lower latency or stronger stability, use dedicated relay.
+3. If you use user-managed relay, verify address and ports carefully.
+
+## Step 5: run one positive and one negative test
+
+1. Test with an authorized account and confirm success.
+2. Test with an unauthorized account/device and confirm denial.
+
+This quickly proves whether your policy behavior matches expectation.
+
+## Step 6: if unresolved, send this info to support
+
+- Time of issue
+- Account and tenant name
+- Source and target device names
+- Protocol and port
+- Steps already tested

@@ -1,6 +1,6 @@
 ---
 title: FAQ
-description: High-frequency questions about tenant isolation, ACL scope, relay control, and endpoint behavior.
+description: User-focused answers to common questions about permissions, relay usage, and day-to-day client experience.
 sidebar_position: 3
 ---
 
@@ -8,7 +8,11 @@ sidebar_position: 3
 
 ## Is Larktun SaaS or private deployment?
 
-Larktun is primarily delivered as SaaS for fast onboarding, and can be combined with dedicated or user-managed relay for stronger control needs.
+Larktun is a SaaS service. You can start directly with free shared relay, then use dedicated or user-managed relay only when needed.
+
+## Do I need to manually select free relay?
+
+No. Free shared relay is enabled by default for all users. You only need `Derper` changes for dedicated or user-managed relay.
 
 ## Can tenants see each other's devices?
 
@@ -18,9 +22,21 @@ No. Each tenant is an isolated network with separate device inventory, policy, a
 
 No. ACL is configured and enforced per tenant.
 
+## Can individuals use Larktun for personal NAS and dev workstations?
+
+Yes. Personal NAS, home devices, and personal dev workstation access are common use cases.
+
 ## Can I run my own relay servers?
 
 Yes. User-managed relay is supported for region, performance, or compliance-specific requirements.
+
+## What is the easiest way to set up ACL for the first time?
+
+Use least scope first: one account (or one group), one target device, one protocol/port. Validate success, then expand gradually.
+
+## Why do I still fail even when device is online?
+
+Most often, subject, target, or port does not match in ACL. Check `ACLs` first. If subnet resources are involved, also check `Routers`.
 
 ## Does the client interrupt endpoint users?
 
@@ -28,4 +44,4 @@ The default target is a low-memory, background runtime designed to stay non-intr
 
 ## Why can cross-region sessions still be unstable sometimes?
 
-Typical causes include network jitter, relay overload, or destination-side resource pressure. Follow the diagnostics flow for layered isolation.
+Typical causes include network jitter, relay load, or destination-side resource pressure. Start with default free relay checks, then move to dedicated or user-managed relay when optimization is needed.

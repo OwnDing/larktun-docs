@@ -1,29 +1,110 @@
 ---
 title: Common Issues
-description: Focus on tenant ACL, relay reachability, client footprint, and stability problems.
+description: User-focused fixes for access denial, offline devices, latency, disconnects, and client runtime issues.
 sidebar_position: 1
 ---
 
 # Common Issues
 
-This page focuses on early-stage blockers: ACL denials, unavailable user-managed relay, abnormal client resource usage, and unstable sessions.
+This page is written for end users. It follows a simple pattern: what you see and what you can do next.
 
-## Access denied by ACL
+## Recommended troubleshooting order
 
-First verify the request is made in the correct tenant, then inspect ACL match status, grant expiration, and approval completion.
+1. Check `Nodes`: source and target devices are online.
+2. Check `ACLs`: subject, target, and port match your request.
+3. If subnet access is involved, check `Routers`.
+4. For latency/disconnects, then check `Derper`.
 
-## User-managed relay unavailable
+## 1. Access denied by ACL
 
-Validate relay endpoint and port, node health status, and network constraints such as firewall or certificate issues.
+What you may see:
 
-## Higher-than-expected client usage
+- Permission denied errors
+- Device is online but connection still fails
+- One user works but another user is denied
 
-Confirm low-memory profile is enabled and check for abnormal retry loops or excessive logging levels.
+What you can do:
 
-## Intermittent disconnects
+1. In `ACLs`, confirm subject is your current account or user group.
+2. Confirm target device is correct (not an old or similarly named node).
+3. Confirm protocol and port are correct (`SSH 22`, `HTTPS 443`, `RDP 3389`).
+4. If ACL was just changed, wait a few seconds and retry.
 
-Check network quality and relay path first, then verify reconnect behavior and destination host load.
+## 2. Device shows offline or cannot connect
 
-## End-user reports disruption
+What you may see:
 
-Confirm client mode is silent background runtime and review whether any unnecessary prompts or foreground interruptions are configured.
+- Target device offline in `Nodes`
+- Device briefly comes online then drops
+- Repeated connection timeout
+
+What you can do:
+
+1. On the target device, confirm client is signed in and not manually disconnected.
+2. Refresh `Nodes` and verify you selected the correct device name.
+3. Retry under another network path (for example Wi-Fi vs wired).
+4. If still offline, restart the target-side client and retry.
+
+## 3. Subnet resources unreachable (subnet scenarios only)
+
+What you may see:
+
+- You can reach the gateway node itself, but not devices behind it
+- Subnet IP connections fail
+
+What you can do:
+
+1. In `Routers`, confirm subnet route is approved.
+2. Verify subnet range is correct and not overlapping.
+3. Retry access to the subnet resource.
+
+## 4. High latency or intermittent disconnects
+
+What you may see:
+
+- Laggy remote desktop
+- Occasional SSH drops
+- Session quality changes over time
+
+What you can do:
+
+1. Confirm whether it happens mostly during network peak hours.
+2. Free shared relay is enabled by default for all users.
+3. If you need better latency/stability, use dedicated relay in `Derper`.
+4. If you need custom boundaries, configure user-managed relay in `Derper`.
+
+## 5. Higher-than-expected client usage or disruptions
+
+What you may see:
+
+- Higher CPU/memory usage than expected
+- Frequent popups or interruption feeling
+
+What you can do:
+
+1. Keep client running in background; avoid repeated manual reconnect loops.
+2. Close unnecessary foreground windows and duplicated sessions.
+3. In Settings, enable quieter runtime behavior (such as minimize to tray).
+
+## 6. User-managed relay unavailable (user-managed relay only)
+
+What you may see:
+
+- User-managed relay node unreachable
+- Connection quality gets worse after relay change
+
+What you can do:
+
+1. In `Derper`, verify `hostName`, `ipv4`, `derpport`, and `stunport`.
+2. Temporarily switch back to default free relay and re-test.
+3. After baseline recovery, re-check user-managed relay config item by item.
+
+## When to contact support
+
+If the issue remains, share these details for faster help:
+
+- Time of issue
+- Your account and tenant name
+- Source and target device names
+- Protocol and port
+- Steps you already tried
