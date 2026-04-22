@@ -1,0 +1,85 @@
+---
+slug: headscale-stress-test
+title: "headscale 系列：headscale 压力测试"
+authors: [ownding]
+tags: [headscale, 压测, docker, tailscale]
+---
+
+这篇文章整理了 `headscale` 在 200 客户端规模下的压测方法，包括环境建议、一键脚本、抖动测试和流量抽样流程。
+
+原文链接：
+[headscale系列：headsale压力测试](https://ownding.com/2025/09/28/headscale%E7%B3%BB%E5%88%97%EF%BC%9Aheadsale%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/)
+
+{/* truncate */}
+
+## 压测脚本
+
+- 脚本仓库：
+  [OwnDing/headscale-test-scripts](https://github.com/OwnDing/headscale-test-scripts.git)
+
+## 快速使用流程
+
+```bash
+# 1) 准备配置
+cp .env.example .env
+
+# 2) 环境检查
+bash scripts/00_check_env.sh
+
+# 3) 拉起客户端（默认 200）
+bash scripts/01_bootstrap_up.sh
+
+# 4) 导出节点列表
+bash scripts/02_list_nodes.sh
+
+# 5) 抖动测试（终端 A）
+bash scripts/03_churn.sh
+
+# 6) 流量抽样（终端 B）
+watch -n 20 'bash scripts/04_traffic_round.sh'
+
+# 7) 清理
+bash scripts/99_cleanup.sh
+```
+
+## 关键环境变量
+
+```bash
+HEADSCALE_URL=https://headscale.example.com
+TS_AUTHKEY=tskey-auth-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+REPLICAS=200
+CHURN_INTERVAL=30
+CHURN_BATCH_PERCENT=10
+TRAFFIC_PAIR_COUNT=30
+TRAFFIC_TCP_DURATION=10
+TRAFFIC_TCP_PARALLEL=4
+TRAFFIC_UDP_DURATION=10
+TRAFFIC_UDP_BW=50M
+```
+
+## 推荐机器规格（200 设备）
+
+- 发压端：16 vCPU / 32 GB / 100 GB NVMe
+- 被测 headscale：4 vCPU / 8 GB / 100 GB
+- 可选 DERP：2-4 vCPU / 2-4 GB
+
+## 脚本职责速览
+
+- `00_check_env.sh`：检查 docker/compose/tun 并预拉镜像。
+- `01_bootstrap_up.sh`：按 `REPLICAS` 启动客户端容器。
+- `02_list_nodes.sh`：导出 `nodes.tsv`（容器名与 Tailnet IPv4）。
+- `03_churn.sh`：周期性随机 `up/down/restart`，模拟不稳定网络与节点波动。
+- `04_traffic_round.sh`：随机成对做 TCP/UDP 压力抽样。
+- `99_cleanup.sh`：停止并清理测试容器与 sidecar。
+
+## 测试结果截图
+
+![200 clients online](/img/blog/headscale/stress-test/clients.webp)
+![headscale cpu usage](/img/blog/headscale/stress-test/cpus.webp)
+![client memory usage](/img/blog/headscale/stress-test/mems.webp)
+
+---
+
+本文已同步到 Larktun 博客，原始内容与更新请以原文为准：
+[headscale系列：headsale压力测试](https://ownding.com/2025/09/28/headscale%E7%B3%BB%E5%88%97%EF%BC%9Aheadsale%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/)

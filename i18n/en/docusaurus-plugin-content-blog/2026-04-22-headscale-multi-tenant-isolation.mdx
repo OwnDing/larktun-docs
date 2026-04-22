@@ -1,0 +1,62 @@
+---
+slug: headscale-multi-tenant-isolation
+title: "Headscale Multi-Tenant Transformation: Full Isolation for ACL, Routes, DNS, and More"
+authors: [ownding]
+tags: [headscale, multi-tenant, ACL, SaaS]
+---
+
+This post shows practical outcomes of transforming single-instance `headscale` into a multi-tenant model with isolation across tailnet, ACL, routes, DNS, CLI operations, and relay strategy.
+
+Original post:
+[headscale多租户改造，ACL、路由、DNS等全隔离](https://ownding.com/2026/04/22/headscale%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%94%B9%E9%80%A0%EF%BC%8CACL%E3%80%81%E8%B7%AF%E7%94%B1%E3%80%81DNS%E7%AD%89%E5%85%A8%E9%9A%94%E7%A6%BB/)
+
+{/* truncate */}
+
+## Transformation Goals
+
+Headscale is originally single-instance and effectively single-tailnet by default. Multi-tenant support requires strict per-tenant isolation for:
+
+- tailnet address spaces
+- ACL policies
+- route definitions
+- MagicDNS namespaces
+- CLI management flow
+- relay server strategy
+
+## Key Points
+
+### Tailnet
+
+- Each tenant has an independent tailnet.
+- Default pool `10.64.0.0/10` can remain, or be customized (for example `192.168.6.0/24`).
+- A built-in `default` tenant keeps backward-compatible behavior.
+
+### ACL and Routes
+
+- ACL policies are fully tenant-scoped.
+- Route configs are tenant-scoped as well.
+
+### MagicDNS
+
+- FQDN pattern: `hostname.<tenant_key>.<dns.base_domain>`.
+- The `default` tenant uses `default` as subdomain.
+
+### CLI
+
+- CLI commands add tenant targeting (for example `-t`).
+
+### Relay Servers
+
+- Tenants can share relay infra.
+- Or each tenant can use dedicated relay nodes for stronger isolation.
+
+## Example Screenshots
+
+![users with tenant](/img/blog/headscale/multi-tenant/user-t.webp)
+![nodes overview](/img/blog/headscale/multi-tenant/node.webp)
+![nodes with tenant](/img/blog/headscale/multi-tenant/node-t.webp)
+
+---
+
+This article is mirrored on the Larktun blog. For source updates and original context, refer to:
+[headscale多租户改造，ACL、路由、DNS等全隔离](https://ownding.com/2026/04/22/headscale%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%94%B9%E9%80%A0%EF%BC%8CACL%E3%80%81%E8%B7%AF%E7%94%B1%E3%80%81DNS%E7%AD%89%E5%85%A8%E9%9A%94%E7%A6%BB/)

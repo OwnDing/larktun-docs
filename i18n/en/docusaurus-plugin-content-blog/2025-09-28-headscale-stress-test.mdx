@@ -1,0 +1,85 @@
+---
+slug: headscale-stress-test
+title: "Headscale Series: Headscale Stress Testing"
+authors: [ownding]
+tags: [headscale, stress-test, docker, tailscale]
+---
+
+This article documents a practical stress-test workflow for `headscale` at around 200 concurrent clients, including environment sizing, bootstrap scripts, churn tests, and traffic sampling.
+
+Original post:
+[headscale系列：headsale压力测试](https://ownding.com/2025/09/28/headscale%E7%B3%BB%E5%88%97%EF%BC%9Aheadsale%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/)
+
+{/* truncate */}
+
+## Test Scripts
+
+- Repository:
+  [OwnDing/headscale-test-scripts](https://github.com/OwnDing/headscale-test-scripts.git)
+
+## Quick Runbook
+
+```bash
+# 1) Prepare env
+cp .env.example .env
+
+# 2) Validate host environment
+bash scripts/00_check_env.sh
+
+# 3) Bootstrap clients (default 200)
+bash scripts/01_bootstrap_up.sh
+
+# 4) Export node list
+bash scripts/02_list_nodes.sh
+
+# 5) Churn test (terminal A)
+bash scripts/03_churn.sh
+
+# 6) Traffic rounds (terminal B)
+watch -n 20 'bash scripts/04_traffic_round.sh'
+
+# 7) Cleanup
+bash scripts/99_cleanup.sh
+```
+
+## Key Environment Variables
+
+```bash
+HEADSCALE_URL=https://headscale.example.com
+TS_AUTHKEY=tskey-auth-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+REPLICAS=200
+CHURN_INTERVAL=30
+CHURN_BATCH_PERCENT=10
+TRAFFIC_PAIR_COUNT=30
+TRAFFIC_TCP_DURATION=10
+TRAFFIC_TCP_PARALLEL=4
+TRAFFIC_UDP_DURATION=10
+TRAFFIC_UDP_BW=50M
+```
+
+## Recommended Sizing (200 devices)
+
+- Load generator: 16 vCPU / 32 GB / 100 GB NVMe
+- Headscale control plane target: 4 vCPU / 8 GB / 100 GB
+- Optional DERP relay: 2-4 vCPU / 2-4 GB
+
+## Script Roles
+
+- `00_check_env.sh`: validate docker/compose/tun and pre-pull images.
+- `01_bootstrap_up.sh`: scale client containers to `REPLICAS`.
+- `02_list_nodes.sh`: export `nodes.tsv` (container -> Tailnet IPv4).
+- `03_churn.sh`: periodic random `up/down/restart`.
+- `04_traffic_round.sh`: random TCP/UDP pair traffic rounds.
+- `99_cleanup.sh`: stop and remove test containers and sidecars.
+
+## Result Screenshots
+
+![200 clients online](/img/blog/headscale/stress-test/clients.webp)
+![headscale cpu usage](/img/blog/headscale/stress-test/cpus.webp)
+![client memory usage](/img/blog/headscale/stress-test/mems.webp)
+
+---
+
+This article is mirrored on the Larktun blog. For source updates and original context, refer to:
+[headscale系列：headsale压力测试](https://ownding.com/2025/09/28/headscale%E7%B3%BB%E5%88%97%EF%BC%9Aheadsale%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/)

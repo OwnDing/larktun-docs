@@ -1,0 +1,62 @@
+---
+slug: headscale-multi-tenant-isolation
+title: "headscale 多租户改造：ACL、路由、DNS 等全隔离"
+authors: [ownding]
+tags: [headscale, 多租户, ACL, SaaS]
+---
+
+这篇文章展示在单实例 `headscale` 中实现多租户隔离的改造结果，重点覆盖 `tailnet`、ACL、路由、MagicDNS、CLI 和中继策略。
+
+原文链接：
+[headscale多租户改造，ACL、路由、DNS等全隔离](https://ownding.com/2026/04/22/headscale%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%94%B9%E9%80%A0%EF%BC%8CACL%E3%80%81%E8%B7%AF%E7%94%B1%E3%80%81DNS%E7%AD%89%E5%85%A8%E9%9A%94%E7%A6%BB/)
+
+{/* truncate */}
+
+## 改造目标
+
+原始 headscale 默认是单实例、单 tailnet。多租户化的关键是把下面能力全部按租户隔离：
+
+- tailnet 地址空间
+- ACL 规则
+- 路由配置
+- MagicDNS 命名空间
+- CLI 管理入口
+- 中继服务策略
+
+## 关键点
+
+### tailnet
+
+- 每个租户独立 tailnet。
+- 地址池可保持默认 `10.64.0.0/10`，也可以按租户自定义（例如 `192.168.6.0/24`）。
+- 保留 `default` 租户，兼容原有单租户使用习惯。
+
+### ACL / 路由
+
+- ACL 按租户独立维护。
+- 路由按租户独立配置与生效。
+
+### MagicDNS
+
+- FQDN 格式：`hostname.<tenant_key>.<dns.base_domain>`。
+- `default` 租户使用 `default` 子域名。
+
+### CLI
+
+- 命令行增加租户参数（例如 `-t` 指定租户）。
+
+### 中继服务器
+
+- 可选择共享中继。
+- 也可为租户分配独立中继，实现更强隔离。
+
+## 示例截图
+
+![users with tenant](/img/blog/headscale/multi-tenant/user-t.webp)
+![nodes overview](/img/blog/headscale/multi-tenant/node.webp)
+![nodes with tenant](/img/blog/headscale/multi-tenant/node-t.webp)
+
+---
+
+本文已同步到 Larktun 博客，原始内容与更新请以原文为准：
+[headscale多租户改造，ACL、路由、DNS等全隔离](https://ownding.com/2026/04/22/headscale%E5%A4%9A%E7%A7%9F%E6%88%B7%E6%94%B9%E9%80%A0%EF%BC%8CACL%E3%80%81%E8%B7%AF%E7%94%B1%E3%80%81DNS%E7%AD%89%E5%85%A8%E9%9A%94%E7%A6%BB/)

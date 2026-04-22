@@ -1,0 +1,77 @@
+---
+slug: headscale-cluster-infinite-scale
+title: "Headscale Series: Build a Headscale Cluster for Near-Unlimited Device Onboarding"
+authors: [ownding]
+tags: [headscale, cluster, SaaS, scalability]
+---
+
+This post explains how to evolve `headscale` from a monolith into a near linearly scalable cluster using `cluster_id` sharding, shared PostgreSQL, an admission/control service (ACS), strict query isolation, and incremental netmap rebuilds.
+
+Original post:
+[headscale 系列：组建 headscale 集群，把设备接入能力做成“无限接近无限”](https://ownding.com/2025/10/01/headscale-%E7%B3%BB%E5%88%97%EF%BC%9A%E7%BB%84%E5%BB%BA-headscale-%E9%9B%86%E7%BE%A4%EF%BC%8C%E6%8A%8A%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E8%83%BD%E5%8A%9B%E5%81%9A%E6%88%90%E2%80%9C%E6%97%A0%E9%99%90%E6%8E%A5%E8%BF%91%E6%97%A0%E9%99%90%E2%80%9D/)
+
+{/* truncate */}
+
+## Core Takeaway
+
+These building blocks move headscale toward a SaaS-style control plane:
+
+- `cluster_id` logical sharding
+- Shared PG/PG cluster
+- ACS for tenant assignment and sticky routing
+- Mandatory `cluster_id` filtering in DAO/ORM
+- Incremental netmap calculation instead of full rebuilds
+
+## Architecture Highlights
+
+1. Multiple `headscale` nodes run in parallel, each bound to a unique `cluster_id`.
+2. All nodes share one database layer, but every query must include `cluster_id`.
+3. ACS handles first-time assignment, policy constraints, and balancing.
+4. LISTEN/NOTIFY + debounce limits netmap recomputation scope and CPU impact.
+
+## Startup Example
+
+```bash
+CLUSTER_ID=A \
+PG_DSN="postgres://..." \
+DERP_MAP_URL="https://derp.example.com/map.json" \
+./headscale --config ./config.yaml
+```
+
+## Isolation Snippets
+
+```sql
+ALTER TABLE nodes ADD COLUMN cluster_id TEXT NOT NULL DEFAULT 'default';
+CREATE INDEX idx_nodes_cluster_id ON nodes(cluster_id);
+```
+
+```go
+func (c *ClusterDB) Scoped() *gorm.DB {
+  return c.db.Where("cluster_id = ?", c.clusterID)
+}
+```
+
+## Incremental Netmap Strategy
+
+- On data changes, emit `NOTIFY netmap_dirty(cluster_id, scope_key)`.
+- Each node consumes only matching `cluster_id` events.
+- Rebuild only affected scope (`user/tag/route domain`) rather than full sets.
+- Add caching + versioning to minimize redundant computation.
+
+## Demo Screenshots
+
+![cluster id 1 nodes](/img/blog/headscale/cluster-scale/h1.webp)
+![cluster id 2 nodes](/img/blog/headscale/cluster-scale/h2.webp)
+![users table](/img/blog/headscale/cluster-scale/user.webp)
+![nodes table](/img/blog/headscale/cluster-scale/nodes.webp)
+![preauth keys table](/img/blog/headscale/cluster-scale/keys.webp)
+
+## Related Link
+
+- Project:
+  [OwnDing/headscale-saas](https://github.com/OwnDing/headscale-saas)
+
+---
+
+This article is mirrored on the Larktun blog. For source updates and original context, refer to:
+[headscale 系列：组建 headscale 集群，把设备接入能力做成“无限接近无限”](https://ownding.com/2025/10/01/headscale-%E7%B3%BB%E5%88%97%EF%BC%9A%E7%BB%84%E5%BB%BA-headscale-%E9%9B%86%E7%BE%A4%EF%BC%8C%E6%8A%8A%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E8%83%BD%E5%8A%9B%E5%81%9A%E6%88%90%E2%80%9C%E6%97%A0%E9%99%90%E6%8E%A5%E8%BF%91%E6%97%A0%E9%99%90%E2%80%9D/)

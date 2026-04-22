@@ -1,0 +1,68 @@
+---
+slug: headscale-magicdns
+title: "Headscale Series: Using MagicDNS in Headscale"
+authors: [ownding]
+tags: [headscale, MagicDNS, DNS]
+---
+
+This post walks through enabling `MagicDNS` in `headscale`, plus practical usage of `extra-records.json` so clients can reach devices by hostname instead of memorizing raw IP addresses.
+
+Original post:
+[headscale系列：如何在headscale中使用MagicDNS](https://ownding.com/2025/08/14/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%9C%A8headscale%E4%B8%AD%E4%BD%BF%E7%94%A8MagicDNS/)
+
+{/* truncate */}
+
+## Scenario
+
+- After login, clients can communicate with peers using hostnames in addition to IP.
+- On Windows, `tailscale` writes host mappings into the system `hosts` file.
+- This is especially useful when using features like `4via6`.
+
+## Enable MagicDNS
+
+Update your `config.yaml` (core options shown below):
+
+```yaml
+dns:
+  magic_dns: true
+  base_domain: example.com
+  override_local_dns: false
+
+  nameservers:
+    global:
+      - 1.1.1.1
+      - 1.0.0.1
+
+  search_domains: []
+  extra_records_path: /var/lib/headscale/extra-records.json
+```
+
+Using `extra_records_path` makes DNS record updates easier to maintain.
+
+## extra-records.json Example
+
+```json
+[
+  {
+    "name": "192-168-6-1-via-7",
+    "type": "AAAA",
+    "value": "fd7a:115c:a1e0:b1a:0:7:c0a8:601"
+  }
+]
+```
+
+- `type` supports `A` (IPv4) and `AAAA` (IPv6).
+- On first migration from inline `extra_records` to file-based records, one restart is recommended.
+- After that, changing `extra-records.json` is usually enough.
+
+## Usage
+
+After clients come online, you can access target services by the custom DNS name.
+
+![route table update](/img/blog/headscale/magicdns/route.webp)
+![magicdns query example](/img/blog/headscale/magicdns/dns.webp)
+
+---
+
+This article is mirrored on the Larktun blog. For source updates and original context, refer to:
+[headscale系列：如何在headscale中使用MagicDNS](https://ownding.com/2025/08/14/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%9C%A8headscale%E4%B8%AD%E4%BD%BF%E7%94%A8MagicDNS/)

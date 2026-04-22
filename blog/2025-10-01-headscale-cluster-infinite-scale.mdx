@@ -1,0 +1,77 @@
+---
+slug: headscale-cluster-infinite-scale
+title: "headscale 系列：组建 headscale 集群，把设备接入能力做成“无限接近无限”"
+authors: [ownding]
+tags: [headscale, 集群, SaaS, 扩展]
+---
+
+这篇文章分享 `headscale` 从单体到可线性扩展集群的核心改造路径：`cluster_id` 分片、共享 PostgreSQL、接入控制程序（ACS）、查询隔离与 netmap 增量化。
+
+原文链接：
+[headscale 系列：组建 headscale 集群，把设备接入能力做成“无限接近无限”](https://ownding.com/2025/10/01/headscale-%E7%B3%BB%E5%88%97%EF%BC%9A%E7%BB%84%E5%BB%BA-headscale-%E9%9B%86%E7%BE%A4%EF%BC%8C%E6%8A%8A%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E8%83%BD%E5%8A%9B%E5%81%9A%E6%88%90%E2%80%9C%E6%97%A0%E9%99%90%E6%8E%A5%E8%BF%91%E6%97%A0%E9%99%90%E2%80%9D/)
+
+{/* truncate */}
+
+## 核心结论
+
+通过以下组合，可以把 headscale 逐步改造成接近 SaaS 形态的控制面：
+
+- `cluster_id` 逻辑分片
+- 共享 PG/PG 集群
+- 接入控制程序（ACS）做分配与黏住
+- DAO/ORM 层强制查询隔离
+- netmap 计算从全量转为增量
+
+## 架构要点
+
+1. 多个 `headscale` 节点并行运行，每个节点绑定独立 `cluster_id`。
+2. 所有节点共享数据库，但查询必须显式包含 `cluster_id`。
+3. ACS 负责首次接入分配、配额策略、区域与负载选择、租户黏住。
+4. 配合 LISTEN/NOTIFY + 去抖合并，让 netmap 重建聚焦到受影响范围。
+
+## 启动示例
+
+```bash
+CLUSTER_ID=A \
+PG_DSN="postgres://..." \
+DERP_MAP_URL="https://derp.example.com/map.json" \
+./headscale --config ./config.yaml
+```
+
+## 数据与查询隔离示例
+
+```sql
+ALTER TABLE nodes ADD COLUMN cluster_id TEXT NOT NULL DEFAULT 'default';
+CREATE INDEX idx_nodes_cluster_id ON nodes(cluster_id);
+```
+
+```go
+func (c *ClusterDB) Scoped() *gorm.DB {
+  return c.db.Where("cluster_id = ?", c.clusterID)
+}
+```
+
+## netmap 增量化思路
+
+- 变更写入后触发 `NOTIFY netmap_dirty(cluster_id, scope_key)`。
+- 节点只消费本 `cluster_id` 事件。
+- 按 `scope_key`（用户、tag、路由域）做增量重建与推送。
+- 引入缓存与版本号，避免重复全量构建。
+
+## 演示截图
+
+![cluster id 1 nodes](/img/blog/headscale/cluster-scale/h1.webp)
+![cluster id 2 nodes](/img/blog/headscale/cluster-scale/h2.webp)
+![users table](/img/blog/headscale/cluster-scale/user.webp)
+![nodes table](/img/blog/headscale/cluster-scale/nodes.webp)
+![preauth keys table](/img/blog/headscale/cluster-scale/keys.webp)
+
+## 相关链接
+
+- 项目地址：
+  [OwnDing/headscale-saas](https://github.com/OwnDing/headscale-saas)
+
+---
+
+本文已同步到 Larktun 博客，原始内容与更新请以原文为准：
+[headscale 系列：组建 headscale 集群，把设备接入能力做成“无限接近无限”](https://ownding.com/2025/10/01/headscale-%E7%B3%BB%E5%88%97%EF%BC%9A%E7%BB%84%E5%BB%BA-headscale-%E9%9B%86%E7%BE%A4%EF%BC%8C%E6%8A%8A%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E8%83%BD%E5%8A%9B%E5%81%9A%E6%88%90%E2%80%9C%E6%97%A0%E9%99%90%E6%8E%A5%E8%BF%91%E6%97%A0%E9%99%90%E2%80%9D/)
