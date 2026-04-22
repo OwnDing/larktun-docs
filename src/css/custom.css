@@ -99,3 +99,27 @@ h6,
 .theme-doc-markdown > h4 {
   scroll-margin-top: 5.5rem;
 }
+
+/* Keep desktop-client screenshots visually consistent in docs */
+.desktop-client-manual img {
+  display: block;
+  width: min(100%, 760px) !important;
+  height: auto;
+  margin: 1rem auto 1.25rem;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.desktop-client-manual img.desktop-client-icon,
+.desktop-client-manual img[width='156'],
+.desktop-client-manual img[width='220'] {
+  width: min(100%, 240px) !important;
+}
+
+[data-theme='dark'] .desktop-client-manual img {
+  border-color: rgba(148, 163, 184, 0.38);
+  background: #0b1220;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.34);
+}
