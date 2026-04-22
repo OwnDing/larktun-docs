@@ -1,0 +1,158 @@
+---
+slug: headscale-build-from-source
+title: 使用 Headscale 源码自行编译打包
+authors: [ownding]
+tags: [headscale, 编译打包, WSL, Nix]
+---
+
+本文基于我在个人博客中的实践记录，介绍如何在 Windows + WSL2 + Ubuntu 环境下编译 Headscale 源码，并整理常见报错与处理方式。
+
+原文链接：
+[使用Headscale源码自行编译打包](https://ownding.com/2025/07/30/%E4%BD%BF%E7%94%A8Headscale%E6%BA%90%E7%A0%81%E8%87%AA%E8%A1%8C%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/)
+
+{/* truncate */}
+
+## 说明
+
+- 操作系统：Windows 11 + WSL2 Ubuntu 24.04 LTS
+- 示例版本：Headscale v0.26.1
+- 源码仓库：[github.com/juanfont/headscale](https://github.com/juanfont/headscale)
+- 建议使用 Git 克隆源码，不要直接下载压缩包
+
+## 环境准备
+
+### 1) 下载源码
+
+```bash
+git clone https://github.com/juanfont/headscale.git
+
+# 使用 v0.26.1 的 tag
+git checkout -b release-v0.26.1 v0.26.1
+```
+
+然后复制根目录下的 `config-example.yaml` 并重命名为 `config.yaml`。
+
+### 2) WSL 配置
+
+在 Windows 用户目录（例如 `C:\Users\XXX`）创建 `.wslconfig`：
+
+```ini
+[wsl2]
+nestedVirtualization=true
+ipv6=true
+
+[experimental]
+autoMemoryReclaim=gradual
+networkingMode=mirrored
+dnsTunneling=true
+firewall=true
+autoProxy=true
+```
+
+重启 WSL 后再继续编译流程。
+
+### 3) 安装 Nix（Multi-user）
+
+```bash
+sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --daemon
+```
+
+参考：[nixos.org/download](https://nixos.org/download/)
+
+## 编译步骤
+
+编译时请使用普通用户（不要用 `root` 运行 `make build`）：
+
+```bash
+# 进入源码目录（WSL 中 Windows 盘通常在 /mnt/c 下）
+cd /mnt/c/Users/XXX/Documents/develop/0me/headscale
+
+# 进入构建环境
+nix develop
+
+make generate
+make test
+make build
+
+# 查看产物
+ls -la result/
+cd result/bin
+./headscale version
+```
+
+构建成功后会出现 `result` 目录。
+
+![headscale build result](/img/blog/headscale/result.webp)
+![headscale build result on windows](/img/blog/headscale/w-result.webp)
+
+## 运行说明
+
+将编译出的 `headscale` 二进制复制到目标服务器后，建议先检查依赖：
+
+```bash
+ldd headscale
+file headscale
+```
+
+如果提示解释器路径依赖 Nix store，需要按实际提示补齐对应目录和链接器文件；另外确保 `config.yaml`、`/root/.headscale/`、`/var/lib/headscale/` 等路径存在且权限正确。
+
+## 打包为 Docker 镜像
+
+若你希望将源码编译结果打包成 Docker 镜像，可参考：
+[headscale系列：如何将源码编译的headscale打包成docker镜像](https://ownding.com/2025/08/08/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%B0%86%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E7%9A%84headscale%E6%89%93%E5%8C%85%E6%88%90docker%E9%95%9C%E5%83%8F/)
+
+## 编译异常汇总
+
+### 问题 1：`dirtyShortRev` missing
+
+`make build` 报错 `attribute 'dirtyShortRev' missing` 时，可在 `flake.nix` 中为版本号补充兜底：
+
+```nix
+headscaleVersion = if self ? shortRev
+                  then self.shortRev
+                  else if self ? dirtyShortRev
+                  then self.dirtyShortRev
+                  else "v0.26.1";
+```
+
+### 问题 2：测试阶段找不到 `config.yaml`
+
+当 `make build` 在测试阶段失败时，可先准备配置再构建：
+
+```bash
+cp config-example.yaml config.yaml
+go mod tidy
+go build -o headscale ./cmd/headscale
+```
+
+### 问题 3：`nix-command` 被禁用
+
+```bash
+echo 'experimental-features = nix-command flakes' >> /etc/nix/nix.conf
+```
+
+请使用 `root` 用户执行上面的配置命令。
+
+### 问题 4：找不到 `flake.nix`
+
+出现 `could not find a flake.nix file` 时，先 `cd` 到 Headscale 源码目录，再执行 `nix develop`。
+
+### 问题 5：`initdb` 不能以 root 运行
+
+`make build` 中涉及 PostgreSQL 初始化时，不要用 `root` 用户运行构建与测试流程。
+
+## 手动安装相关依赖
+
+```bash
+# 安装 Buf
+go install github.com/bufbuild/buf/cmd/buf@v1.55.1
+
+# 安装 Protobuf
+sudo apt update
+sudo apt install protobuf-compiler
+```
+
+---
+
+本文已同步至 Larktun 博客，原始内容与后续更新请以原文为准：
+[使用Headscale源码自行编译打包](https://ownding.com/2025/07/30/%E4%BD%BF%E7%94%A8Headscale%E6%BA%90%E7%A0%81%E8%87%AA%E8%A1%8C%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/)
