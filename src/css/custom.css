@@ -66,6 +66,11 @@ h6,
   border-bottom: 1px solid rgba(15, 58, 122, 0.08);
 }
 
+/*
+ * Keep blur on .navbar__inner instead of .navbar.
+ * Putting backdrop-filter on .navbar breaks Docusaurus mobile sidebar
+ * (fixed overlay gets clipped to navbar height and menu becomes unusable).
+ */
 .navbar__inner {
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
