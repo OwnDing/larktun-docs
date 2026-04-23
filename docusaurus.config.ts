@@ -11,7 +11,7 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://larktun.com',
+  url: 'https://docs.larktun.com',
   baseUrl: '/',
 
   onBrokenLinks: 'throw',
@@ -158,7 +158,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Larktun. Built with Docusaurus 3.10.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Larktun. Built with Docusaurus 3.10. <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">浙ICP备2026024619号-1</a>`,
     },
     prism: {
       theme: prismThemes.github,
