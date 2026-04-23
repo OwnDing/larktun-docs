@@ -411,6 +411,20 @@
   width: 100%;
 }
 
+.caseVideo {
+  border-radius: 1.1rem;
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.caseImage {
+  border-radius: 1.1rem;
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
 .topologyBackdrop {
   fill: #0a1b33;
   stroke: rgba(168, 215, 255, 0.22);

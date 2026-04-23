@@ -2,6 +2,7 @@ import type {CSSProperties, ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 
@@ -382,55 +383,6 @@ const CASE_STUDIES: CaseItem[] = [
   },
 ];
 
-function HeroSignalMap({brandName, isEnglish}: {brandName: string; isEnglish: boolean}): ReactNode {
-  return (
-    <svg
-      className={styles.heroSignalMap}
-      viewBox="0 0 560 380"
-      role="img"
-      aria-label={
-        isEnglish
-          ? `${brandName} network showcase illustration`
-          : `${brandName} 网络案例可视化示意图`
-      }>
-      <defs>
-        <linearGradient id="hero-aurora" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#6dd5ff" stopOpacity="0.42" />
-          <stop offset="55%" stopColor="#2f8cff" stopOpacity="0.26" />
-          <stop offset="100%" stopColor="#f5a351" stopOpacity="0.2" />
-        </linearGradient>
-      </defs>
-      <rect x="0" y="0" width="560" height="380" rx="28" fill="#09172d" />
-      <rect x="14" y="14" width="532" height="352" rx="22" fill="url(#hero-aurora)" />
-      <g className={styles.heroGridLines}>
-        {Array.from({length: 8}).map((_, idx) => (
-          <line key={`h-${idx}`} x1="34" y1={58 + idx * 38} x2="526" y2={58 + idx * 38} />
-        ))}
-        {Array.from({length: 11}).map((_, idx) => (
-          <line key={`v-${idx}`} x1={34 + idx * 49} y1="42" x2={34 + idx * 49} y2="338" />
-        ))}
-      </g>
-      <g className={styles.heroPathLayer}>
-        <path d="M80 252 C180 118, 290 112, 468 94" />
-        <path d="M94 130 C178 214, 304 254, 470 278" />
-        <path d="M102 300 C220 260, 304 196, 450 156" />
-      </g>
-      <g className={styles.heroNodeLayer}>
-        <circle cx="82" cy="254" r="16" />
-        <circle cx="166" cy="168" r="13" />
-        <circle cx="256" cy="142" r="18" />
-        <circle cx="356" cy="196" r="14" />
-        <circle cx="472" cy="96" r="16" />
-        <circle cx="472" cy="278" r="16" />
-      </g>
-      <g className={styles.heroPulseLayer}>
-        <circle cx="256" cy="142" r="28" />
-        <circle cx="472" cy="96" r="24" />
-      </g>
-    </svg>
-  );
-}
-
 function TopologyGraph({item, index, t}: {item: CaseItem; index: number; t: (value: LocalizedText) => string}): ReactNode {
   const nodeMap = new Map(item.topology.nodes.map((node) => [node.id, node]));
 
@@ -508,6 +460,13 @@ export default function ShowcasePage(): ReactNode {
   const isEnglish = currentLocale.startsWith('en');
   const t = (value: LocalizedText): string => (isEnglish ? value.en : value.zh);
   const brandName = isEnglish ? 'Larktun' : '云雀通';
+  const heroCaseImage = useBaseUrl('/img/showcase/case.webp');
+  const homeScenarioVideo = useBaseUrl('/img/showcase/home-en.mp4');
+  const serverSshImage = useBaseUrl('/img/showcase/server-ssh.webp');
+  const nvrImage = useBaseUrl('/img/showcase/nvr.webp');
+  const multiServerImage = useBaseUrl('/img/showcase/multi-server.webp');
+  const factoryImage = useBaseUrl('/img/showcase/factory.webp');
+  const engineerImage = useBaseUrl('/img/showcase/engineer.webp');
 
   const pageTitle = isEnglish ? 'Showcase' : '案例展示';
   const pageDescription = isEnglish
@@ -553,7 +512,16 @@ export default function ShowcasePage(): ReactNode {
                 </ul>
               </div>
               <div className={styles.heroVisual}>
-                <HeroSignalMap brandName={brandName} isEnglish={isEnglish} />
+                <img
+                  className={styles.heroSignalMap}
+                  src={heroCaseImage}
+                  alt={
+                    isEnglish
+                      ? `${brandName} showcase case library visual`
+                      : `${brandName} 案例库展示图`
+                  }
+                  decoding="async"
+                />
               </div>
             </div>
           </div>
@@ -646,7 +614,102 @@ export default function ShowcasePage(): ReactNode {
                   </div>
 
                   <div className={styles.caseVisual}>
-                    <TopologyGraph item={item} index={index} t={t} />
+                    {index === 0 ? (
+                      <figure className={styles.topologyFigure}>
+                        <video
+                          className={styles.caseVideo}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          preload="metadata"
+                          aria-label={
+                            isEnglish
+                              ? `${t(item.title)} scenario video`
+                              : `${t(item.title)} 场景演示视频`
+                          }>
+                          <source src={homeScenarioVideo} type="video/mp4" />
+                        </video>
+                        <figcaption className={styles.topologyCaption}>{t(item.scale)}</figcaption>
+                      </figure>
+                    ) : index === 1 ? (
+                      <figure className={styles.topologyFigure}>
+                        <img
+                          className={styles.caseImage}
+                          src={serverSshImage}
+                          alt={
+                            isEnglish
+                              ? `${t(item.title)} scenario image`
+                              : `${t(item.title)} 场景配图`
+                          }
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <figcaption className={styles.topologyCaption}>{t(item.scale)}</figcaption>
+                      </figure>
+                    ) : index === 2 ? (
+                      <figure className={styles.topologyFigure}>
+                        <img
+                          className={styles.caseImage}
+                          src={nvrImage}
+                          alt={
+                            isEnglish
+                              ? `${t(item.title)} scenario image`
+                              : `${t(item.title)} 场景配图`
+                          }
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <figcaption className={styles.topologyCaption}>{t(item.scale)}</figcaption>
+                      </figure>
+                    ) : index === 3 ? (
+                      <figure className={styles.topologyFigure}>
+                        <img
+                          className={styles.caseImage}
+                          src={multiServerImage}
+                          alt={
+                            isEnglish
+                              ? `${t(item.title)} scenario image`
+                              : `${t(item.title)} 场景配图`
+                          }
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <figcaption className={styles.topologyCaption}>{t(item.scale)}</figcaption>
+                      </figure>
+                    ) : index === 4 ? (
+                      <figure className={styles.topologyFigure}>
+                        <img
+                          className={styles.caseImage}
+                          src={factoryImage}
+                          alt={
+                            isEnglish
+                              ? `${t(item.title)} scenario image`
+                              : `${t(item.title)} 场景配图`
+                          }
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <figcaption className={styles.topologyCaption}>{t(item.scale)}</figcaption>
+                      </figure>
+                    ) : index === 5 ? (
+                      <figure className={styles.topologyFigure}>
+                        <img
+                          className={styles.caseImage}
+                          src={engineerImage}
+                          alt={
+                            isEnglish
+                              ? `${t(item.title)} scenario image`
+                              : `${t(item.title)} 场景配图`
+                          }
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <figcaption className={styles.topologyCaption}>{t(item.scale)}</figcaption>
+                      </figure>
+                    ) : (
+                      <TopologyGraph item={item} index={index} t={t} />
+                    )}
                     <ol className={styles.flowList}>
                       {item.flow.map((step) => (
                         <li key={step.zh}>{t(step)}</li>
