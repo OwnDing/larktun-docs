@@ -63,8 +63,12 @@ h6,
 }
 
 .navbar {
-  backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(15, 58, 122, 0.08);
+}
+
+.navbar__inner {
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
 }
 
 .navbar__link--active {
