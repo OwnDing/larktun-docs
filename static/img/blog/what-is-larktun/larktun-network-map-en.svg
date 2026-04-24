@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">Larktun connects scattered devices into one private network</title>
+  <desc id="desc">People on the road, home devices, office servers, and relay services connect through the Larktun control plane managed by tenants, ACLs, routes, DNS, and DERPER.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7fbfb"/>
+      <stop offset="0.48" stop-color="#eef7ff"/>
+      <stop offset="1" stop-color="#fff8ef"/>
+    </linearGradient>
+    <linearGradient id="core" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-25%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.13"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#3b82f6"/>
+    </marker>
+    <style>
+      .label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; letter-spacing: 0; }
+      .muted { fill: #475569; }
+      .inverse { fill: #ffffff; }
+      .inverseMuted { fill: #e0f2fe; }
+      .title { font-size: 36px; font-weight: 700; }
+      .subtitle { font-size: 22px; font-weight: 600; }
+      .cardTitle { font-size: 21px; font-weight: 700; }
+      .cardText { font-size: 16px; font-weight: 600; }
+      .small { font-size: 21px; font-weight: 700; }
+      .tiny { font-size: 16.5px; font-weight: 600; }
+      .chip { font-size: 17px; font-weight: 600; fill: #0f172a; }
+      .line { fill: none; stroke: #3b82f6; stroke-width: 4; stroke-linecap: round; marker-end: url(#arrow); }
+      .dash { fill: none; stroke: #f59e0b; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 10 12; marker-end: url(#arrow); }
+      .card { fill: #ffffff; stroke: rgba(15, 23, 42, 0.12); stroke-width: 1.5; }
+      .iconCircle { stroke: rgba(15, 23, 42, 0.08); stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="650" rx="34" fill="url(#bg)"/>
+  <circle cx="1032" cy="112" r="72" fill="#fde68a" opacity="0.35"/>
+  <circle cx="144" cy="560" r="88" fill="#99f6e4" opacity="0.32"/>
+
+  <path class="line" d="M402 200 C435 210 443 254 460 292"/>
+  <path class="line" d="M402 464 C435 454 443 398 460 362"/>
+  <path class="line" d="M740 292 C758 254 766 210 798 200"/>
+  <path class="line" d="M740 362 C758 398 766 454 798 464"/>
+  <path class="dash" d="M740 326 C770 326 782 326 814 326"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="460" y="238" width="280" height="176" rx="24" fill="url(#core)"/>
+    <text x="600" y="300" text-anchor="middle" class="label title inverse">Larktun</text>
+    <text x="600" y="334" text-anchor="middle" class="label subtitle inverseMuted">Control Plane</text>
+    <g>
+      <rect x="487" y="360" width="82" height="32" rx="16" fill="#ffffff" opacity="0.94"/>
+      <text x="528" y="382" text-anchor="middle" class="label chip">Tenant</text>
+      <rect x="580" y="360" width="58" height="32" rx="16" fill="#ffffff" opacity="0.94"/>
+      <text x="609" y="382" text-anchor="middle" class="label chip">ACL</text>
+      <rect x="649" y="360" width="66" height="32" rx="16" fill="#ffffff" opacity="0.94"/>
+      <text x="682" y="382" text-anchor="middle" class="label chip">DNS</text>
+    </g>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect class="card" x="52" y="118" width="350" height="166" rx="22"/>
+    <circle class="iconCircle" cx="126" cy="188" r="38" fill="#dbeafe"/>
+    <rect x="108" y="162" width="32" height="54" rx="7" fill="#2563eb"/>
+    <circle cx="124" cy="207" r="3.5" fill="#dbeafe"/>
+    <rect x="153" y="166" width="48" height="34" rx="7" fill="#60a5fa"/>
+    <rect x="166" y="204" width="23" height="6" rx="3" fill="#2563eb"/>
+    <text x="214" y="168" class="label cardTitle">On the Road</text>
+    <text x="214" y="203" class="label cardText muted">Phone / Tablet / Laptop</text>
+    <text x="214" y="234" class="label cardText muted">Urgent deployments</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect class="card" x="52" y="382" width="350" height="166" rx="22"/>
+    <circle class="iconCircle" cx="126" cy="452" r="38" fill="#dcfce7"/>
+    <rect x="99" y="444" width="56" height="36" rx="7" fill="#16a34a"/>
+    <rect x="113" y="429" width="31" height="15" rx="5" fill="#86efac"/>
+    <circle cx="114" cy="466" r="4.5" fill="#bbf7d0"/>
+    <circle cx="132" cy="466" r="4.5" fill="#bbf7d0"/>
+    <text x="214" y="432" class="label cardTitle">At Home</text>
+    <text x="214" y="467" class="label cardText muted">Mini PC / NAS / Router</text>
+    <text x="214" y="498" class="label cardText muted">Devices stay private</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect class="card" x="798" y="118" width="350" height="166" rx="22"/>
+    <circle class="iconCircle" cx="870" cy="188" r="38" fill="#fee2e2"/>
+    <rect x="847" y="160" width="48" height="64" rx="9" fill="#ef4444"/>
+    <rect x="856" y="173" width="30" height="7" rx="3.5" fill="#fecaca"/>
+    <rect x="856" y="191" width="30" height="7" rx="3.5" fill="#fecaca"/>
+    <rect x="856" y="209" width="30" height="7" rx="3.5" fill="#fecaca"/>
+    <text x="934" y="168" class="label cardTitle">Office and Cloud</text>
+    <text x="934" y="203" class="label cardText muted">Servers / DB / Services</text>
+    <text x="934" y="234" class="label cardText muted">Precise ACL access</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect class="card" x="798" y="382" width="350" height="166" rx="22"/>
+    <circle class="iconCircle" cx="870" cy="452" r="38" fill="#fef3c7"/>
+    <path d="M846 462 C854 434 886 434 894 462" fill="none" stroke="#f59e0b" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="870" cy="462" r="8.5" fill="#f59e0b"/>
+    <text x="934" y="432" class="label cardTitle">DERPER Relay</text>
+    <text x="934" y="467" class="label cardText muted">Reachable through NAT</text>
+    <text x="934" y="498" class="label cardText muted">Shared or dedicated</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="410" y="56" width="380" height="82" rx="20" fill="#ffffff" stroke="rgba(15, 23, 42, 0.12)" stroke-width="1.5"/>
+    <text x="600" y="91" text-anchor="middle" class="label small">A Portable Private Network</text>
+    <text x="600" y="120" text-anchor="middle" class="label tiny muted">Names, routes, and permissions work together</text>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="405" y="516" width="390" height="82" rx="20" fill="#ffffff" stroke="rgba(15, 23, 42, 0.12)" stroke-width="1.5"/>
+    <text x="600" y="551" text-anchor="middle" class="label small">Ready to Use</text>
+    <text x="600" y="580" text-anchor="middle" class="label tiny muted">Servers, certificates, and config stay behind</text>
+  </g>
+</svg>

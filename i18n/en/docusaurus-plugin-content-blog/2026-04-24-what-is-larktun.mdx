@@ -1,0 +1,139 @@
+---
+slug: what-is-larktun
+title: "What Is Larktun?"
+authors: [ownding]
+tags: [Larktun, remote access, zero-trust networking, Tailscale, Headscale]
+---
+
+Sometimes a product does not begin with a grand plan. It begins with a small, ordinary wish.
+
+You are away from home, and suddenly you need to publish a program, restart a service, or check the quiet little computer sitting on your desk. You only have a tablet or a phone in your hand. Still, you hope you can reach that machine as naturally as opening your own door.
+
+Larktun grew out of that wish.
+
+{/* truncate */}
+
+## It Started With a Lightweight Cloud Server
+
+At first, I used a lightweight cloud server.
+
+It was small, simple, and dependable. I bought three years during a discount period, and whenever something urgent appeared, I could connect to it from a tablet or a phone. A late deployment, a service check, a quick restart: all of those moments became calmer because that server was always waiting somewhere in the distance.
+
+Then the three years ended. Renewal became expensive. I thought, since I already had a home network, why not buy a mini PC and let it replace the cloud server? It would be mine, placed quietly at home, like a small seed of my own infrastructure.
+
+But a problem arrived quickly: my home network had no public IP.
+
+Without a public IP, it felt as if the house had no street sign. The computer was there. I knew it was there. But from the outside, there was no simple way to find it. At the same time, more and more devices were living in my home network: a NAS, a router, cameras, development machines, testing services. They all had their own doors, but those doors were hidden behind an ordinary residential connection.
+
+I did not want to go back to traditional remote desktop tools.
+
+Many of them require a heavy client. They pop up, stay loud, and interrupt the user too often. More importantly, they usually solve only one problem: remotely controlling one computer. They do not naturally connect phones, tablets, routers, servers, and smart devices into one trusted network. The security boundary is unclear. The way devices talk to each other is unclear. Permissions are often unclear too.
+
+Later, I met `Tailscale` and `headscale`.
+
+They showed me that remote access does not have to be a temporary door forced open from the outside. It can be a private network of your own. So I bought a router, installed a `Tailscale` client on it, and deployed my own `headscale` server. Slowly, my home devices became connected. When I was away, I could return to my computer just as I once returned to the lightweight cloud server.
+
+The road was open.
+
+## But Not Everyone Should Have to Build the Road First
+
+After using `headscale` steadily for a long time, I realized this was not only my need.
+
+Many people have a computer at home. Many people have a NAS, cameras, servers, mini PCs, and smart devices. Many people, while traveling or working remotely, suddenly need to reach something inside their private network.
+
+But building this kind of network by yourself is not easy.
+
+You need a server, a domain name, certificates, installation experience, and some understanding of ports, routes, DNS, ACLs, and relays. For engineers, it might be a weekend project. For many users, these words are like stones in a river: visible, but difficult to step across.
+
+I wanted to put the complexity away.
+
+Not to make it mysterious, but to let people open an app and start using it. Like turning on a desk lamp without first studying electricity. Like sending a letter without first building a postal road.
+
+That is what Larktun wants to do: turn the reliable networking capabilities behind `headscale` and `Tailscale` into a ready-to-use service for Chinese users, individual users, and teams.
+
+## What Larktun Is
+
+Larktun is a SaaS-based zero-trust networking and remote access platform.
+
+It is built on the device networking ideas behind `headscale` and `Tailscale`, but goes further by productizing capabilities that previously required self-hosting and self-maintenance: tenant isolation, ACLs, routes, DNS, relays, and a smoother client experience.
+
+You can think of it as a private network that travels with you.
+
+Whether your devices are at home, in the office, in a data center, or on the road with you, once they are authorized into the same network, they can find each other within clear permission boundaries. Larktun does not open every door. It helps every door know who it should open for, when it should open, and where it should lead.
+
+![Larktun connects scattered devices into one private network](/img/blog/what-is-larktun/larktun-network-map-en.svg)
+
+To make it practical for real users, I transformed `headscale` into a SaaS-oriented service and adapted the client experience for local usage:
+
+- Each user or organization has an independent tenant with isolated network boundaries.
+- ACLs, routes, DNS, and DERPER relay capabilities can be managed per tenant.
+- Devices can use Chinese names, which makes them easier to recognize in daily use.
+- Phones, tablets, computers, routers, mini PCs, and servers can work together on one trusted network.
+- The client experience will continue to be improved so it stays quiet, stable, and close to everyday use.
+
+What normal `Tailscale` can do, Larktun aims to do in a way that feels closer to local users. What once required servers, certificates, and configuration files, Larktun hopes to make accessible to people who simply need the capability.
+
+## What Larktun Can Do
+
+If Larktun is a private network, its real value is not the word "network" itself. Its value is the anxiety, manual setup, and uncertainty it removes.
+
+### 1. Reach Your Own Computer While Away
+
+On a train, in a hotel, or between meetings, you may suddenly need to deploy a program or check a service on your home mini PC. With Larktun, if the device is online and authorized, you can reach it as if it were nearby.
+
+This is not about carrying work into every corner of life. It is about having a road when something truly cannot wait.
+
+### 2. Access Your NAS, Photos, and Files at Home
+
+Your NAS may store photos, documents, and backups. In the past, you might have exposed public ports or relied on complicated tunneling tools. With Larktun, the NAS can stay inside your home network while only authorized devices can access it.
+
+The files remain at home. The access feels close.
+
+### 3. Manage Cameras, Home Assistant, and Smart Devices
+
+Many smart devices belong inside a private network and should not be exposed directly to the internet. Larktun can bring your phone, tablet, home router, and those devices into one trusted network, so you can manage them safely while away.
+
+The door stays closed. You simply hold the right key.
+
+### 4. Safely Access Devices That Cannot Install a Client
+
+Not every device can install a client. Some printers, cameras, industrial devices, or older systems can only live inside a LAN. With subnet routing, a router or host that has joined Larktun can safely publish an internal subnet.
+
+Remote access no longer has to depend on messy public entry points. It can follow a road with boundaries and permissions.
+
+### 5. Give Developers and Operators Clearer Permissions
+
+When teams access servers, permissions can easily scatter. Today someone opens a port. Tomorrow someone adds an IP allowlist. After enough time, nobody is completely sure who can access what.
+
+Larktun can use ACLs to define who can access which machines, subnets, or services. Temporary access can remain temporary. Long-term permissions can stay explicit. Remote access becomes not only reachable, but also correct.
+
+### 6. Connect Devices Across Many Places
+
+A mini PC at home, a test server at work, several cloud machines, a camera at your parents' home, and a phone on the road: they may all live in different networks, separated by NAT, carriers, and distance.
+
+Larktun gently gathers them into one network. You do not need to remember many public IPs or set up port forwarding for every device. Device names, DNS, routes, and permissions work together, making access feel more like finding something familiar.
+
+## More Like a Road Than a Window
+
+Traditional remote desktop is like a window. You open it and see the screen of one computer.
+
+Larktun is more like a road. It lets your phone, tablet, servers, router, NAS, and internal services reach one another safely within defined boundaries.
+
+A window is good for a quick look. A road is good for long-term travel.
+
+This is why I wanted to build Larktun. Not to make technology feel more complicated, but to let the complexity step behind the curtain. Users should not have to know how every tunnel is created, how every relay forwards traffic, or why a certificate failed at midnight.
+
+They only need to know: their device is there, they have permission, and Larktun will bring the road under their feet.
+
+## Closing
+
+Larktun is still growing.
+
+Networking software touches many endpoints: computers, phones, tablets, routers, and servers. Each has its own habits. Making them work together in a stable, quiet, and secure way is not a small task. Over the past few months, I completed SaaS transformation, multi-tenancy, ACLs, routes, DNS, DERPER, and client adaptations. More updates and improvements will continue.
+
+I still believe a good tool should have a little tenderness.
+
+It should not interrupt you all the time. It should not keep ordinary users outside a wall of technical terms. It should stay quietly nearby, and when needed, bring you back to your own devices, your own files, and your own services.
+
+That is Larktun.
+
