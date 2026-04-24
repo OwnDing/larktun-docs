@@ -22,5 +22,13 @@
   "item.label.官方网站": {
     "message": "Official Site",
     "description": "Navbar item with label 官方网站"
+  },
+  "item.label.登录": {
+    "message": "Log in",
+    "description": "Navbar item with label 登录"
+  },
+  "item.label.注册": {
+    "message": "Sign up",
+    "description": "Navbar item with label 注册"
   }
 }

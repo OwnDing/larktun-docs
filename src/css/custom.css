@@ -80,6 +80,80 @@ h6,
   font-weight: 700;
 }
 
+.navbar-auth-link {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-weight: 700;
+  margin-left: 0.5rem;
+  padding: 0.42rem 0.95rem;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navbar-auth-link:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.navbar-auth-link [class*='iconExternalLink'] {
+  display: none;
+}
+
+.navbar-auth-link--login {
+  background: rgba(29, 111, 242, 0.08);
+  border-color: rgba(29, 111, 242, 0.34);
+  color: #0d61ea;
+}
+
+.navbar-auth-link--login:hover {
+  background: rgba(29, 111, 242, 0.14);
+  border-color: rgba(29, 111, 242, 0.5);
+  color: #0a4ab4;
+}
+
+.navbar-auth-link--register {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-color: rgba(37, 99, 235, 0.86);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+  color: #f8fafc;
+}
+
+.navbar-auth-link--register:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  border-color: rgba(30, 64, 175, 0.92);
+  box-shadow: 0 12px 26px rgba(30, 64, 175, 0.32);
+  color: #ffffff;
+}
+
+[data-theme='dark'] .navbar-auth-link--login {
+  background: rgba(119, 169, 249, 0.14);
+  border-color: rgba(119, 169, 249, 0.48);
+  color: #a3c3fb;
+}
+
+[data-theme='dark'] .navbar-auth-link--login:hover {
+  background: rgba(119, 169, 249, 0.2);
+  border-color: rgba(119, 169, 249, 0.66);
+  color: #cadefc;
+}
+
+[data-theme='dark'] .navbar-auth-link--register {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  border-color: rgba(119, 169, 249, 0.4);
+  box-shadow: 0 10px 22px rgba(8, 47, 122, 0.45);
+}
+
+@media (max-width: 996px) {
+  .navbar-auth-link {
+    margin: 0;
+    text-align: center;
+  }
+}
+
 .button {
   border-radius: 999px;
   font-weight: 700;

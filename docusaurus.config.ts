@@ -105,6 +105,20 @@ const config: Config = {
           type: 'localeDropdown',
           position: 'right',
         },
+        {
+          href: 'https://larktun.com/auth/login',
+          label: '登录',
+          position: 'right',
+          className: 'navbar-auth-link navbar-auth-link--login',
+          target: '_self',
+        },
+        {
+          href: 'https://larktun.com/auth/register',
+          label: '注册',
+          position: 'right',
+          className: 'navbar-auth-link navbar-auth-link--register',
+          target: '_self',
+        },
       ],
     },
     footer: {
