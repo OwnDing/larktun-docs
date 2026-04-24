@@ -3,8 +3,8 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {TitleFormatterProvider} from '@docusaurus/theme-common/internal';
 
 const SITE_TITLE_BY_LOCALE: Record<string, string> = {
-  'zh-Hans': '云雀通',
-  en: 'Larktun',
+  'zh-Hans': '云雀通文档',
+  en: 'Larktun Docs',
 };
 
 export default function ThemeProviderTitleFormatter({children}: {children: ReactNode}): ReactNode {

@@ -80,6 +80,51 @@ h6,
   font-weight: 700;
 }
 
+/*
+ * Brand tag: show "文档/Docs" as a superscript badge so users can
+ * distinguish docs from the official marketing site at a glance.
+ */
+.navbar__brand .navbar__title {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  overflow: visible;
+  padding-right: 2.55em;
+  text-overflow: initial;
+}
+
+.navbar__brand .navbar__title::after {
+  content: '文档';
+  position: absolute;
+  top: -0.58em;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.08em;
+  padding: 0.12rem 0.36rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1d6ff2, #0d61ea);
+  box-shadow: 0 6px 14px rgba(13, 97, 234, 0.25);
+  color: #ffffff;
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.54em;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+html[lang='en-US'] .navbar__brand .navbar__title::after {
+  content: 'Docs';
+  font-size: 0.5em;
+  letter-spacing: 0.04em;
+}
+
+[data-theme='dark'] .navbar__brand .navbar__title::after {
+  background: linear-gradient(135deg, #5b98f8, #2370f4);
+  box-shadow: 0 8px 18px rgba(35, 112, 244, 0.35);
+}
+
 .navbar-auth-link {
   border: 1px solid transparent;
   border-radius: 999px;
@@ -148,6 +193,19 @@ h6,
 }
 
 @media (max-width: 996px) {
+  .navbar__brand .navbar__title {
+    padding-right: 2.3em;
+  }
+
+  .navbar__brand .navbar__title::after {
+    top: -0.5em;
+    font-size: 0.5em;
+  }
+
+  html[lang='en-US'] .navbar__brand .navbar__title::after {
+    font-size: 0.46em;
+  }
+
   .navbar-auth-link {
     margin: 0;
     text-align: center;
