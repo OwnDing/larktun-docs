@@ -1,0 +1,26 @@
+stages:
+  - build
+
+build_docs_main:
+  stage: build
+  tags:
+    - docusaurus-arm64
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  before_script:
+    - node -v
+    - npm -v
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  script:
+    - npm ci --cache .npm --prefer-offline
+    - npm run build
+  artifacts:
+    name: "docusaurus-build-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - build/
+    expire_in: 7 days
