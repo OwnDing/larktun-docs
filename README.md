@@ -1,5 +1,8 @@
 # Larktun Docs
 
+- 官网：[larktun.com](https://larktun.com)
+- 文档站：[docs.larktun.com](https://docs.larktun.com)
+
 `larktun.com` 的帮助文档网站，基于 [Docusaurus 3.10.0](https://docusaurus.io/) 搭建，当前内容聚焦：
 
 - 产品文档：网站介绍、开始上手、问题处理
