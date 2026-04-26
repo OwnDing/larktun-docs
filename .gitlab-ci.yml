@@ -1,0 +1,64 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.npm"
+  DEPLOY_HOST: "47.98.185.212"
+  DEPLOY_USER: "opc"
+  DEPLOY_ROOT: "/home/docs"
+  SSH_KEY_PATH: "/home/gitlab-runner/.ssh/id_ed25519"
+
+build_docs_main:
+  stage: build
+  tags:
+    - docusaurus-arm64
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  before_script:
+    - node -v
+    - npm -v
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  script:
+    - npm ci --cache "$NPM_CONFIG_CACHE" --prefer-offline
+    - npm run build
+  artifacts:
+    name: "docusaurus-build-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - build/
+    expire_in: 7 days
+
+deploy_docs_main:
+  stage: deploy
+  tags:
+    - docusaurus-arm64
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  resource_group: docs-production
+  needs:
+    - job: build_docs_main
+      artifacts: true
+  script:
+    - test -f "$SSH_KEY_PATH"
+    - RELEASE_ID="$(date -u +%Y%m%dT%H%M%SZ)-${CI_COMMIT_SHORT_SHA}"
+    - RELEASE_DIR="$DEPLOY_ROOT/releases/$RELEASE_ID"
+    - RELEASE_TMP_DIR="$RELEASE_DIR.tmp"
+    - SSH_CMD="ssh -i $SSH_KEY_PATH"
+    - RSYNC_RSH="ssh -i $SSH_KEY_PATH"
+    - $SSH_CMD "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_ROOT/releases'"
+    - $SSH_CMD "$DEPLOY_USER@$DEPLOY_HOST" "rm -rf '$RELEASE_TMP_DIR' && mkdir -p '$RELEASE_TMP_DIR'"
+    - rsync -az --delete -e "$RSYNC_RSH" build/ "$DEPLOY_USER@$DEPLOY_HOST:$RELEASE_TMP_DIR/"
+    - |
+      $SSH_CMD "$DEPLOY_USER@$DEPLOY_HOST" "
+        set -e
+        mv '$RELEASE_TMP_DIR' '$RELEASE_DIR'
+        ln -sfn '$RELEASE_DIR' '$DEPLOY_ROOT/current'
+        ln -sfn '$RELEASE_DIR' '$DEPLOY_ROOT/build'
+        ls -1dt '$DEPLOY_ROOT'/releases/* 2>/dev/null | tail -n +6 | xargs -r rm -rf --
+        readlink -f '$DEPLOY_ROOT/build'
+      "
