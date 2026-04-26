@@ -59,9 +59,3 @@ npm run write-translations -- --locale en
 - 工作流文件：[.github/workflows/deploy-pages.yml](/Users/ownding/Documents/develop/larktun-docs/.github/workflows/deploy-pages.yml)
 - 默认在 `main` 分支推送后自动构建并发布
 - 已补充 `static/CNAME`，推送到 GitHub Pages 后可直接用于 `larktun.com`
-
-## 后续扩展建议
-
-- 补充字段级配置示例与更多真实排障案例
-- 增加站内搜索、分析与可观测性指标页面
-- 按版本节奏持续更新博客与案例页
