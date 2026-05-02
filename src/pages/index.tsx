@@ -131,6 +131,13 @@ function getGroups(): NavGroup[] {
         },
         {
           title: translate({
+            id: 'homepage.link.topics',
+            message: '专题指南',
+          }),
+          href: '/docs/topics/larktun-vs-tailscale-headscale',
+        },
+        {
+          title: translate({
             id: 'homepage.link.blog',
             message: '博客',
           }),
@@ -251,11 +258,12 @@ export default function Home(): ReactNode {
     <Layout
       title={translate({
         id: 'homepage.meta.title',
-        message: '文档中心',
+        message: '云雀通 Larktun 文档 | 零信任组网、远程访问与安全内网访问',
       })}
       description={translate({
         id: 'homepage.meta.description',
-        message: '云雀通文档与帮助入口。',
+        message:
+          '云雀通 Larktun 是面向个人和团队的零信任组网与远程访问平台，支持设备组网、ACL、多租户、中继、NAS 远程访问、安全 SSH 和移动端访问。',
       })}>
       <main className={styles.page}>
         <div className="container">

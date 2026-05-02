@@ -1,0 +1,44 @@
+---
+title: iOS Networking App Without System VPN Permission
+description: Learn how the Larktun iOS app uses tsnet for in-app networking, encryption, direct paths, and relay fallback without occupying system VPN permission.
+sidebar_position: 5
+---
+
+# iOS Networking App Without System VPN Permission
+
+On mobile devices, system VPN permission is usually the default entry point for networking tools. It can route device-wide traffic into a private network, but it also creates permission friction and conflicts with tools such as a company VPN.
+
+The Larktun iOS app provides another option: use `tsnet` to handle networking inside the app, without occupying the system VPN slot.
+
+## What in-app networking means
+
+The boundary of a system VPN is the whole phone. Once enabled, all traffic that matches the route rules may enter the private network.
+
+The boundary of in-app networking is the Larktun app itself. Only built-in app capabilities enter the Larktun network, such as:
+
+- View networked devices
+- Ping devices and check latency or direct-path state
+- Send and receive files
+- SSH into servers or development machines
+- Use SFTP to manage remote files
+
+Other apps continue using the original system network or company VPN.
+
+## Why this is useful
+
+This model is helpful for mobile work and emergency operations. You do not need to switch the system VPN or route all phone traffic into a private network. Open the Larktun app and perform focused network tool actions.
+
+It also fits safe AI Agent usage, device access governance, and remote operations. Access paths stay inside the app, making permission boundaries easier to understand.
+
+## Relationship to system VPN mode
+
+In-app networking without VPN permission does not replace every system VPN scenario.
+
+If any app on the phone must access the private network, system VPN is still the complete approach. Larktun's in-app networking is better for focused tools: device view, connectivity checks, file transfer, SSH, and SFTP.
+
+## Continue Reading
+
+- [Put the Larktun Network Inside an App Without VPN Permission](/blog/larktun-tsnet-app-without-vpn-permission)
+- [Relationship Between Larktun, Tailscale, and Headscale](./larktun-vs-tailscale-headscale)
+- [Product Architecture](../introduction/product-architecture)
+- [FAQ](../troubleshooting/faq)

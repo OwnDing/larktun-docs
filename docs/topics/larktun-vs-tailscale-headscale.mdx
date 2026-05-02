@@ -1,0 +1,45 @@
+---
+title: 云雀通与 Tailscale、Headscale 的关系
+description: 了解云雀通 Larktun 与 Tailscale、Headscale 的关系，以及云雀通如何在开源基础上做 SaaS 化、多租户、中文设备名和移动端体验改造。
+sidebar_position: 1
+---
+
+# 云雀通与 Tailscale、Headscale 的关系
+
+很多用户第一次了解云雀通时，都会问一个问题：云雀通和 `Tailscale`、`Headscale` 到底是什么关系？
+
+简单说，云雀通 Larktun 是在 `Tailscale` 和 `Headscale` 的工作基础上继续发展出来的零信任组网与远程访问产品。我们感谢这些开源项目提供的技术起点，也在它们的基础上做了大量产品化和工程改造。
+
+## 三者分别解决什么问题
+
+`Tailscale` 提供成熟的 WireGuard 组网思想、客户端生态和易用的设备接入体验。它让设备可以跨 NAT、跨地域安全互联，并用身份和策略替代传统的公网暴露。
+
+`Headscale` 是重要的开源控制面基础，让用户可以自建类似 tailnet 的控制服务。它让更多开发者理解设备身份、节点管理、路由、ACL 和 MagicDNS 等能力如何协同工作。
+
+云雀通 Larktun 在这些基础上继续向前，重点面向国内个人用户、开发者和团队，提供 SaaS 化控制台、多租户隔离、中文设备名、移动端工具和更贴近日常使用的产品体验。
+
+## 云雀通做了哪些独立工作
+
+云雀通不是简单“套壳”。为了适配真实用户场景，我们做了多项改造：
+
+- 支持设备别名和中文设备名称显示，涉及客户端和控制面逻辑。
+- 对 `Headscale` 做多租户、多网络、租户隔离和独立策略等 SaaS 化改造。
+- 独立开发 iOS App，提供不依赖系统 VPN 权限的 App 内组网能力。
+- 完善并开源 Android App，方便社区查看、使用和参与改进。
+- 独立开发 SaaS 控制台，统一管理账号、设备、ACL、路由、中继和网络。
+
+## 该如何理解云雀通的定位
+
+如果你熟悉 `Tailscale`，可以把云雀通理解为更贴近国内使用习惯的零信任组网服务。
+
+如果你熟悉 `Headscale`，可以把云雀通理解为围绕 SaaS、多租户、权限治理和客户端体验继续扩展的产品化实践。
+
+如果你只是想安全访问家里的 NAS、开发机、服务器或团队内部服务，云雀通提供的是开箱即用的路径。你不需要先搭建控制面、配置证书、维护中继和理解所有底层细节。
+
+## 继续阅读
+
+- [产品介绍](../introduction/what-is-larktun)
+- [产品架构](../introduction/product-architecture)
+- [FAQ：云雀通与 Tailscale、Headscale 是什么关系？](../troubleshooting/faq#云雀通-larktun-与-tailscaleheadscale-是什么关系)
+- [什么是云雀通？](/blog/what-is-larktun)
+- [开源链接](../introduction/open-source-links)

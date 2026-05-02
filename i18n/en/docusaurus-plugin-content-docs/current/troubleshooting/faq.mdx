@@ -4,6 +4,83 @@ description: User-focused answers to common questions about permissions, relay u
 sidebar_position: 3
 ---
 
+import Head from '@docusaurus/Head';
+
+export const faqStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Is Larktun SaaS or private deployment?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Larktun is a SaaS service. You can start directly with free shared relay, then use dedicated or user-managed relay only when needed.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is the relationship between Larktun, Tailscale, and Headscale?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Larktun is built on top of work made possible by Tailscale and Headscale. We appreciate the upstream open-source projects, while also adding substantial engineering work such as aliases, Chinese device names, multi-tenancy, multiple networks, mobile apps, a SaaS console, and access governance.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I need to manually select free relay?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. Free shared relay is enabled by default for all users. You only need Derper changes for dedicated or user-managed relay.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: "Can tenants see each other's devices?",
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. Each tenant is an isolated network with separate device inventory, policy, and logs.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is ACL shared globally?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. ACL is configured and enforced per tenant.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can individuals use Larktun for personal NAS and dev workstations?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. Personal NAS, home devices, and personal dev workstation access are common use cases.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I run my own relay servers?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. User-managed relay is supported for region, performance, or compliance-specific requirements.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Why do I still fail even when device is online?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Most often, subject, target, or port does not match in ACL. Check ACLs first. If subnet resources are involved, also check Routers.',
+      },
+    },
+  ],
+};
+
+<Head>
+  <script type="application/ld+json">{JSON.stringify(faqStructuredData)}</script>
+</Head>
+
 # FAQ
 
 ## Is Larktun SaaS or private deployment?

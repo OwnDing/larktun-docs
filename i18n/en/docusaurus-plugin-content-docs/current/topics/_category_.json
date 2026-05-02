@@ -1,0 +1,10 @@
+{
+  "label": "Topic Guides",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "slug": "/topics",
+    "title": "Topic Guides",
+    "description": "Search-focused guides for Larktun, Tailscale, Headscale, NAS remote access, secure SSH, and mobile networking."
+  }
+}

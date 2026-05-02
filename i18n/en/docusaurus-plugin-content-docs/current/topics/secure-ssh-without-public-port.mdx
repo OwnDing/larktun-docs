@@ -1,0 +1,46 @@
+---
+title: Secure SSH Without Exposing Public Port 22
+description: Use Larktun to SSH into development machines, cloud servers, and production servers without exposing public port 22, with device identity and ACL-based access control.
+sidebar_position: 4
+---
+
+# Secure SSH Without Exposing Public Port 22
+
+SSH is one of the most common entry points for development and operations, but public port `22` is also one of the most scanned surfaces on the internet.
+
+Larktun brings the server management entry point into a private network. Public service ports can remain open when needed, while SSH does not have to face the internet directly. Only authorized devices inside the Larktun network can reach it.
+
+## Problems with public SSH exposure
+
+Opening public port `22` can cause several issues:
+
+- Continuous internet scanning and brute-force attempts.
+- Home and mobile IP addresses change, making allowlists hard to maintain.
+- Multi-user operations scatter permissions across cloud security groups, server accounts, and local keys.
+- Temporary access can remain after collaboration ends.
+
+Larktun uses device identity and ACLs to make the access boundary clear: who can access which server and which port.
+
+## Recommended practice
+
+1. Install and sign in to the Larktun client on the server.
+2. Sign in to the same tenant on your computer or phone.
+3. Use ACLs to allow only the required account, device, or group to SSH.
+4. Keep public port `22` closed in the cloud security group.
+5. SSH using the Larktun device name or private address.
+
+The server remains reachable, but SSH is visible only to authorized Larktun devices.
+
+## Good fit for
+
+- Individual developers accessing cloud servers, Oracle Cloud instances, lightweight servers, or home mini PCs.
+- Teams operating production servers without public SSH exposure.
+- Temporary server access for members, with ACL removal after the task.
+- AI Agents that need controlled access to logs, development machines, or test environments.
+
+## Continue Reading
+
+- [Securely SSH Into Development and Production Servers With Larktun, Without Exposing Port 22](/blog/secure-ssh-to-server-with-larktun)
+- [ACLs Introduction](../introduction/acls-introduction)
+- [Core Concepts](../introduction/core-concepts)
+- [Diagnostics](../troubleshooting/diagnostics)

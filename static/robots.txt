@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://docs.larktun.com/sitemap.xml
+Sitemap: https://docs.larktun.com/en/sitemap.xml
