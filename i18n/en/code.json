@@ -78,10 +78,10 @@
     "message": "Screens and deployment guidance included"
   },
   "homepage.meta.title": {
-    "message": "Documentation Hub"
+    "message": "Larktun Docs | Zero-Trust Mesh Networking, Remote Access, and Secure Private Network Access"
   },
   "homepage.meta.description": {
-    "message": "Larktun documentation and help entry."
+    "message": "Larktun is a zero-trust networking and remote access platform for individuals and teams, covering device networking, ACLs, multi-tenancy, relays, NAS access, secure SSH, and mobile access."
   },
   "showcase.principles.value.title": {
     "message": "Start with tenant boundaries"
@@ -264,7 +264,7 @@
     "message": "Structure content around real product capabilities"
   },
   "homepage.features.subheading": {
-    "message": "The help center is now ready to carry formal content for zero-trust networking, remote access, security controls, deployment models, and scenario guidance."
+    "message": "Product docs, topic guides, and practical cases are organized around zero-trust networking, remote access, access governance, deployment, and real-world scenarios."
   },
   "homepage.link.product": {
     "message": "Product Overview"
@@ -277,6 +277,9 @@
   },
   "homepage.link.troubleshooting": {
     "message": "Troubleshooting"
+  },
+  "homepage.link.topics": {
+    "message": "Topic Guides"
   },
   "homepage.link.concepts": {
     "message": "Core Concepts"

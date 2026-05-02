@@ -1,0 +1,45 @@
+---
+title: Relationship Between Larktun, Tailscale, and Headscale
+description: Understand how Larktun relates to Tailscale and Headscale, and how Larktun extends the open-source foundation with SaaS multi-tenancy, Chinese device names, and mobile experience.
+sidebar_position: 1
+---
+
+# Relationship Between Larktun, Tailscale, and Headscale
+
+Many users ask the same question when they first learn about Larktun: how is Larktun related to `Tailscale` and `Headscale`?
+
+In short, Larktun is a zero-trust networking and remote access product developed on top of the work made possible by `Tailscale` and `Headscale`. We appreciate these open-source projects, and we also build substantial product and engineering work on top of that foundation.
+
+## What each project solves
+
+`Tailscale` provides mature WireGuard-based networking ideas, a strong client ecosystem, and an easy device onboarding experience. It helps devices connect securely across NAT and regions with identity and policy instead of public exposure.
+
+`Headscale` provides an important open-source control-plane foundation. It helps developers understand how device identity, node management, routes, ACLs, and MagicDNS work together.
+
+Larktun continues from there with a SaaS console, tenant isolation, Chinese device names, mobile tools, and a product experience closer to everyday usage in China.
+
+## What Larktun adds
+
+Larktun is not a thin wrapper. We have added multiple product and engineering capabilities:
+
+- Device aliases and Chinese device-name display across both client and control-plane logic.
+- SaaS-oriented Headscale transformation with multi-tenancy, multiple networks, tenant isolation, and independent policies.
+- An independently developed iOS app with in-app networking that does not require system VPN permission.
+- An improved and open-sourced Android app for community review, usage, and contribution.
+- An independently built SaaS console for accounts, devices, ACLs, routes, relays, and network management.
+
+## How to understand Larktun's positioning
+
+If you know `Tailscale`, think of Larktun as a zero-trust networking service adapted for local usage patterns in China.
+
+If you know `Headscale`, think of Larktun as a SaaS, multi-tenant, access-governance, and client-experience productization path built on top of that foundation.
+
+If you simply want secure access to a NAS, development machine, server, or internal team service, Larktun offers a ready-to-use path without requiring you to maintain a control plane, certificates, relays, and every low-level detail yourself.
+
+## Continue Reading
+
+- [Product Overview](../introduction/what-is-larktun)
+- [Product Architecture](../introduction/product-architecture)
+- [FAQ: Relationship between Larktun, Tailscale, and Headscale](../troubleshooting/faq#what-is-the-relationship-between-larktun-tailscale-and-headscale)
+- [What Is Larktun?](/blog/what-is-larktun)
+- [Open Source Links](../introduction/open-source-links)

@@ -4,11 +4,103 @@ description: User-focused answers to common questions about permissions, relay u
 sidebar_position: 3
 ---
 
+import Head from '@docusaurus/Head';
+
+export const faqStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Is Larktun SaaS or private deployment?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Larktun is a SaaS service. You can start directly with free shared relay, then use dedicated or user-managed relay only when needed.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is the relationship between Larktun, Tailscale, and Headscale?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Larktun is built on top of work made possible by Tailscale and Headscale. We appreciate the upstream open-source projects, while also adding substantial engineering work such as aliases, Chinese device names, multi-tenancy, multiple networks, mobile apps, a SaaS console, and access governance.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I need to manually select free relay?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. Free shared relay is enabled by default for all users. You only need Derper changes for dedicated or user-managed relay.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: "Can tenants see each other's devices?",
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. Each tenant is an isolated network with separate device inventory, policy, and logs.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is ACL shared globally?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No. ACL is configured and enforced per tenant.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can individuals use Larktun for personal NAS and dev workstations?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. Personal NAS, home devices, and personal dev workstation access are common use cases.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I run my own relay servers?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. User-managed relay is supported for region, performance, or compliance-specific requirements.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Why do I still fail even when device is online?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Most often, subject, target, or port does not match in ACL. Check ACLs first. If subnet resources are involved, also check Routers.',
+      },
+    },
+  ],
+};
+
+<Head>
+  <script type="application/ld+json">{JSON.stringify(faqStructuredData)}</script>
+</Head>
+
 # FAQ
 
 ## Is Larktun SaaS or private deployment?
 
 Larktun is a SaaS service. You can start directly with free shared relay, then use dedicated or user-managed relay only when needed.
+
+## What is the relationship between Larktun, Tailscale, and Headscale?
+
+Larktun is built on top of the work made possible by `Tailscale` and `Headscale`. We are deeply grateful for these open-source projects and community practices. Without their foundations in WireGuard-based networking, device identity, control-plane protocols, and node management, Larktun would not have the technical starting point it has today.
+
+At the same time, Larktun is not just a thin rebrand or wrapper around `Tailscale` and `Headscale`. To better serve individual users, developers, and teams in China, we have done substantial engineering and product work on top of the original foundation:
+
+- We added device aliases and Chinese device-name display. This is not only a console UI change; it also requires changes on both the `Tailscale` client side and the `Headscale` control-plane side.
+- We transformed `Headscale` toward a SaaS model, including multi-tenancy, multiple networks, tenant isolation, independent policies, and related management flows. This involves major changes to the control-plane model, data boundaries, permissions, and operations.
+- We independently developed the iOS app, including an in-app networking mode that does not require system VPN permission. We also improved the Android app and open-sourced it so community users can review, use, and contribute to it.
+- We independently built the SaaS console, turning account, device, ACL, route, relay, and network management capabilities into a product experience suitable for everyday use.
+
+The relationship can be understood this way: `Tailscale` provides mature networking ideas and a client ecosystem, `Headscale` provides an important open-source control-plane foundation, and Larktun continues from there with localization, SaaS productization, mobile experience, and access-governance capabilities.
+
+Larktun respects and appreciates the upstream open-source projects. We will keep building on this foundation while adding capabilities that are especially useful for China’s network environment, remote work, safe AI Agent usage, and device access management.
 
 ## Do I need to manually select free relay?
 

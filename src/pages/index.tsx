@@ -131,6 +131,13 @@ function getGroups(): NavGroup[] {
         },
         {
           title: translate({
+            id: 'homepage.link.topics',
+            message: '专题指南',
+          }),
+          href: '/docs/topics/larktun-vs-tailscale-headscale',
+        },
+        {
+          title: translate({
             id: 'homepage.link.blog',
             message: '博客',
           }),
@@ -251,11 +258,12 @@ export default function Home(): ReactNode {
     <Layout
       title={translate({
         id: 'homepage.meta.title',
-        message: '文档中心',
+        message: '云雀通 Larktun 文档 | 零信任组网、远程访问与安全内网访问',
       })}
       description={translate({
         id: 'homepage.meta.description',
-        message: '云雀通文档与帮助入口。',
+        message:
+          '云雀通 Larktun 是面向个人和团队的零信任组网与远程访问平台，支持设备组网、ACL、多租户、中继、NAS 远程访问、安全 SSH 和移动端访问。',
       })}>
       <main className={styles.page}>
         <div className="container">
@@ -372,7 +380,7 @@ export default function Home(): ReactNode {
           <section className={styles.librarySection}>
             <p className={styles.libraryLead}>
               <Translate id="homepage.features.subheading">
-                帮助中心现在已经能直接承接零信任网络、远程控制、安全能力、部署方式与使用场景的正式内容。
+                围绕零信任组网、远程访问、权限治理、部署接入和典型场景，沉淀产品文档、专题指南与实践案例。
               </Translate>
             </p>
             <GroupList groups={groups} />

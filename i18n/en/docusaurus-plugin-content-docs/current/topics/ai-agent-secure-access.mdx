@@ -1,0 +1,110 @@
+---
+title: Secure AI Agent Access Without Exposing Agent Services to the Public Internet
+description: Use Larktun to provide a secure network entry point for AI Agents such as OpenClaw and Hermes Agent, without exposing public ports, while still accessing Agent capabilities through mobile apps, SSH, and browser Web UIs.
+sidebar_position: 6
+---
+
+# Secure AI Agent Access Without Exposing Agent Services to the Public Internet
+
+AI Agents are becoming more capable. Whether you run a local development assistant, an operations automation agent, or tools such as OpenClaw and Hermes Agent, these systems often need broader device, file, terminal, and network permissions than ordinary applications.
+
+The more permission an agent has, the more important its network boundary becomes.
+
+Exposing an Agent Web UI, terminal entry point, or control API directly to the public internet means placing a high-privilege automation surface in an environment that is constantly scanned. Even if the agent has its own login and authorization model, it should not be publicly visible by default.
+
+Larktun provides a secure private-network layer for AI Agents. The agent continues running on your computer, server, workstation, or internal environment. No public ports need to be opened. Authorized phones, tablets, and computers access it through the Larktun network.
+
+## Why AI Agents Need Clearer Network Boundaries
+
+A typical web service usually exposes a narrow business capability. An AI Agent can be different. It may be able to:
+
+- Read project files, logs, and configuration.
+- Call local or internal services.
+- Execute terminal commands, scripts, or automation tasks.
+- Access browsers, development environments, databases, or test systems.
+- Connect to models, toolchains, and third-party APIs.
+
+These capabilities make agents useful, but they also make their entry points sensitive.
+
+The risk is not only whether someone can log in to the agent. The first question is who can even see the agent on the network. If the entry point is public, attackers can continuously scan, enumerate, and attempt bypasses. A safer default is to place the entry point inside a private network first, then use account identity, device identity, and ACLs to decide who can access it.
+
+## What Larktun Adds
+
+Larktun makes the AI Agent entry point visible only to authorized devices.
+
+You can deploy an agent on a home mini PC, personal development machine, cloud server, or internal team server. The Agent Web UI, SSH, and API service do not need direct public exposure. After a phone or computer joins the Larktun network, it can access the agent through a private address, device name, or controlled route.
+
+This brings several benefits:
+
+- No public ports for the agent service, reducing scanning and probing exposure.
+- Device identity and tenant boundaries control the access scope.
+- ACLs define who can access which agent host, port, or subnet.
+- Direct paths are preferred when possible, with encrypted relay fallback when needed.
+- It works with SSH, SFTP, file transfer, browser access, and other daily tools.
+
+Larktun does not replace the agent's own authentication, authorization, or audit features. Instead, it moves the agent's network entry point to a safer place: outside the public internet and inside a private network.
+
+## Using AI Agents From a Phone
+
+Many agent workflows do not always require sitting in front of a desktop.
+
+When you need to handle something urgently while away, you can open the Larktun app and access the agent running at home, in the office, or in the cloud through the private network.
+
+There are two common patterns.
+
+### Use SSH for Terminal Commands
+
+If the agent runs on a development machine or server, you can use SSH through the Larktun app to sign in, run commands, inspect logs, restart services, or trigger agent tasks.
+
+This is useful for development, operations, and emergency handling. The server does not need public port `22`; SSH is reachable only inside the Larktun network.
+
+### Use a Browser for the Agent Web UI
+
+If the agent provides a Web UI, keep it bound to the local host or internal port, then access it through the Larktun network.
+
+For example, if the Agent Web UI runs on port `8080` of a device, and ACL allows access, you can open that device's Larktun address or device name in a mobile browser and use the Agent control page without mapping `8080` to the public internet.
+
+This fits mobile work well: the phone becomes the secure access entry point, while the agent continues running on a computer or server that is better suited to executing tasks.
+
+## Good Fit for These Agent Scenarios
+
+Larktun can provide the network security layer for:
+
+- Individual developers running AI Agents on home machines or cloud servers.
+- Teams running internal research, operations, or test automation agents.
+- Users who need mobile access to Agent Web UIs without public port exposure.
+- Agents that need access to internal Git, databases, logs, build hosts, or test environments.
+- Agents that execute tasks through SSH while the server cannot expose public port `22`.
+- Teams that want agent access governed by device identity, tenant isolation, and ACLs.
+
+## Security Recommendations
+
+Larktun tightens the network entry point, but the agent itself still needs good security hygiene:
+
+- Keep Agent Web UI authentication enabled, even inside a private network.
+- Use SSH key authentication and avoid long-term password login.
+- Allow only the required accounts, devices, and ports in ACLs.
+- Use a separate tenant, dedicated device tags, or stricter rules for production agents.
+- Run command-capable agents with low-privilege system users where possible.
+- Review agent task logs, access logs, and device inventory regularly.
+
+The ideal model is simple: Larktun controls network visibility and access paths; the agent controls application login, task authorization, and behavior audit.
+
+## A Network Security Boundary for AI Agents
+
+An AI Agent's value comes from its capabilities. Its risk comes from the same place.
+
+Exposing an agent directly to the public internet should not be the default. A better approach is to keep the agent inside a private network and grant access only to explicitly authorized devices and users.
+
+Larktun provides a secure network boundary for today's AI Agent workflows. You do not need public ports or a high-privilege agent surface exposed to internet scanners. Users can still access agent capabilities conveniently through the mobile app, SSH, and browser Web UI.
+
+The agent performs the work. Larktun keeps the road to the agent inside a safer boundary.
+
+## Continue Reading
+
+- [Secure SSH Without Exposing Public Port 22](./secure-ssh-without-public-port)
+- [iOS Networking App Without System VPN Permission](./ios-app-without-vpn-permission)
+- [ACLs Introduction](../introduction/acls-introduction)
+- [Core Concepts](../introduction/core-concepts)
+- [Put the Larktun Network Inside an App Without VPN Permission](/blog/larktun-tsnet-app-without-vpn-permission)
+- [Securely SSH Into Development and Production Servers With Larktun, Without Exposing Port 22](/blog/secure-ssh-to-server-with-larktun)

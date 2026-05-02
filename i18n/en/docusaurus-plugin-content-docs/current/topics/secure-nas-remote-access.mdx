@@ -1,0 +1,46 @@
+---
+title: Secure NAS Remote Access Without Public Port Exposure
+description: Use Larktun to access NAS files, photos, and home services remotely without public IPs or port forwarding, while controlling access through ACLs.
+sidebar_position: 3
+---
+
+# Secure NAS Remote Access Without Public Port Exposure
+
+NAS users often face the same problem: there is no public IP at home, or they do not want to expose NAS admin panels, WebDAV, Samba, photo services, or backup tools directly to the internet.
+
+Larktun does not require you to expose the NAS. Instead, it puts your phone, computer, and NAS into a controlled private network. Only authorized devices and accounts can access the NAS within ACL boundaries.
+
+## Why avoid direct NAS port exposure
+
+NAS devices often store photos, documents, backups, and private family data. Public port forwarding introduces risks:
+
+- Admin panels become visible to internet scanners.
+- Residential IP changes can break access.
+- Multiple exposed services become hard to track.
+- Temporary sharing permissions are easy to forget.
+
+With Larktun, the NAS can stay inside your private network. Remote access happens through the Larktun private network, without requiring a public IP or public service exposure.
+
+## Recommended access patterns
+
+There are two common approaches:
+
+1. If the NAS supports it, install or run the Larktun client directly so the NAS becomes a private-network device.
+2. If the NAS cannot run a client, use a router, server, or mini PC in the same LAN as a subnet router and publish the NAS subnet into the Larktun network.
+
+In both cases, use ACLs to limit access. For example, allow only your phone and computer to access the NAS web UI, file service, or photo service.
+
+## Good fit for
+
+- Individuals who want to access home NAS files and photos remotely.
+- Users who need safe access to home servers, download machines, or Home Assistant.
+- Users without public IPs who want to avoid DDNS and port forwarding.
+- Users who want account, device, and port-level access control.
+
+## Continue Reading
+
+- [Create Your First Secure Access Path](../getting-started/publish-your-first-service)
+- [Routes Introduction](../introduction/routes-introduction)
+- [ACLs Introduction](../introduction/acls-introduction)
+- [Common Issues](../troubleshooting/common-issues)
+- [What Is Larktun?](/blog/what-is-larktun)

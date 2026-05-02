@@ -3,6 +3,7 @@
   "position": 3,
   "link": {
     "type": "generated-index",
+    "slug": "/getting-started",
     "title": "开始上手",
     "description": "从租户开通、ACL 配置到自定义中继部署，完成首次接入验证。"
   }

@@ -1,0 +1,44 @@
+---
+title: 无需 VPN 权限的 iOS 组网 App
+description: 了解云雀通 iOS App 如何通过 tsnet 在应用内完成组网、加密、直连和中继选择，不占用系统 VPN 权限也能访问私有网络设备。
+sidebar_position: 5
+---
+
+# 无需 VPN 权限的 iOS 组网 App
+
+在手机上使用组网软件时，系统 VPN 权限通常是最常见的入口。它能让整台手机的流量进入私有网络，但也会带来授权门槛和使用冲突：例如你已经连接公司 VPN，又想临时查看自己的私有网络设备。
+
+云雀通 iOS App 提供另一种方式：通过 `tsnet` 把网络处理放在 App 内部完成，不占用系统 VPN 通道。
+
+## App 内组网是什么意思
+
+系统 VPN 的边界是整台手机。启用后，符合路由规则的系统流量都可能进入私有网络。
+
+App 内组网的边界是云雀通 App 本身。只有 App 内置的能力会进入云雀通网络，例如：
+
+- 查看组网设备
+- Ping 设备并查看延迟和直连状态
+- 发送和接收文件
+- SSH 到服务器或开发机
+- 使用 SFTP 管理远端文件
+
+其它 App 的流量仍然走原来的系统网络或公司 VPN。
+
+## 为什么这个能力有用
+
+这种方式很适合移动办公和应急处理。你不需要切换系统 VPN，也不需要让手机所有流量都进入私有网络，只要打开云雀通 App，就能完成明确的网络工具动作。
+
+它也适合 AI Agent 安全使用、设备联网权限管理和远程运维场景：访问路径集中在 App 内，权限边界更容易理解。
+
+## 与系统 VPN 方案的关系
+
+无需 VPN 权限的 App 内组网不是替代所有系统 VPN 场景。
+
+如果你需要让手机上的任意 App 都访问私有网络，系统 VPN 仍然是完整方案。云雀通 App 内组网更适合聚焦工具能力：设备查看、连通性检测、文件传输、SSH 和 SFTP。
+
+## 继续阅读
+
+- [不申请 VPN 权限，把云雀通网络装进 App](/blog/larktun-tsnet-app-without-vpn-permission)
+- [云雀通与 Tailscale、Headscale 的关系](./larktun-vs-tailscale-headscale)
+- [产品架构](../introduction/product-architecture)
+- [常见问题](../troubleshooting/faq)

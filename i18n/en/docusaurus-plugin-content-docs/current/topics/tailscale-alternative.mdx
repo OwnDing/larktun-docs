@@ -1,0 +1,47 @@
+---
+title: Can Larktun Be a Tailscale Alternative?
+description: Learn when Larktun can serve as a Tailscale alternative for China-focused users, with Chinese device names, SaaS console, multi-tenant isolation, ACLs, mobile apps, and relay options.
+sidebar_position: 2
+---
+
+# Can Larktun Be a Tailscale Alternative?
+
+If your goal is to connect devices into a secure private network, `Tailscale` is a mature option. Larktun follows similar networking ideas and adds a product experience tailored for local users and team scenarios in China.
+
+In many scenarios, Larktun can be used as a Tailscale alternative, especially when you want Chinese UI, a SaaS console, tenant isolation, and clearer device governance.
+
+## Good fits for Larktun
+
+- Remote access to a home NAS, Home Assistant, camera, or mini PC.
+- SSH into a development machine or server without exposing public ports.
+- Use ACLs to control who can access which device, subnet, or service.
+- Use Chinese device names and aliases for easier daily recognition.
+- Choose shared, dedicated, or user-managed relays for different regions and network quality.
+- Use mobile app tools such as ping, file transfer, SSH, and SFTP without occupying system VPN permission in some scenarios.
+
+## Differences from Tailscale
+
+Larktun does not reject the value of `Tailscale`. We respect its technical ideas and ecosystem.
+
+Larktun focuses more on:
+
+- Localization: Chinese device names, Chinese console, and local guidance.
+- SaaS multi-tenancy: each user or organization can have isolated networks and policies.
+- Access governance: clearer UI around ACLs, routes, relays, and device inventory.
+- Mobile tooling: in-app networking for focused tasks without system VPN permission.
+- China network adaptation: shared, dedicated, or user-managed relays for reachability and stability.
+
+## When Tailscale or Headscale may still fit
+
+If your team already uses `Tailscale` successfully and your network conditions are stable, continuing with it is reasonable.
+
+If you want full control over the control plane, you can study `Headscale`. But self-hosting also means maintaining servers, domains, certificates, relays, upgrades, and troubleshooting.
+
+Larktun is for users who want lower operational cost, local product experience, and stronger access-governance workflows.
+
+## Continue Reading
+
+- [Relationship Between Larktun, Tailscale, and Headscale](./larktun-vs-tailscale-headscale)
+- [Quick Start](../getting-started/quick-start)
+- [Deployment Modes and Configuration](../getting-started/install-and-configure)
+- [Put the Larktun Network Inside an App Without VPN Permission](/blog/larktun-tsnet-app-without-vpn-permission)
