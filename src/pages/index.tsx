@@ -380,7 +380,7 @@ export default function Home(): ReactNode {
           <section className={styles.librarySection}>
             <p className={styles.libraryLead}>
               <Translate id="homepage.features.subheading">
-                帮助中心现在已经能直接承接零信任网络、远程控制、安全能力、部署方式与使用场景的正式内容。
+                围绕零信任组网、远程访问、权限治理、部署接入和典型场景，沉淀产品文档、专题指南与实践案例。
               </Translate>
             </p>
             <GroupList groups={groups} />
