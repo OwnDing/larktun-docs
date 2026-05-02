@@ -3,6 +3,7 @@ slug: larktun-tsnet-app-without-vpn-permission
 title: "不申请 VPN 权限，把云雀通网络装进 App"
 authors: [ownding]
 tags: [云雀通, tsnet, 移动端, VPN, 零信任网络, 远程办公]
+image: /img/blog/larktun-tsnet-app-without-vpn-permission/larktun-tsnet-app-mechanism.webp
 ---
 
 在移动端做设备组网，系统 VPN 权限几乎是绕不开的话题。
@@ -26,6 +27,8 @@ tags: [云雀通, tsnet, 移动端, VPN, 零信任网络, 远程办公]
 也就是说，应用不是把整台手机接入私有网络，而是把“需要访问私有网络的能力”嵌入到自己的运行时里。
 
 这带来了一个非常实用的结果：App 可以在不占用系统 VPN 通道的情况下，访问云雀通网络中的设备和服务。用户可以一边使用公司 VPN 处理紧急事项，一边打开云雀通 App 查看家里或团队网络里的设备、传文件、登录服务器。
+
+![云雀通 App 通过 tsnet 在应用内完成组网、加密、路径选择与工具访问，不占用系统 VPN 通道](/img/blog/larktun-tsnet-app-without-vpn-permission/larktun-tsnet-app-mechanism.webp)
 
 ## 这不是少做一层，而是换了边界
 

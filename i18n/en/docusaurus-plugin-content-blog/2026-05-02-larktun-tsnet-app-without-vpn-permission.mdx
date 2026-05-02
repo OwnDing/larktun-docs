@@ -3,6 +3,7 @@ slug: larktun-tsnet-app-without-vpn-permission
 title: "Put the Larktun Network Inside an App Without VPN Permission"
 authors: [ownding]
 tags: [Larktun, tsnet, mobile, VPN, zero-trust networking, remote work]
+image: /img/blog/larktun-tsnet-app-without-vpn-permission/larktun-tsnet-app-mechanism-en.webp
 ---
 
 On mobile devices, private device networking almost always raises the same question: do we need system VPN permission?
@@ -26,6 +27,8 @@ It embeds the Tailscale networking stack inside the application process, allowin
 In other words, the app does not join the whole phone to the private network. It places the private-network capabilities it needs inside the app.
 
 The result is very practical: the app can access devices and services in the Larktun network without occupying the system VPN channel. A user can stay connected to a company VPN for urgent work while opening the Larktun app to check devices at home or on a team network, transfer files, or log in to a server.
+
+![Larktun uses tsnet to handle networking, encryption, path selection, and tool access inside the app without occupying the system VPN slot](/img/blog/larktun-tsnet-app-without-vpn-permission/larktun-tsnet-app-mechanism-en.webp)
 
 ## It Changes the Boundary
 
