@@ -1,0 +1,108 @@
+headscale:
+  label: Headscale
+  permalink: /headscale
+  description: Articles about Headscale source builds, clustering, multi-tenancy, MagicDNS, and compatibility work.
+larktun:
+  label: Larktun
+  permalink: /larktun
+  description: Product notes about Larktun, mobile networking, secure SSH, remote access, and practical scenarios.
+zero-trust-networking:
+  label: zero-trust networking
+  permalink: /zero-trust-networking
+  description: Posts about zero-trust networking, device identity, access control, and private network boundaries.
+remote-access:
+  label: remote access
+  permalink: /remote-access
+  description: Guides for secure remote access, private services, SSH, NAS access, and mobile connectivity.
+remote-work:
+  label: remote work
+  permalink: /remote-work
+  description: Remote work, cross-region collaboration, and mobile access to private networks.
+server-access:
+  label: server access
+  permalink: /server-access
+  description: Secure access patterns for development servers, production servers, SSH, and operations entry points.
+mobile:
+  label: mobile
+  permalink: /mobile
+  description: Mobile private networking, in-app mesh connectivity, and designs that avoid system VPN permission.
+tsnet:
+  label: tsnet
+  permalink: /tsnet
+  description: In-app networking, encrypted connections, and path selection with tsnet.
+vpn:
+  label: VPN
+  permalink: /vpn
+  description: VPN permissions, private network entry points, and alternative access patterns.
+tailscale:
+  label: Tailscale
+  permalink: /tailscale
+  description: Posts related to the Tailscale ecosystem, protocol ideas, and Larktun capability comparisons.
+ssh:
+  label: SSH
+  permalink: /ssh
+  description: SSH, secure operations, and server login without exposing public ports.
+acl:
+  label: ACL
+  permalink: /acl
+  description: Access-control lists, permission boundaries, tenant isolation, and least-privilege policies.
+multi-tenant:
+  label: multi-tenant
+  permalink: /multi-tenant
+  description: Multi-tenant network isolation, permission governance, routes, DNS, and relay strategy.
+saas:
+  label: SaaS
+  permalink: /saa-s
+  description: SaaS transformation, multi-tenant delivery, and platform operations for Headscale and Larktun.
+cluster:
+  label: cluster
+  permalink: /cluster
+  description: Headscale clustering, sharding, control-plane scaling, and large-scale device onboarding.
+scalability:
+  label: scalability
+  permalink: /scalability
+  description: System scaling, capacity design, incremental updates, and large-scale onboarding.
+stress-test:
+  label: stress test
+  permalink: /stress-test
+  description: Headscale stress testing, environment sizing, client simulation, and performance observation.
+migration:
+  label: migration
+  permalink: /migration
+  description: User migration, seamless switching, dynamic routing, and reconnect strategy in SaaS environments.
+traefik:
+  label: Traefik
+  permalink: /traefik
+  description: Traefik routing, reverse proxying, and Headscale SaaS traffic switching.
+magicdns:
+  label: MagicDNS
+  permalink: /magic-dns
+  description: MagicDNS configuration, private hostname resolution, and device access improvements.
+dns:
+  label: DNS
+  permalink: /dns
+  description: DNS configuration, private name resolution, MagicDNS, and extra-records usage.
+docker:
+  label: Docker
+  permalink: /docker
+  description: Docker image builds, containerized deployment, and Headscale packaging.
+ko:
+  label: ko
+  permalink: /ko
+  description: Building Go service container images and Headscale images with ko.
+image-build:
+  label: image build
+  permalink: /image-build
+  description: Container image size optimization, source packaging, and release workflows.
+build:
+  label: build
+  permalink: /build
+  description: Headscale source builds, Nix environments, WSL2, and packaging troubleshooting.
+wsl:
+  label: WSL
+  permalink: /wsl
+  description: Headscale build and debugging notes for Windows and WSL2 environments.
+nix:
+  label: Nix
+  permalink: /nix
+  description: Nix build environments, dependency handling, and source compilation workflows.

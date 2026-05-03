@@ -1,4 +1,7 @@
 {
+  "theme.blog.tagsList.description": {
+    "message": "Browse all Larktun blog tags and find posts about zero-trust networking, remote access, Headscale, mobile apps, server access, and deployment topics."
+  },
   "homepage.stats.devices": {
     "message": "Free device quota"
   },
@@ -78,7 +81,7 @@
     "message": "Screens and deployment guidance included"
   },
   "homepage.meta.title": {
-    "message": "Larktun Docs | Zero-Trust Mesh Networking, Remote Access, and Secure Private Network Access"
+    "message": "Zero-Trust Mesh Networking and Secure Remote Access"
   },
   "homepage.meta.description": {
     "message": "Larktun is a zero-trust networking and remote access platform for individuals and teams, covering device networking, ACLs, multi-tenancy, relays, NAS access, secure SSH, and mobile access."
