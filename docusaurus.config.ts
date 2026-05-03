@@ -1,6 +1,73 @@
 import {themes as prismThemes} from 'prism-react-renderer';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+
+const LEGACY_CHINESE_TAG_REDIRECTS: Record<string, string> = {
+  云雀通: 'larktun',
+  远程访问: 'remote-access',
+  零信任网络: 'zero-trust-networking',
+  远程办公: 'remote-work',
+  移动端: 'mobile',
+  服务器: 'server-access',
+  多租户: 'multi-tenant',
+  镜像构建: 'image-build',
+  编译打包: 'build',
+  集群: 'cluster',
+  压测: 'stress-test',
+  迁移: 'migration',
+  扩展: 'scalability',
+};
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+function createRedirectHtml(to: string): string {
+  const escapedTarget = escapeHtml(to);
+  const escapedCanonical = escapeHtml(`https://docs.larktun.com${to}`);
+
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Redirecting to the current Larktun blog tag page.">
+  <link rel="canonical" href="${escapedCanonical}">
+  <meta http-equiv="refresh" content="0; url=${escapedTarget}">
+  <title>Redirecting...</title>
+</head>
+<body>
+  <h1>Redirecting</h1>
+  <p>Redirecting to <a href="${escapedTarget}">${escapedTarget}</a>.</p>
+  <script>window.location.replace(${JSON.stringify(to)});</script>
+</body>
+</html>
+`;
+}
+
+function larktunSeoRedirectsPlugin(context: {i18n: {currentLocale: string}}) {
+  const isEnglish = context.i18n.currentLocale === 'en';
+  const localePrefix = isEnglish ? '/en' : '';
+
+  return {
+    name: 'larktun-seo-redirects',
+    postBuild({outDir}: {outDir: string}) {
+      Object.entries(LEGACY_CHINESE_TAG_REDIRECTS).forEach(([legacyTag, targetTag]) => {
+        const filePath = path.join(outDir, 'blog', 'tags', legacyTag, 'index.html');
+        const targetPath = `${localePrefix}/blog/tags/${targetTag}/`;
+
+        fs.mkdirSync(path.dirname(filePath), {recursive: true});
+        fs.writeFileSync(filePath, createRedirectHtml(targetPath));
+      });
+    },
+  };
+}
 
 const config: Config = {
   title: '云雀通',
@@ -45,6 +112,7 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
         },
         blog: {
+          tags: 'tags.yml',
           showReadingTime: true,
           blogTitle: '云雀通博客',
           blogDescription: '发布记录、实践经验与案例沉淀',
@@ -69,6 +137,7 @@ const config: Config = {
   ],
 
   plugins: [
+    larktunSeoRedirectsPlugin,
     [
       '@easyops-cn/docusaurus-search-local',
       {

@@ -7,6 +7,8 @@ const SITE_TITLE_BY_LOCALE: Record<string, string> = {
   en: 'Larktun Docs',
 };
 
+const MAX_SEARCH_TITLE_LENGTH = 70;
+
 export default function ThemeProviderTitleFormatter({children}: {children: ReactNode}): ReactNode {
   const {i18n} = useDocusaurusContext();
   const siteTitle = SITE_TITLE_BY_LOCALE[i18n.currentLocale] ?? SITE_TITLE_BY_LOCALE['zh-Hans'];
@@ -14,12 +16,25 @@ export default function ThemeProviderTitleFormatter({children}: {children: React
   return (
     <TitleFormatterProvider
       formatter={({title, titleDelimiter, plugin, defaultFormatter}) =>
-        defaultFormatter({
-          title,
-          titleDelimiter,
-          plugin,
-          siteTitle,
-        })
+        {
+          const normalizedTitle = title?.trim();
+          const formattedTitle = defaultFormatter({
+            title,
+            titleDelimiter,
+            plugin,
+            siteTitle,
+          });
+
+          if (
+            normalizedTitle &&
+            (formattedTitle.length > MAX_SEARCH_TITLE_LENGTH ||
+              normalizedTitle.toLowerCase().includes(siteTitle.toLowerCase()))
+          ) {
+            return normalizedTitle;
+          }
+
+          return formattedTitle;
+        }
       }>
       {children}
     </TitleFormatterProvider>
