@@ -5,6 +5,6 @@
     "type": "generated-index",
     "slug": "/getting-started",
     "title": "开始上手",
-    "description": "从租户开通、ACL 配置到自定义中继部署，完成首次接入验证。"
+    "description": "从云雀通 Larktun 租户开通、ACL 配置到自定义中继部署，完成首次接入验证。"
   }
 }

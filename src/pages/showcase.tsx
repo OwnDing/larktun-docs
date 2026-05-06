@@ -459,7 +459,7 @@ export default function ShowcasePage(): ReactNode {
 
   const isEnglish = currentLocale.startsWith('en');
   const t = (value: LocalizedText): string => (isEnglish ? value.en : value.zh);
-  const brandName = isEnglish ? 'Larktun' : '云雀通';
+  const brandName = isEnglish ? 'Larktun' : '云雀通 Larktun';
   const heroCaseImage = useBaseUrl('/img/showcase/case.webp');
   const homeScenarioVideo = useBaseUrl('/img/showcase/home-en.mp4');
   const serverSshImage = useBaseUrl('/img/showcase/server-ssh.webp');
@@ -468,7 +468,7 @@ export default function ShowcasePage(): ReactNode {
   const factoryImage = useBaseUrl('/img/showcase/factory.webp');
   const engineerImage = useBaseUrl('/img/showcase/engineer.webp');
 
-  const pageTitle = isEnglish ? 'Showcase' : '案例展示';
+  const pageTitle = isEnglish ? 'Larktun Showcase' : '云雀通 Larktun 案例展示';
   const pageDescription = isEnglish
     ? `${brandName} use-case showcase covering topology visuals, access-control strategy, and implementation outcomes.`
     : `${brandName} 案例展示页面，覆盖网络拓扑图、访问控制策略与实施成效。`;

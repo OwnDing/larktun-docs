@@ -5,6 +5,6 @@
     "type": "generated-index",
     "slug": "/troubleshooting",
     "title": "问题处理",
-    "description": "定位 ACL 拒绝、中继故障、资源占用异常和链路稳定性问题。"
+    "description": "云雀通 Larktun 问题处理入口，定位 ACL 拒绝、中继故障、资源占用异常和链路稳定性问题。"
   }
 }

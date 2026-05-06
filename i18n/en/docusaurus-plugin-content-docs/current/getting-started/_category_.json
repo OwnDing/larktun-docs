@@ -5,6 +5,6 @@
     "type": "generated-index",
     "slug": "/getting-started",
     "title": "Getting Started",
-    "description": "Move from tenant setup and ACL baselines to user-managed relay and first validation."
+    "description": "Move from Larktun tenant setup and ACL baselines to user-managed relay and first validation."
   }
 }
