@@ -301,14 +301,10 @@ const config: Config = {
               label: 'larktun.com',
               href: 'https://larktun.com',
             },
-            {
-              label: 'Docusaurus',
-              href: 'https://docusaurus.io/',
-            },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Larktun. Built with Docusaurus 3.10. <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">浙ICP备2026024619号-1</a>`,
+      copyright: `Copyright © ${new Date().getFullYear()} Larktun. <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">浙ICP备2026024619号-1</a>`,
     },
     prism: {
       theme: prismThemes.github,

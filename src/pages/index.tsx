@@ -313,9 +313,6 @@ export default function Home(): ReactNode {
                   <span className={styles.statPill}>
                     <Translate id="homepage.stats.rollout">快速开通</Translate>
                   </span>
-                  <span className={styles.statPill}>
-                    <Translate id="homepage.stats.controlPlane">基于 Docusaurus 3.10</Translate>
-                  </span>
                 </div>
               </div>
 

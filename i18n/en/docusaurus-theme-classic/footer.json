@@ -39,12 +39,8 @@
     "message": "larktun.com",
     "description": "The label of footer link with label=larktun.com linking to https://larktun.com"
   },
-  "link.item.label.Docusaurus": {
-    "message": "Docusaurus",
-    "description": "The label of footer link with label=Docusaurus linking to https://docusaurus.io/"
-  },
   "copyright": {
-    "message": "Copyright © 2026 Larktun. Built with Docusaurus 3.10.",
+    "message": "Copyright © 2026 Larktun. ",
     "description": "The footer copyright"
   }
 }

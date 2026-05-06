@@ -8,9 +8,6 @@
   "homepage.stats.rollout": {
     "message": "Fast rollout"
   },
-  "homepage.stats.controlPlane": {
-    "message": "Docs on Docusaurus 3.10"
-  },
   "homepage.snapshots.console.title": {
     "message": "Official site and control-plane overview"
   },
