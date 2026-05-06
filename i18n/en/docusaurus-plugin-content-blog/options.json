@@ -4,7 +4,7 @@
     "description": "The title for the blog used in SEO"
   },
   "description": {
-    "message": "Release notes, implementation insights, and case studies.",
+    "message": "Larktun Blog for zero-trust networking, secure remote access, Headscale, mobile access, secure SSH, release notes, and implementation case studies.",
     "description": "The description for the blog used in SEO"
   },
   "sidebar.title": {

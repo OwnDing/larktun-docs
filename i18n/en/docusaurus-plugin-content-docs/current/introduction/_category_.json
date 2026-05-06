@@ -5,6 +5,6 @@
     "type": "generated-index",
     "slug": "/introduction",
     "title": "Product Overview",
-    "description": "Understand Larktun SaaS multi-tenant isolation, tenant-level ACL, and relay options."
+    "description": "Understand Larktun zero-trust networking, SaaS multi-tenant isolation, tenant-level ACL, and relay options."
   }
 }

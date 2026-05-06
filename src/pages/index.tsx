@@ -258,12 +258,12 @@ export default function Home(): ReactNode {
     <Layout
       title={translate({
         id: 'homepage.meta.title',
-        message: '云雀通 Larktun 文档 | 零信任组网、远程访问与安全内网访问',
+        message: '云雀通 Larktun 文档：零信任组网与安全远程访问',
       })}
       description={translate({
         id: 'homepage.meta.description',
         message:
-          '云雀通 Larktun 是面向个人和团队的零信任组网与远程访问平台，支持设备组网、ACL、多租户、中继、NAS 远程访问、安全 SSH 和移动端访问。',
+          '云雀通 Larktun 文档覆盖零信任组网、远程访问、安全内网访问、设备组网、ACL、多租户、中继、NAS 远程访问、安全 SSH 和移动端访问。',
       })}>
       <main className={styles.page}>
         <div className="container">
@@ -288,7 +288,7 @@ export default function Home(): ReactNode {
                 </div>
 
                 <Heading as="h1" className={styles.title}>
-                  <Translate id="homepage.title">文档中心</Translate>
+                  <Translate id="homepage.title">云雀通 Larktun 文档中心</Translate>
                 </Heading>
                 <p className={styles.brandLead}>
                   <Translate id="homepage.panel.title">

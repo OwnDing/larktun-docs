@@ -20,6 +20,34 @@ const LEGACY_CHINESE_TAG_REDIRECTS: Record<string, string> = {
   扩展: 'scalability',
 };
 
+const LARKTUN_STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://larktun.com/#organization',
+      name: '云雀通 Larktun',
+      alternateName: ['云雀通', 'Larktun'],
+      url: 'https://larktun.com',
+      logo: 'https://docs.larktun.com/img/larktun.png',
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://docs.larktun.com/#website',
+      name: '云雀通 Larktun 文档',
+      alternateName: ['云雀通文档', 'Larktun Docs', 'Larktun Documentation'],
+      url: 'https://docs.larktun.com',
+      inLanguage: ['zh-CN', 'en-US'],
+      publisher: {
+        '@id': 'https://larktun.com/#organization',
+      },
+      about: {
+        '@id': 'https://larktun.com/#organization',
+      },
+    },
+  ],
+};
+
 function escapeHtml(value: string): string {
   return value
     .replaceAll('&', '&amp;')
@@ -70,8 +98,8 @@ function larktunSeoRedirectsPlugin(context: {i18n: {currentLocale: string}}) {
 }
 
 const config: Config = {
-  title: '云雀通',
-  tagline: 'Zero-trust networking and remote access documentation',
+  title: '云雀通 Larktun 文档',
+  tagline: '零信任组网、远程访问与安全内网访问文档',
   favicon: 'img/larktun.png',
 
   future: {
@@ -114,8 +142,9 @@ const config: Config = {
         blog: {
           tags: 'tags.yml',
           showReadingTime: true,
-          blogTitle: '云雀通博客',
-          blogDescription: '发布记录、实践经验与案例沉淀',
+          blogTitle: '云雀通 Larktun 博客',
+          blogDescription:
+            '云雀通 Larktun 博客，发布零信任组网、远程访问、Headscale、移动端访问、安全 SSH 与案例实践文章。',
           blogSidebarTitle: '最新文章',
           blogSidebarCount: 'ALL',
           feedOptions: {
@@ -155,8 +184,28 @@ const config: Config = {
     ],
   ],
 
+  headTags: [
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'application/ld+json',
+      },
+      innerHTML: JSON.stringify(LARKTUN_STRUCTURED_DATA),
+    },
+  ],
+
   themeConfig: {
     image: 'img/larktun-social-card.svg',
+    metadata: [
+      {
+        name: 'application-name',
+        content: '云雀通 Larktun 文档',
+      },
+      {
+        property: 'og:site_name',
+        content: '云雀通 Larktun 文档',
+      },
+    ],
     colorMode: {
       defaultMode: 'light',
       respectPrefersColorScheme: true,
