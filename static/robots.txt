@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
 
+Sitemap: https://docs.larktun.com/sitemap-core.xml
+Sitemap: https://docs.larktun.com/en/sitemap-core.xml
 Sitemap: https://docs.larktun.com/sitemap.xml
 Sitemap: https://docs.larktun.com/en/sitemap.xml
