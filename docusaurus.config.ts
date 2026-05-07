@@ -20,6 +20,40 @@ const LEGACY_CHINESE_TAG_REDIRECTS: Record<string, string> = {
   扩展: 'scalability',
 };
 
+const LEGACY_DOC_CATEGORY_REDIRECTS: Record<string, string> = {
+  产品介绍: '/docs/introduction',
+  开始上手: '/docs/getting-started',
+  问题处理: '/docs/troubleshooting',
+};
+
+const CORE_BLOG_TAG_SLUGS = new Set([
+  'larktun',
+  'remote-access',
+  'zero-trust-networking',
+  'headscale',
+  'ssh',
+  'mobile',
+]);
+
+const CORE_SITEMAP_PATHS = [
+  '/',
+  '/docs',
+  '/docs/introduction',
+  '/docs/introduction/what-is-larktun',
+  '/docs/getting-started',
+  '/docs/getting-started/quick-start',
+  '/docs/getting-started/install-and-configure',
+  '/docs/getting-started/publish-your-first-service',
+  '/docs/troubleshooting/common-issues',
+  '/docs/topics/tailscale-alternative',
+  '/docs/topics/secure-ssh-without-public-port',
+  '/blog',
+  '/blog/what-is-larktun',
+  '/blog/secure-ssh-to-server-with-larktun',
+  '/blog/larktun-tsnet-app-without-vpn-permission',
+  '/showcase',
+];
+
 const LARKTUN_STRUCTURED_DATA = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -56,6 +90,67 @@ function escapeHtml(value: string): string {
     .replaceAll('>', '&gt;');
 }
 
+function stripTrailingSlash(value: string): string {
+  return value !== '/' && value.endsWith('/') ? value.slice(0, -1) : value;
+}
+
+function stripLocalePrefix(pathname: string): string {
+  if (pathname === '/en' || pathname === '/en/') {
+    return '/';
+  }
+
+  return pathname.startsWith('/en/') ? pathname.slice(3) : pathname;
+}
+
+function shouldIncludeSitemapUrl(url: string): boolean {
+  const {pathname} = new URL(url);
+  const normalizedPath = stripTrailingSlash(decodeURIComponent(pathname));
+  const pathWithoutLocale = stripLocalePrefix(normalizedPath);
+
+  if (
+    pathWithoutLocale === '/search' ||
+    pathWithoutLocale === '/blog/archive' ||
+    pathWithoutLocale === '/blog/authors' ||
+    pathWithoutLocale === '/blog/tags'
+  ) {
+    return false;
+  }
+
+  if (pathWithoutLocale.startsWith('/blog/tags/')) {
+    const tagSlug = pathWithoutLocale.replace('/blog/tags/', '');
+
+    return CORE_BLOG_TAG_SLUGS.has(tagSlug);
+  }
+
+  return true;
+}
+
+function toLocalizedPath(pathname: string, localePrefix: string): string {
+  if (!localePrefix) {
+    return pathname;
+  }
+
+  return pathname === '/' ? `${localePrefix}/` : `${localePrefix}${pathname}`;
+}
+
+function createSitemapXml(urls: string[]): string {
+  const lastmod = new Date().toISOString().slice(0, 10);
+  const urlEntries = urls
+    .map(
+      (url) => `  <url>
+    <loc>${escapeHtml(url)}</loc>
+    <lastmod>${lastmod}</lastmod>
+  </url>`,
+    )
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries}
+</urlset>
+`;
+}
+
 function createRedirectHtml(to: string): string {
   const escapedTarget = escapeHtml(to);
   const escapedCanonical = escapeHtml(`https://docs.larktun.com${to}`);
@@ -65,7 +160,7 @@ function createRedirectHtml(to: string): string {
 <head>
   <meta charset="utf-8">
   <meta name="robots" content="noindex">
-  <meta name="description" content="Redirecting to the current Larktun blog tag page.">
+  <meta name="description" content="Redirecting to the current Larktun documentation page.">
   <link rel="canonical" href="${escapedCanonical}">
   <meta http-equiv="refresh" content="0; url=${escapedTarget}">
   <title>Redirecting...</title>
@@ -87,12 +182,27 @@ function larktunSeoRedirectsPlugin(context: {i18n: {currentLocale: string}}) {
     name: 'larktun-seo-redirects',
     postBuild({outDir}: {outDir: string}) {
       Object.entries(LEGACY_CHINESE_TAG_REDIRECTS).forEach(([legacyTag, targetTag]) => {
-        const filePath = path.join(outDir, 'blog', 'tags', legacyTag, 'index.html');
-        const targetPath = `${localePrefix}/blog/tags/${targetTag}/`;
+        const filePath = path.join(outDir, 'blog', 'tags', `${legacyTag}.html`);
+        const targetPath = `${localePrefix}/blog/tags/${targetTag}`;
 
         fs.mkdirSync(path.dirname(filePath), {recursive: true});
         fs.writeFileSync(filePath, createRedirectHtml(targetPath));
       });
+
+      if (!isEnglish) {
+        Object.entries(LEGACY_DOC_CATEGORY_REDIRECTS).forEach(([legacyCategory, targetPath]) => {
+          const filePath = path.join(outDir, 'docs', 'category', `${legacyCategory}.html`);
+
+          fs.mkdirSync(path.dirname(filePath), {recursive: true});
+          fs.writeFileSync(filePath, createRedirectHtml(targetPath));
+        });
+      }
+
+      const coreUrls = CORE_SITEMAP_PATHS.map(
+        (pathname) => `https://docs.larktun.com${toLocalizedPath(pathname, localePrefix)}`,
+      );
+
+      fs.writeFileSync(path.join(outDir, 'sitemap-core.xml'), createSitemapXml(coreUrls));
     },
   };
 }
@@ -108,6 +218,7 @@ const config: Config = {
 
   url: 'https://docs.larktun.com',
   baseUrl: '/',
+  trailingSlash: false,
 
   onBrokenLinks: 'throw',
   markdown: {
@@ -160,6 +271,14 @@ const config: Config = {
         },
         theme: {
           customCss: './src/css/custom.css',
+        },
+        sitemap: {
+          lastmod: 'date',
+          createSitemapItems: async ({routes, siteConfig, defaultCreateSitemapItems}) => {
+            const items = await defaultCreateSitemapItems({routes, siteConfig});
+
+            return items.filter((item) => shouldIncludeSitemapUrl(item.url));
+          },
         },
       } satisfies Preset.Options,
     ],
