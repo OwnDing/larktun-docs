@@ -29,10 +29,10 @@ Larktun 的路由能力参考 Headscale Routes 模型，并针对 SaaS 多租户
 
 ```bash
 # 节点首次接入并发布路由（示例）
-sudo larktun up --advertise-routes=192.168.6.0/24 --advertise-tags=tag:router
+sudo larktun up --advertise-routes=192.168.6.0/24 --login-server https://hs.larktun.com
 
 # 已接入节点更新或追加路由（示例）
-sudo larktun set --advertise-routes=192.168.6.0/24,10.20.0.0/16
+sudo larktun up --advertise-routes=192.168.6.0/24,10.20.0.0/16 --login-server https://hs.larktun.com
 ```
 
 ### 2. 租户侧审批路由

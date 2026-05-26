@@ -1,72 +1,127 @@
 ---
 title: Create Your First Secure Access Path
 description: Create your first secure access path in a few steps for personal NAS, personal dev workstation, or team services.
+keywords:
+  - Larktun ACL
+  - Larktun access control
+  - secure access path
+  - device-to-device access
+  - private network remote access
+  - zero trust access control
 sidebar_position: 4
 ---
 
 # Create Your First Secure Access Path
 
-This page is written for end users. It helps you set up your first secure access path with clear, practical steps.
+This page is written for first-time Larktun users. It uses `test@larktun.com` as an example and walks you through the first ACL rule so devices under that account can access each other.
 
-## Common use cases
+For your first setup, do not try to model every device, subnet, and port at once. Start with one working path between two online devices, for example:
 
-- Individual users: personal NAS access, home devices, and personal dev workstation access (SSH / Web / RDP)
-- Team users: build hosts, ops hosts, and internal platforms (SSH / RDP / Web)
+- A laptop accessing a home NAS admin page
+- A phone accessing a web service on a dev machine
+- An office computer SSHing into a personal workstation
+- A team member accessing an internal test server
 
-## Personal scenarios (NAS / dev workstation)
+## Understand This ACL First
 
-### Scenario A: Personal NAS secure access
+An ACL answers three questions:
 
-- Goal: access your NAS admin/file services securely from outside your local network
-- Recommendation: allow only your own account to the NAS device and only required ports (for example HTTPS)
+- `action`: whether this rule allows or denies traffic. For the first rule, use `accept`.
+- `src`: who starts the connection. In this example, `test@larktun.com@` means devices owned by this user.
+- `dst`: who can be reached and which ports are allowed. In this example, `test@larktun.com@:*` means devices owned by this user, with all ports allowed first.
 
-### Scenario B: Personal dev workstation remote access
+So the example rule in this page means:
 
-- Goal: access your personal dev machine for debugging, builds, or maintenance
-- Recommendation: allow only your own account to the dev machine (SSH or RDP first), then expand ports only when needed
+> Allow devices under `test@larktun.com` to access each other.
+
+:::tip
+The example uses `:*` to allow all ports so beginners can verify connectivity quickly. After the first test works, narrow the target and port, such as only NAS port `443` or SSH port `22`.
+:::
 
 ## Before you start
 
-- You are signed in to the Larktun client and your source device is online
-- The target device (NAS/dev machine/server) is online and identifiable
-- You know the protocol and port you need (for example `SSH 22`, `HTTPS 443`, `RDP 3389`)
+- You are signed in to the Larktun console as `test@larktun.com`.
+- At least two devices are signed in to the Larktun client and shown as online in `Machines`.
+- You know the service you want to test, such as `SSH 22`, `HTTPS 443`, `RDP 3389`, or another web service port.
+- If you need to access a device inside a routed subnet instead of a device running the Larktun client directly, approve the subnet route in `Routes` first.
 
-## Setup steps
+## Option 1: Use the Visual Editor
 
-1. In `Nodes`, confirm both source and target devices are online and clearly renamed.
-2. If subnet access is required, approve the subnet route in `Routers`.
-3. In `ACLs`, create an access rule:
-   - Subject: your own account (personal) or a specific user group (team)
-   - Target: NAS/dev machine/internal service device
-   - Protocol/port: only what is required now
-4. `Derper` usually needs no action: free shared relay is enabled by default for all users.
-   - Choose dedicated relay only when you need lower latency or higher stability
-   - Configure user-managed relay only when you need custom network boundaries
-5. Start a real connection test from source (SSH/Web/RDP).
-6. Run one negative test with an unauthorized account/device and confirm it is blocked.
+This is the recommended path for your first ACL. The visual editor builds the ACL fields for you and avoids common syntax mistakes.
 
-## Recommended first-path strategy
+1. Sign in to the Larktun console and confirm the account in the upper-right corner is `test@larktun.com`.
+2. Open `Access Control` and stay in `Visual Editor`.
+3. Open the access policy tab and click `Create Policy`.
+4. Set the policy action to `accept`.
+5. Leave protocol unselected for the first test so all protocols are matched; narrow it later if needed.
+6. In `Source`, select `test@larktun.com`.
+7. In `Destination`, select `test@larktun.com`.
+8. Click `Create Policy`, then click `Save` in the upper-right corner.
 
-- Default deny, then allow one explicit path
-- Enable one target service at a time
-- Prefer one common protocol first (SSH or Web)
-- Expand devices/ports only after validation succeeds
+![Create an ACL policy in the visual editor](/img/blog/acl/policy.webp)
 
-## Success criteria
+After saving, this rule allows devices owned by `test@larktun.com` to access each other. In other words, if two devices are signed in with this account and online, you can use this rule for the first connectivity test.
 
-- Authorized users can access the target service reliably
-- Unauthorized users are blocked
-- When failures happen, logs are enough to identify the cause quickly
+## Option 2: Use the JSON Editor
 
-## Quick troubleshooting hints
+If you prefer editing the policy directly, switch to `JSON Editor`, paste the policy below, and click `Save`:
 
-- Cannot connect: verify device online state and selected target in `Nodes`
-- Subnet resource unreachable: verify route approval in `Routers`
-- Online but denied: verify subject, target, and port match in `ACLs`
-- High latency: free relay is already available by default; for optimization, use dedicated relay or configure user-managed relay in `Derper`
+```json
+{
+  "groups": {},
+  "tagOwners": {},
+  "hosts": {},
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["test@larktun.com@"],
+      "dst": ["test@larktun.com@:*"]
+    }
+  ],
+  "autoApprovers": {}
+}
+```
+
+![Configure an ACL policy in the JSON editor](/img/blog/acl/policy-json.webp)
+
+The most common mistake is missing `:*` at the end of the destination. It means "all ports on the target". If you already know the exact port, you can make the destination more specific, such as `test@larktun.com@:22`.
+
+## Verify Device Connectivity
+
+After configuring ACL, run a real connection test immediately:
+
+1. In `Machines`, confirm the source and target devices are online.
+2. On the target device, confirm the service is running, such as SSH, a web admin page, or remote desktop.
+3. From the source device, connect to the target device's Larktun address or device name.
+4. For a web service, open the target address and port in a browser.
+5. For SSH, run `ssh username@target-device-address`.
+6. If you need bidirectional access, test the reverse direction from the other device too.
+
+If the source device can reach the target service, your first secure access path is working.
+
+## Tighten the Rule After the First Test
+
+The example rule is useful for first-time validation. For long-term use, narrow it step by step:
+
+- Allow only the real user or user group that needs access.
+- Allow only the real target, such as a NAS, dev machine, or server.
+- Allow only required ports, such as `22`, `443`, or `3389`.
+- In team environments, prefer user groups and device tags instead of maintaining individual accounts manually.
+- Add one rule at a time, validate it, then expand.
+
+## Quick Troubleshooting Hints
+
+- Both devices are online but cannot connect: check whether ACL source, destination, and port match the request.
+- The rule was created in the visual editor but traffic is still blocked: confirm you clicked `Save`, wait a few seconds, and retry.
+- The target service does not open: confirm the service is running on the target and the local firewall is not blocking it.
+- Subnet resource unreachable: check whether the subnet route is approved in `Routes`.
+- A specific port fails: confirm `dst` contains the right port, such as `:22`, `:443`, or `:*`.
+- High latency: free relay is available by default; for optimization, choose a dedicated relay or custom relay in `Relay Services`.
 
 ## Next step
 
+- Continue with [Approve Subnet Routes](./approve-subnet-routes)
 - Open [Common Issues](../troubleshooting/common-issues)
+- Read [ACLs Introduction](../introduction/acls-introduction)
 - Revisit [Deployment Modes and Configuration](./install-and-configure)
 - Extend with additional scenarios in [Showcase](/showcase)
