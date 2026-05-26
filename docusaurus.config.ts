@@ -52,6 +52,7 @@ const CORE_SITEMAP_PATHS = [
   '/blog/what-is-larktun',
   '/blog/secure-ssh-to-server-with-larktun',
   '/blog/larktun-tsnet-app-without-vpn-permission',
+  '/blog/larktun-ipad-ios-app-without-vpn',
   '/showcase',
 ];
 
