@@ -44,6 +44,7 @@ const CORE_SITEMAP_PATHS = [
   '/docs/getting-started/quick-start',
   '/docs/getting-started/install-and-configure',
   '/docs/getting-started/publish-your-first-service',
+  '/docs/getting-started/approve-subnet-routes',
   '/docs/troubleshooting/common-issues',
   '/docs/topics/tailscale-alternative',
   '/docs/topics/secure-ssh-without-public-port',

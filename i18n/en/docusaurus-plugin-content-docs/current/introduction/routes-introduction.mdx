@@ -29,10 +29,10 @@ Subnet routers expose legacy private networks such as office, datacenter, or ind
 
 ```bash
 # Initial join and route advertisement (example)
-sudo larktun up --advertise-routes=192.168.6.0/24 --advertise-tags=tag:router
+sudo larktun up --advertise-routes=192.168.6.0/24 --login-server https://hs.larktun.com
 
 # Update or add routes on an existing node (example)
-sudo larktun set --advertise-routes=192.168.6.0/24,10.20.0.0/16
+sudo larktun up --advertise-routes=192.168.6.0/24,10.20.0.0/16 --login-server https://hs.larktun.com
 ```
 
 ### 2. Approve routes in tenant control plane
