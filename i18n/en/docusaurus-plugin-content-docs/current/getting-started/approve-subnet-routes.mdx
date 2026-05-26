@@ -17,6 +17,22 @@ In the previous page, you allowed devices under one account to access each other
 
 This page uses `192.168.6.0/24` as the example. Assume you have a computer or Linux server already connected to Larktun, and that device can reach the `192.168.6.0/24` LAN. You will use it as a subnet router and publish that subnet into your Larktun network.
 
+## What Is a Subnet, and Why Advertise It
+
+A subnet is a group of addresses inside the same private network. For example, `192.168.6.0/24` usually means the address range from `192.168.6.1` to `192.168.6.254`. It may contain a NAS, printer, camera, industrial device, database server, or internal web admin page.
+
+Not every device can run the Larktun client. Some NAS environments are limited, cameras and printers cannot install clients, and older servers may be hard to modify. In that case, one computer or Linux server inside the LAN can act as a "router node" as long as it has Larktun installed and can reach the subnet.
+
+![One router node brings an entire subnet online](/img/docs/quickstart/routes/subnet-route-explainer-en.webp)
+
+Advertising a subnet means this router node tells the Larktun control plane, "If someone wants to reach `192.168.6.0/24`, send that traffic to me. I can forward it into the LAN."
+
+The convenience is substantial: you do not need to install a client on every NAS, printer, or camera, and you do not need public router port forwarding. Approve one subnet route, control access with ACLs, and authorized devices can reach resources inside `192.168.6.0/24` almost like they are on the LAN.
+
+:::tip
+Think of a subnet route as "one Larktun-connected device carrying an entire private network." It is useful for home NAS networks, office LANs, datacenter management networks, and industrial site networks.
+:::
+
 ## Understand Route Approval First
 
 A subnet route needs three things to work:
