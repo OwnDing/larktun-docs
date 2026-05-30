@@ -45,6 +45,7 @@ const CORE_SITEMAP_PATHS = [
   '/docs/getting-started/install-and-configure',
   '/docs/getting-started/publish-your-first-service',
   '/docs/getting-started/approve-subnet-routes',
+  '/docs/getting-started/ios-third-party-login',
   '/docs/troubleshooting/common-issues',
   '/docs/topics/tailscale-alternative',
   '/docs/topics/secure-ssh-without-public-port',
@@ -53,6 +54,7 @@ const CORE_SITEMAP_PATHS = [
   '/blog/secure-ssh-to-server-with-larktun',
   '/blog/larktun-tsnet-app-without-vpn-permission',
   '/blog/larktun-ipad-ios-app-without-vpn',
+  '/blog/larktun-ios-third-party-login',
   '/showcase',
 ];
 
