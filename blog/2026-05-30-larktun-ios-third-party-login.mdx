@@ -1,0 +1,98 @@
+---
+slug: larktun-ios-third-party-login
+title: "不只云雀通账户：iOS App 同样支持 Tailscale 与自建 Headscale 密钥登入"
+description: "介绍云雀通 iOS App 的第三方登入能力：除了云雀通账户和密钥登入，还支持 Tailscale 与自建 Headscale 网络的密钥接入，登入后可使用 Web 浏览、SSH、SFTP 等完整功能。"
+authors: [ownding]
+tags: [larktun, tailscale, headscale, mobile, remote-access, ssh]
+keywords:
+  - iOS Tailscale 客户端
+  - iOS Headscale 客户端
+  - iPhone Tailscale 登入
+  - iPad Headscale 接入
+  - 自建 Headscale iOS App
+  - Tailscale 密钥登入
+  - 云雀通第三方登入
+  - iOS SSH SFTP Web 内网访问
+image: /img/blog/larktun-ios-third-party-login/login.webp
+---
+
+把一款 App 做给一群不同网络环境的人用，最难的地方不是功能本身，而是"进门"这一步。
+
+有人用云雀通的托管网络，账户密码一输就进去了。有人习惯用密钥，一串字符即是身份。还有相当一部分人，他们的网络不在云雀通上——他们运行着自己的 Tailscale 网络，或者在某个 VPS 上维护着一套自建的 Headscale 服务。
+
+让每一个人都能用自己的方式走进来，是云雀通 iOS App 从一开始就在考虑的事。
+
+{/* truncate */}
+
+![云雀通 iOS App 第三方登入界面](/img/blog/larktun-ios-third-party-login/login.webp)
+
+## 三道门，同一把钥匙
+
+云雀通 iOS App 目前提供了三种登入方式。它们共享同一套 App 内部能力，区别只在于你的网络放在哪里，以及你选择用什么身份进门。
+
+**云雀通账户登入。** 如果你使用云雀通的 SaaS 托管网络，直接输入账户和密码即可。这是最省心的方式，网络、控制面、中继都由云雀通托管。
+
+**密钥登入。** 不管你的网络跑在云雀通上还是别处，一串密钥就可以代表一个设备身份。把密钥粘贴进 App，你的 iPhone 或 iPad 就接入了对应的网络。
+
+**第三方 Tailscale / 自建 Headscale 密钥登入。** 这是今天想重点讲的一种方式。很多团队和个人已经在 Tailscale 或自建 Headscale 上运行着成熟的私有网络。他们并不想把整个基础设施迁走，只是希望移动端有一个好用的入口。
+
+于是我们在 App 里直接接入了 Tailscale 和 Headscale 的密钥认证通道。你只需要提供控制服务器的地址和一枚授权密钥，App 就会以节点身份加入你的 Tailscale 或 Headscale 网络。
+
+不需要迁移。不需要改变现有配置。你的网络还是你的网络，云雀通 App 只是你在移动端打开它的一扇门。
+
+## 登入之后：五个你立刻就能用的能力
+
+进到网络里只是第一步。真正让移动端有价值的，是登入之后可以做什么。
+
+过去，在 iPhone 或 iPad 上访问 Tailscale/Headscale 网络里的设备，用户往往需要先打开系统 VPN，再切换到另一个 App 去操作。路径很长，步骤很多，而且系统 VPN 可能和公司 VPN、校园网代理互相冲突。
+
+云雀通 iOS App 把这些动作都放在了同一个 App 里，不占用系统 VPN 入口。
+
+![云雀通 iOS App 设备列表与在线状态](/img/blog/larktun-ios-third-party-login/device.webp)
+
+**查看设备状态。** 登入后，App 会拉取网络中你有权限看到的设备列表。设备在线状态、IPv4 地址、MagicDNS 名称一目了然。你可以从这里复制 IP、发起 Ping、打开 SSH 或进入 Web 浏览。
+
+**Ping 连通性检测。** 这是远程访问里最基础也最常用的一步。点一下设备上的快捷操作，就能判断目标是否可达、延迟是否正常。不需要先找终端工具，不需要切换 App。
+
+**SSH 终端。** 不管你的服务器在 Tailscale 还是 Headscale 网络里，只要 App 已加入网络，就可以直接 SSH 进去。输入地址、端口、用户名和认证方式，终端就在 App 内运行。服务器不需要暴露公网 22 端口，App 也不需要开启系统 VPN。
+
+**SFTP 文件管理。** 很多时候，你并不需要完整的终端操作。可能只是想下载一份日志、上传配置、确认某个目录下有文件、或者取一个证书。SFTP 同样内建在 App 里，和 SSH 共用同一套安全访问路径。
+
+**内网 Web 浏览。** NAS 后台、摄像头控制台、开发服务 Swagger 页面、团队内部仪表盘——这些服务通常只有在内网或 VPN 中才能访问。App 内置的 Web 浏览器可以直接打开 Tailscale/Headscale 网络里的私有地址，不需要额外的跳板或端口映射。
+
+![云雀通 iOS App 功能入口：SSH、SFTP、Web 浏览](/img/blog/larktun-ios-third-party-login/func.webp)
+
+## 为什么是"不占用系统 VPN"？
+
+我们在之前的文章里反复提到这个概念，因为它对移动端的使用体验影响很大。
+
+系统 VPN 给整台设备铺一条网络通道，能力完整，但边界也很大。它会影响系统网络环境，可能和公司 VPN、学校 VPN、代理工具互相占用入口。而很多真实场景里，用户并不需要让整台 iPad 或 iPhone 都进入私有网络。
+
+云雀通 App 的做法是在 App 内部接入网络。不接管其它应用的流量，也不修改系统代理。你可以继续用原来的网络环境，同时在一个 App 里完成对私有网络的所有访问动作。
+
+这个设计对第三方登入尤其重要。当你的网络在 Tailscale 或自建 Headscale 上运行时，你很可能已经有一套既定的系统网络配置。云雀通 App 不会和它冲突，也不会要求你关掉现有的 VPN 或代理。
+
+## 一些你可能关心的细节
+
+**控制服务器地址。** 使用自建 Headscale 时，你需要提供控制服务器的 URL。App 支持自定义地址，只要你的 Headscale 服务可以从公网或当前网络环境访问即可。
+
+**密钥权限。** 在 Tailscale 或 Headscale 管理后台生成密钥时，可以为它设置 ACL 标签、过期时间等。App 会以密钥对应的身份加入网络，权限完全由你在服务端控制。
+
+**跨平台一致。** 同样的 Third-party 登入能力也内置在 Android 版本中。iPhone、iPad 和 Android 设备都可以用同样的方式接入你的 Tailscale 或 Headscale 网络。
+
+## 视频演示
+
+如果你想看到实际操作效果，可以观看这段演示视频：
+
+[将Tailscale网络塞进iOS APP，无需系统代理就能免费使用，已过审上架] (https://www.bilibili.com/video/BV146V86eEWn/?share_source=copy_web&vd_source=9550a012bf30d7adb10982a6864c651c)
+
+## 一个 App，不必绑定一种网络
+
+在云雀通，我们从来不认为用户应该把所有东西都搬到"云雀通网络"里来。
+
+有些团队使用云雀通的托管服务，这是最快的上手路径。有些团队自建 Headscale，拥有完全的控制权。有些团队使用 Tailscale 的官方 SaaS，已经跑得很稳定。
+
+无论你的网络在哪里，移动端访问都不应该是一个额外的负担。云雀通 iOS App 想提供的，就是这个"打开门就能用"的入口——你用你现有的网络，我们用同一个 App 让你在移动端也能完成该做的事。
+
+云雀通 iOS App 已经上架 App Store。如果你在使用 Tailscale 或自建 Headscale，欢迎来试试第三方登入。如果你还没试过云雀通的托管网络，也欢迎从账户登入开始体验。
+

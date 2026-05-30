@@ -1,0 +1,125 @@
+---
+title: iOS App 登入第三方 Tailscale / Headscale
+description: 在云雀通 iOS App 中使用 Tailscale 或自建 Headscale 的 Auth Key 登入，登入后使用设备查看、Ping、SSH、SFTP 和 Web 浏览功能。
+keywords:
+  - iOS Tailscale 客户端
+  - iOS Headscale 客户端
+  - Tailscale Auth Key 登录
+  - Headscale 密钥登录
+  - 云雀通第三方登入
+  - iPhone 访问 Tailscale 内网
+  - iPad 访问 Headscale 设备
+sidebar_position: 6
+---
+
+# iOS App 登入第三方 Tailscale / Headscale
+
+云雀通 iOS App 不仅支持云雀通账户和密钥登入，还支持接入 Tailscale 和自建 Headscale 网络。你不需要迁移现有网络，只需要在 Tailscale 或 Headscale 管理后台生成一枚 Auth Key，填入 App 即可。
+
+本页以 Tailscale 为例，演示整个登入流程。如果你使用的是自建 Headscale，步骤基本相同，只需将控制服务器地址替换为你自己的 Headscale 实例 URL。
+
+## 什么是第三方登入，适合谁用
+
+第三方登入是指，云雀通 App 以节点身份加入一个**不在云雀通托管范围**内的 Tailscale 或 Headscale 网络。
+
+适合这些场景：
+
+- 你已经有一套运行稳定的 Tailscale 网络，只想在 iPhone 或 iPad 上有一个好用的移动端入口。
+- 你在自己的服务器上维护着一套自建 Headscale，希望移动端也能接入管理。
+- 你不想把整个网络基础设施迁走，只是需要移动端完成设备查看、SSH、SFTP、Web 访问等常用操作。
+
+第三方登入的核心思路很简单：你的网络还是你的网络，云雀通 App 只是你在移动端打开它的一扇门。
+
+:::tip
+第三方登入**不占用系统 VPN 入口**。App 在内部接入网络，不影响系统代理，也不和其他 VPN 冲突。
+:::
+
+## 开通前准备
+
+- 一个 Tailscale 账户（[login.tailscale.com](https://login.tailscale.com)）或正在运行的自建 Headscale 服务。
+- 云雀通 iOS App（从 App Store 下载安装）。
+- 确认你的 Tailscale / Headscale 控制服务可以从当前网络访问。
+
+## 1. 在 Tailscale 控制台生成 Auth Key
+
+登录 Tailscale 控制台 [login.tailscale.com](https://login.tailscale.com)，进入 **Settings** 页面，点击左侧的 **Keys**。
+
+在 Keys 页面点击 **Generate auth key**，根据需要设置：
+
+- **Description**：描述这个 Key 的用途，例如 `Larktun iOS App`。
+- **Reusable**：如果你计划在多台设备上使用同一个 Key，可以勾选此项。否则 App 登入后会消耗这个 Key。
+- **Expiration**：设置过期时间。建议至少设置为 30 天以上，避免频繁更新。
+- **Tags**：可选，按需要为该 Key 绑定 ACL 标签。
+
+点击 **Generate key** 后，复制生成的 Key（以 `tskey-auth-` 开头）。**请立即保存，关闭窗口后无法再次查看。**
+
+:::tip
+如果你使用自建 Headscale，生成 Key 的命令为：
+
+```bash
+headscale preauthkeys create --user <用户名> --reusable --expiration 720h
+```
+
+生成的 Key 格式类似 `nodekey:XXXXXXXXXX`。
+:::
+
+## 2. 在云雀通 App 中填入 Key 与服务器地址
+
+打开云雀通 iOS App，如果尚未登入，你会看到登入界面。点击底部的 **高级设置**（或右上角的设置图标进入）。
+
+![云雀通 iOS App 第三方登入界面](/img/blog/larktun-ios-third-party-login/login.webp)
+
+在高级设置中，需要填写两项：
+
+- **Auth Key**：粘贴在 Tailscale 控制台生成的 Key（以 `tskey-auth-` 开头）。
+- **控制服务器**：填入 Tailscale 的控制服务地址 `https://login.tailscale.com`。如果是自建 Headscale，填入你的 Headscale 实例地址，例如 `https://hs.yourdomain.com`。
+
+确认无误后，点击保存并返回登入页面，App 将使用填写的 Key 向控制服务器发起认证。
+
+认证成功后，你的 iPhone 或 iPad 就会以节点身份加入对应的 Tailscale 或 Headscale 网络。
+
+## 3. 登入后可以做什么
+
+登入成功后，App 会自动拉取网络中有权限看到的设备列表。
+
+![云雀通 iOS App 设备列表与在线状态](/img/blog/larktun-ios-third-party-login/device.webp)
+
+设备列表会展示每台设备的在线状态、IPv4 地址、MagicDNS 名称和快捷操作入口。在设备页面上，你可以直接：
+
+- **查看设备状态**：设备是否在线、当前 IP 地址和 MagicDNS 名称一目了然。
+- **Ping 连通性检测**：点击设备上的 Ping 快捷操作，立即判断目标是否可达、延迟是否正常。
+- **复制 IP 地址**：将设备 IP 复制到剪贴板，方便在其他场景使用。
+
+在设备功能入口，App 提供了五个核心能力：
+
+![云雀通 iOS App 功能入口：SSH、SFTP、Web 浏览](/img/blog/larktun-ios-third-party-login/func.webp)
+
+- **SSH 终端**：直接 SSH 到网络中的任意服务器。输入地址、端口、用户名和认证方式后，终端在 App 内运行。服务器无需暴露公网 22 端口。
+- **SFTP 文件管理**：浏览、下载、上传文件，适合取日志、上传配置、管理证书等场景。
+- **Web 浏览**：在 App 内置浏览器中打开内网 Web 服务，如 NAS 后台、开发服务 Swagger、内部仪表盘等。
+- **文件收件箱**：查看网络中其他设备发送给你的文件。
+
+所有操作都在 App 内部完成，不需要切换工具，也不需要开启系统 VPN。
+
+## 注意事项
+
+- **Key 安全**：Auth Key 是设备身份的凭证。请妥善保管，不要分享给不信任的人。如果 Key 泄漏，可以在 Tailscale / Headscale 控制台撤销该 Key。
+- **网络权限**：App 以 Key 对应的身份加入网络，权限完全由你在 Tailscale / Headscale 管理端设置的 ACL 规则控制。
+- **Key 有效期**：过期后 App 将无法连接。建议提前在控制台生成新 Key，在 App 中更新即可。
+- **控制服务器可达性**：如果你的自建 Headscale 没有公网入口，需确保手机当前网络可以访问 Headscale 服务器的地址和端口。
+- **跨平台同步**：同样的第三方登入能力也内置在 Android 版本中。不同平台的 App 可以使用同一个 Key（如果 Key 设置为 Reusable），也可以各自使用独立的 Key。
+
+## 常见问题快速定位
+
+- 填了 Key 和服务器地址后无法登入：确认 Key 没有被撤销或过期；确认服务器地址格式正确，且带有 `https://` 前缀；确认手机能访问该控制服务器地址。
+- 登入后看不到设备列表：确认你使用的 Key 有权限看到这些设备，检查 Tailscale / Headscale 的 ACL 规则。
+- SSH 连不上目标设备：确认目标设备在线，且 ACL 允许你的节点访问该设备的 SSH 端口（通常为 22）。
+- Web 页面打不开：确认目标服务正在运行，端口号正确，且 ACL 放行了对应端口。
+- Key 过期了怎么办：在 Tailscale / Headscale 控制台生成新 Key，回到 App 的高级设置中更新即可，无需卸载 App。
+
+## 下一步
+
+- 了解 [云雀通 iOS App 的功能细节](/blog/larktun-ios-third-party-login)
+- 查看 [开通第一条安全访问链路](./publish-your-first-service)
+- 阅读 [桌面客户端操作](./desktop-client-operations)
+- 参考 [ACL 介绍](../introduction/acls-introduction)

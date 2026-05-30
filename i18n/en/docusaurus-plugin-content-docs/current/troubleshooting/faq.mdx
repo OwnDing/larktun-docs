@@ -74,6 +74,14 @@ export const faqStructuredData = {
         text: 'Most often, subject, target, or port does not match in ACL. Check ACLs first. If subnet resources are involved, also check Routers.',
       },
     },
+    {
+      '@type': 'Question',
+      name: 'What benefits do free users get?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Free users start with 5 devices by default. Each successful invite — where the invited user completes phone-registered signup — adds one more device to your free quota, up to a maximum of 10 devices. Inter-device access has no traffic or speed limits.',
+      },
+    },
   ],
 };
 
@@ -137,3 +145,16 @@ The default target is a low-memory, background runtime designed to stay non-intr
 ## Why can cross-region sessions still be unstable sometimes?
 
 Typical causes include network jitter, relay load, or destination-side resource pressure. Start with default free relay checks, then move to dedicated or user-managed relay when optimization is needed.
+
+## What benefits do free users get?
+
+### Device Quota
+
+Free users start with **5 devices** by default. Each successful invite — where the invited user completes phone-registered signup — adds one more device to your free quota, up to a maximum of **10 devices**.
+
+### Access Speed
+
+Inter-device access has no traffic limits and no speed caps. The actual speed you experience depends on the connection path:
+
+- **P2P direct connection**: Speed is determined by the bandwidth of both sides. A higher upload bandwidth on your end means a better connection.
+- **Relay server**: If a direct connection cannot be established, traffic automatically routes through a relay server. In this case, speed depends on the relay server's bandwidth and how many users are sharing it at the same time. Free users share relay resources, so speed may be limited during peak usage. For consistently faster performance, consider upgrading to a paid plan or using a dedicated relay.
