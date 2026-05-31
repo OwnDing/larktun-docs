@@ -1,0 +1,61 @@
+---
+title: Log in with Tailscale Client
+description: Learn how to log in to the Larktun network using the native Tailscale client for seamless networking.
+keywords:
+  - Tailscale
+  - Larktun
+  - Client
+  - Login
+  - headscale
+  - Setup
+sidebar_position: 10
+---
+
+# Log in to Larktun with Tailscale Client
+
+Larktun is an enterprise-grade networking platform deeply developed based on tailscale/headscale. Because of this architectural compatibility, the native Tailscale client can directly connect to the Larktun network.
+
+If you have used Tailscale before, you **do not need** to install the Larktun-specific client. You can directly use your existing Tailscale client to log in to the Larktun network and start enjoying our convenient networking services.
+
+Here is the step-by-step guide to log in:
+
+## 1. Register and Log in to the Larktun Console
+
+First, please visit the Larktun Console to register an account and log in:
+- Enter your tenant or workspace.
+- Ensure your account status is active and you have sufficient device quota.
+
+## 2. Create an Auth Key
+
+To allow your device to securely join the network, you need to create an authentication key:
+1. Navigate to the **Machines (Nodes)** page in the left navigation menu of the console.
+2. Click **Create Auth Key** to generate a dedicated access key for your new device.
+3. **Note**: Please securely copy and save this key. For security reasons, it will only be fully displayed once.
+
+## 3. Log in with the Auth Key
+
+Depending on your operating system, execute the corresponding Tailscale login command in your terminal or command prompt. Replace `<Your Auth Key>` with the key you obtained in the previous step, and set the `--login-server` to the Larktun service address.
+
+> **Tip:** The `--login-server` parameter must point to the Larktun access control plane (e.g., `https://hs.larktun.com`. Please refer to the setup instructions on the console page for the exact URL).
+
+### Linux / macOS
+
+Open your Terminal and execute the following command:
+
+```bash
+tailscale up --login-server=https://hs.larktun.com --auth-key=<Your Auth Key>
+```
+
+### Windows
+
+If you are using Windows, open Command Prompt (CMD) or PowerShell as Administrator and execute the same command:
+
+```cmd
+tailscale up --login-server=https://hs.larktun.com --auth-key=<Your Auth Key>
+```
+
+*(Note: In some versions of the Tailscale Windows client, you can also hold the `Shift` key and right-click the system tray icon to enter preferences and modify the Login Server via the graphical interface.)*
+
+## Verify Connection Status
+
+Once the login command is executed successfully, your device will automatically connect to the Larktun network. You can return to the **Nodes** page in the Larktun console, refresh the page, and you should see your newly connected device.
