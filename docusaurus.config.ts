@@ -45,6 +45,7 @@ const CORE_SITEMAP_PATHS = [
   '/docs/getting-started/install-and-configure',
   '/docs/getting-started/publish-your-first-service',
   '/docs/getting-started/approve-subnet-routes',
+  '/docs/getting-started/nas-install-larktun',
   '/docs/getting-started/ios-third-party-login',
   '/docs/troubleshooting/common-issues',
   '/docs/topics/tailscale-alternative',
