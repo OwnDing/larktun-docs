@@ -1,0 +1,163 @@
+---
+title: NAS 安装与登入云雀通
+description: 在 ARM Linux NAS 上一键安装云雀通，或在华硕 ASUSTOR NAS 应用中心安装 Tailscale 并登入云雀通国内服务节点，实现无公网 IP 的安全远程访问。
+keywords:
+  - NAS 安装云雀通
+  - NAS 远程访问
+  - ARM Linux NAS
+  - 华硕 NAS Tailscale
+  - ASUSTOR Tailscale
+  - Tailscale 国内服务节点
+  - 无公网 IP 访问 NAS
+  - Larktun NAS
+sidebar_position: 6
+---
+
+# NAS 安装与登入云雀通
+
+云雀通（Larktun）可以让 NAS 在不暴露公网管理端口、不配置 DDNS 的情况下，加入受控的私有网络。你的电脑、手机和 NAS 登录同一个云雀通网络后，就可以通过私有地址访问 NAS 后台、相册、文件服务和其他家庭应用。
+
+NAS 接入云雀通有两种常用方式：
+
+1. **优先方案：安装云雀通 Linux 客户端。** 适合可以使用 SSH 或终端、拥有管理员权限的 Linux NAS。云雀通提供一键安装脚本，并支持常见的 ARM64 NAS。
+2. **兼容方案：安装 Tailscale 客户端并登入云雀通。** 适合安装脚本无法运行、系统目录受限，或应用中心已经提供 Tailscale 的 NAS。云雀通兼容 Tailscale 客户端，并提供面向国内网络优化的服务节点。
+
+:::tip[如何选择]
+先尝试云雀通一键安装脚本。如果 NAS 固件限制较多，直接使用应用中心里的 Tailscale 客户端即可。两种方式都会把 NAS 接入你的云雀通网络。
+:::
+
+## 开始前准备
+
+- 注册并登入 [云雀通控制台](https://larktun.com/auth/login)。
+- 在控制台的 **Nodes（设备）** 页面生成一枚 Auth Key。
+- 准备 NAS 的局域网 IP，例如 `192.168.1.20`。
+- 如需从电脑执行命令，先在 NAS 后台开启 SSH，并且只在可信局域网内使用。
+
+Auth Key 是设备接入凭证，请妥善保管，不要粘贴到公开聊天、工单或截图中。
+
+## 方案一：使用 Linux 一键安装脚本
+
+云雀通 Linux 安装脚本会自动识别 CPU 架构。当前支持：
+
+- ARM64：`aarch64`、`arm64`
+- x86-64：`x86_64`、`amd64`
+
+脚本需要 Linux 环境、`curl` 或 `wget`，以及 `root`、`sudo` 或 `doas` 权限。常见的 `systemd`、OpenRC 和 SysV 启动方式都可以自动配置。
+
+### 1. 通过 SSH 进入 NAS
+
+在电脑终端中执行：
+
+```bash
+ssh admin@<NAS 局域网 IP>
+```
+
+例如：
+
+```bash
+ssh admin@192.168.1.20
+```
+
+### 2. 一键安装云雀通
+
+国内网络建议使用国内高速下载通道：
+
+```bash
+curl -fsSL https://download2.larktun.com/install.sh | LARKTUN_DOWNLOAD_URL=https://download2.larktun.com sh
+```
+
+如果国内通道暂时无法使用，可以切换到国际下载通道：
+
+```bash
+curl -fsSL https://download.larktun.com/install.sh | sh
+```
+
+安装脚本会下载 `larktun` 与 `larktund`，并尽量自动配置后台服务。你也可以在执行前前往 [云雀通下载页](https://larktun.com/download) 查看当前安装命令。
+
+### 3. 使用 Auth Key 登入云雀通
+
+将 `<您的 Auth Key>` 替换为控制台生成的密钥：
+
+```bash
+sudo larktun up --login-server=https://hs.larktun.com --auth-key=<您的 Auth Key>
+```
+
+如果你已经使用 `root` 账号登入 NAS，可以省略 `sudo`。
+
+### 4. 确认 NAS 已上线
+
+回到云雀通控制台的 **Nodes（设备）** 页面并刷新列表。看到 NAS 设备在线后，就可以开始测试私有地址访问。
+
+## 方案二：使用 Tailscale 客户端登入云雀通
+
+部分 NAS 系统使用只读目录、插件沙箱或特殊服务管理方式，云雀通 Linux 安装脚本可能无法自动完成安装。这时可以使用 NAS 应用中心提供的 Tailscale 客户端，再将它登入云雀通控制面。
+
+下面以华硕 NAS（ASUSTOR ADM）为例。其他 NAS 品牌的菜单名称可能不同，但核心步骤一致。
+
+### 1. 在应用中心安装 Tailscale
+
+打开华硕 NAS 的 **应用中心**，搜索 `Tailscale`，然后安装可用版本。
+
+![在华硕 ASUSTOR NAS 应用中心搜索并安装 Tailscale](/img/docs/quickstart/nas/asustor-app-center-install-tailscale.webp)
+
+### 2. 临时开启 NAS SSH
+
+如果需要通过命令行完成首次登入，在 NAS 后台打开 **服务 > 终端**，勾选 **启用 SSH 服务** 并保存。
+
+![在华硕 ASUSTOR NAS 中开启 SSH 服务](/img/docs/quickstart/nas/asustor-enable-ssh.webp)
+
+:::warning
+不要把 NAS 的 SSH 端口映射到公网。完成首次配置后，如果不再需要 SSH，可以回到后台关闭它。
+:::
+
+### 3. 从电脑 SSH 登入 NAS
+
+在可信局域网中的电脑上执行：
+
+```bash
+ssh admin@<NAS 局域网 IP>
+```
+
+首次连接时，终端会要求确认 NAS 的主机指纹。确认 IP 无误后输入 `yes`，再输入 NAS 管理员密码。
+
+![从电脑通过 SSH 登入华硕 ASUSTOR NAS](/img/docs/quickstart/nas/asustor-ssh-login.webp)
+
+### 4. 让 Tailscale 登入云雀通
+
+进入 NAS 终端后执行：
+
+```bash
+tailscale up --login-server=https://hs.larktun.com --auth-key=<您的 Auth Key>
+```
+
+如果提示权限不足，请在命令前加上 `sudo`。该命令使用 Tailscale 客户端接入云雀通控制面，并优先使用云雀通面向国内网络优化的服务节点，以改善连接速度和稳定性。
+
+![在华硕 ASUSTOR NAS 上使用 Tailscale 客户端登入云雀通](/img/docs/quickstart/nas/asustor-tailscale-login-larktun.webp)
+
+完整的 Tailscale 客户端登入说明可以继续阅读 [使用 Tailscale 客户端登入](./tailscale-client-login)。
+
+## 验证远程访问
+
+NAS 上线后，建议先做一次最小范围验证：
+
+1. 在另一台已经接入云雀通的电脑或手机上查看 NAS 私有地址。
+2. 使用私有地址打开 NAS 管理后台或文件服务。
+3. 回到控制台检查设备在线状态。
+4. 按实际需要配置 ACL，只放行 NAS 后台、文件服务或相册服务所需端口。
+
+不要为了方便把 NAS 全部端口长期开放给所有设备。先验证一条最小权限链路，再逐步增加服务。
+
+## 安装失败怎么办
+
+- 提示 CPU 架构不支持：当前一键安装脚本支持 ARM64 与 x86-64。较老的 ARMv7 NAS 建议优先尝试应用中心里的 Tailscale 客户端。
+- 提示没有管理员权限：确认当前账号拥有 `root`、`sudo` 或 `doas` 权限；否则改用 NAS 应用中心安装 Tailscale。
+- NAS 没有 SSH 或终端：查看应用中心是否提供 Tailscale 图形化安装入口。
+- NAS 完全无法安装客户端：在同一局域网内选择一台路由器、服务器或小主机作为子网路由，继续阅读 [批准子网路由](./approve-subnet-routes)。
+- Tailscale 命令执行后仍未上线：确认 Auth Key 尚未过期，并检查 `--login-server=https://hs.larktun.com` 是否完整填写。
+
+## 下一步
+
+- [开通第一条安全访问链路](./publish-your-first-service)
+- [批准子网路由](./approve-subnet-routes)
+- [远程访问 NAS：不暴露公网端口的安全方案](../topics/secure-nas-remote-access)
+- [问题处理](../troubleshooting/common-issues)
