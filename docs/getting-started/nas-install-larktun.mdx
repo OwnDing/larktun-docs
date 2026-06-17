@@ -152,7 +152,7 @@ NAS 上线后，建议先做一次最小范围验证：
 - 提示 CPU 架构不支持：当前一键安装脚本支持 ARM64 与 x86-64。较老的 ARMv7 NAS 建议优先尝试应用中心里的 Tailscale 客户端。
 - 提示没有管理员权限：确认当前账号拥有 `root`、`sudo` 或 `doas` 权限；否则改用 NAS 应用中心安装 Tailscale。
 - NAS 没有 SSH 或终端：查看应用中心是否提供 Tailscale 图形化安装入口。
-- NAS 完全无法安装客户端：在同一局域网内选择一台路由器、服务器或小主机作为子网路由，继续阅读 [批准子网路由](./approve-subnet-routes)。
+- NAS 完全无法安装客户端：在同一局域网内选择一台路由器、服务器或小主机作为子网路由，例如刷有 OpenWrt 系统的路由器（参见 [在 OpenWrt 上安装云雀通](./openwrt-install-larktun)），再继续阅读 [批准子网路由](./approve-subnet-routes)。
 - Tailscale 命令执行后仍未上线：确认 Auth Key 尚未过期，并检查 `--login-server=https://hs.larktun.com` 是否完整填写。
 
 ## 下一步

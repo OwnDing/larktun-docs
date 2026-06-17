@@ -1,0 +1,82 @@
+---
+title: 在 OpenWrt 路由器上安装云雀通
+description: 在 OpenWrt 路由器上通过一键脚本安装云雀通（Larktun），生成 Auth Key 并登入，实现路由器级的零信任远程访问与组网。
+keywords:
+  - OpenWrt 安装云雀通
+  - OpenWrt VPN
+  - OpenWrt 远程访问
+  - 路由器 Tailscale
+  - 路由器组网
+  - headscale
+  - Larktun OpenWrt
+sidebar_position: 11
+---
+
+# 在 OpenWrt 路由器上安装云雀通
+
+云雀通（Larktun）支持直接安装在 OpenWrt 路由器上。安装完成后，路由器本身会作为一个节点接入云雀通网络，你也可以基于它继续配置子网路由，让局域网内的其他设备无需单独安装客户端即可被远程访问。
+
+本教程介绍如何在 OpenWrt 上使用在线脚本安装云雀通、生成 Auth Key，并完成首次登入。
+
+## 开始前准备
+
+- 路由器已刷入 OpenWrt 系统，并能够正常访问互联网。
+- 已通过 SSH 登入路由器后台（LuCI 的 **系统 > 管理权 > SSH 访问** 或终端工具均可）。
+- 注册并登入 [云雀通控制台](https://larktun.com/auth/login)。
+- 路由器有足够的存储空间用于安装 `larktun` 与 `larktund`（建议至少预留几 MB 的可用空间）。
+
+## 1. 使用在线脚本安装
+
+通过 SSH 进入路由器后，执行以下命令下载并运行安装脚本：
+
+```bash
+wget -O /tmp/larktun.sh https://download2.larktun.com/openwrt/install.sh && sh /tmp/larktun.sh
+```
+
+脚本会自动识别路由器的 CPU 架构，下载对应的云雀通程序，并完成基础的服务配置。安装过程中的日志会实时输出在终端中。
+
+安装成功后，终端会显示类似下图的提示界面，包含安装完成提示，以及后续登入所需的命令格式：
+
+![OpenWrt 上云雀通安装完成提示界面](/img/docs/openwrt/openwrt-install-success.webp)
+
+:::tip
+如果执行 `wget` 时报证书或下载失败，请确认路由器系统时间是否正确，以及是否能正常解析和访问 `download2.larktun.com`。
+:::
+
+## 2. 在控制台生成 Auth Key
+
+安装完成后，需要一枚 Auth Key 才能让路由器接入你的云雀通网络：
+
+1. 登入 [云雀通控制台](https://larktun.com/auth/login)，进入你的租户或工作空间。
+2. 在左侧导航栏中进入 **机器（Nodes）** 页面。
+3. 点击 **生成授权密钥**，为这台 OpenWrt 路由器生成一个专用的 Auth Key。
+4. **注意**：出于安全考虑，Auth Key 只会完整显示一次，请妥善复制保存，不要粘贴到公开聊天、工单或截图中。
+
+## 3. 使用密钥登入云雀通
+
+回到路由器的 SSH 终端，将 `<您的 Auth Key>` 替换为上一步生成的密钥，执行：
+
+```bash
+larktun up --login-server=https://hs.larktun.com --auth-key=<您的 Auth Key>
+```
+
+其中 `--login-server` 需指向云雀通的接入控制面（例如 `https://hs.larktun.com`，具体请以控制台页面中的引导提示为准）。
+
+## 验证接入状态
+
+执行登入命令后，回到云雀通控制台的 **Nodes（设备）** 页面并刷新，确认这台 OpenWrt 路由器已经显示为在线。在线后，你可以参考[批准子网路由](./approve-subnet-routes)，把路由器后面的局域网段一并发布到云雀通网络，让其他设备无需安装客户端即可被远程访问。
+
+## 安装或登入失败怎么办
+
+- `wget` 下载失败或超时：检查路由器能否访问公网，以及防火墙、广告屏蔽插件是否拦截了下载请求。
+- 提示存储空间不足：清理无用的软件包或日志后重试，OpenWrt 设备的可用空间通常比较有限。
+- 执行 `larktun up` 后路由器始终不在线：确认 Auth Key 没有过期或被重复使用，并检查 `--login-server` 地址是否完整、拼写正确。
+- 路由器重启后云雀通未自动运行：检查安装脚本是否已将 `larktund` 注册为 OpenWrt 的开机自启服务（init.d / procd）。
+- 仍未解决：参考[问题处理](../troubleshooting/common-issues)，或在控制台提交工单时附上路由器型号、固件版本与执行命令的完整输出。
+
+## 下一步
+
+- [批准子网路由](./approve-subnet-routes)
+- [开通第一条安全访问链路](./publish-your-first-service)
+- [使用 Tailscale 客户端登入](./tailscale-client-login)
+- [问题处理](../troubleshooting/common-issues)
