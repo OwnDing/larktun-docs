@@ -151,7 +151,7 @@ Avoid permanently opening every NAS port to every device. Validate one least-pri
 - Unsupported CPU architecture: the installer currently supports ARM64 and x86-64. For older ARMv7 devices, try the Tailscale package from the NAS app store.
 - Missing administrator permissions: use an account with `root`, `sudo`, or `doas`, or install Tailscale through the NAS app store.
 - No SSH or terminal access: check whether the app store provides a graphical Tailscale installation path.
-- No client can run on the NAS: use a router, server, or mini PC on the same LAN as a subnet router. Continue with [Approve Subnet Routes](./approve-subnet-routes).
+- No client can run on the NAS: use a router, server, or mini PC on the same LAN as a subnet router — for example a router running OpenWrt (see [Install Larktun on OpenWrt Routers](./openwrt-install-larktun)). Continue with [Approve Subnet Routes](./approve-subnet-routes).
 - Tailscale command completes but the NAS stays offline: check whether the Auth Key has expired and confirm the full `--login-server=https://hs.larktun.com` value.
 
 ## Next steps
