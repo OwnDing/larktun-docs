@@ -106,3 +106,15 @@ nix:
   label: Nix
   permalink: /nix
   description: Nix 构建环境、依赖处理和源码编译实践内容。
+service-discovery:
+  label: 服务发现
+  permalink: /service-discovery
+  description: 组网内服务自动发现、设备服务扫描和私有网络应用入口聚合的实践文章。
+smart-home:
+  label: 智能家居
+  permalink: /smart-home
+  description: 智能家居安全网络、设备自主控制和不依赖第三方云中转的组网实践。
+rdp:
+  label: RDP
+  permalink: /rdp
+  description: RDP 远程桌面、WebRTC、Web 多标签和移动端远程办公相关文章。
