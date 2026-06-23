@@ -1,0 +1,97 @@
+---
+slug: larktun-home-network-app-hub
+title: "Turning Larktun into a Home Application Hub: discover on connect, access every service from one app"
+description: "On top of secure mesh networking, Larktun adds smart service discovery and supports multi-tab and split-window SSH, RDP, Web, and WebRTC, so iPhone and iPad can reach every device and service in the network from a single app — turning a private network into a home application hub."
+authors: [ownding]
+tags: [larktun, service-discovery, smart-home, rdp, remote-access, remote-work, mobile, zero-trust-networking]
+keywords:
+  - home network application hub
+  - automatic service discovery in a mesh network
+  - Larktun smart discovery
+  - access internal services from one app
+  - iPad replacing a laptop for remote work
+  - multi-tab SSH RDP Web WebRTC
+  - secure smart home network without cloud relay
+  - Larktun home application hub
+  - scan and discover internal services
+  - split window multi-tab remote desktop
+image: /img/blog/home-app-hub/home-app-hub-en.svg
+---
+
+Most people start with a mesh networking tool for a simple reason: connect a few devices at home, at the office, and in the cloud, then access them remotely. But after using it for a while, you notice that this kind of "remote access" only uses half of what the network can do.
+
+You are connected, but when you actually want to use something, you still have to remember it yourself: which IP hosts the NAS admin panel, which port the dev machine uses for SSH, which address that Windows box listens on for remote desktop. The network opened the path, but the questions of "what services exist, where they are, and how to get in" still live entirely in the user's head.
+
+Larktun wants to redo this. We do not just want to build a "remote access tool." We want to build a **home application hub**: once the network is up, the app discovers the services on it, and the user only has to tap to use them.
+
+{/* truncate */}
+
+![Larktun home application hub: discover on connect, access every service from one app](/img/blog/home-app-hub/home-app-hub-en.svg)
+
+## Remote Access Is Point-to-Point and Underuses the Network
+
+Traditional remote access is essentially point-to-point: one device connects to another. It solves "I need to get into that machine right now," but it treats the network as a single wire rather than an actual mesh.
+
+The problem with a wire is that every destination has to be maintained by a person. As devices pile up, IPs, ports, usernames, and protocols blur together, and each access feels like flipping through an address book only you can read. Switch to a different phone or tablet, and you have to copy that address book all over again.
+
+A mesh network should be different. Every device and every service on it can, in principle, be discovered and identified. If the path is already secure and connected, why should users still memorize addresses themselves?
+
+That missing half is exactly what we set out to add.
+
+## Step One: The Secure Mesh We Already Had
+
+Larktun has always been built on networking and strong encryption. Devices establish end-to-end encrypted connections over the Larktun network. Servers do not need to expose ports to the public internet, and mobile devices do not need to turn on system VPN to join this private network.
+
+This layer is the prerequisite for everything else: only with a secure, trusted, controllable network does "discover and access services inside it" become meaningful. For the approach of putting the network inside the app without using system VPN permission, see the earlier posts: [Putting Larktun networking inside an app without VPN permission](/blog/larktun-tsnet-app-without-vpn-permission) and [Access devices on iPad and iPhone without system VPN](/blog/larktun-ipad-ios-app-without-vpn).
+
+## Step Two: Smart Discovery Lets the Network Tell You What Is There
+
+On top of secure mesh networking, Larktun adds **smart discovery**.
+
+Once connected, the app scans the network for common services and automatically recognizes what is available: which machine is running SSH, which one offers RDP remote desktop, which addresses serve Web admin panels, and which devices support WebRTC. Users no longer maintain a long list of IPs and ports by hand — the network surfaces its accessible services on its own.
+
+This changes the starting point. The old starting point was "I first have to recall which machine to connect to and what its address is." The new one is "I open the app, see at a glance what is on the network, and tap to use it."
+
+For homes and small teams, the difference is large. The home NAS, the soft router, the camera console, the little host running a service, plus the office dev machines, test boxes, and internal dashboards — none of them are addresses to be remembered anymore. They are auto-discovered, ready-to-tap entry points.
+
+## Step Three: SSH, RDP, Web, and WebRTC in One App
+
+Discovering services is not enough; you also need to use them directly. Larktun brings the main access capabilities into the same app.
+
+SSH is for logging into servers, checking logs, restarting services, and running quick commands. RDP remote desktop is for operating Windows machines directly, bringing a home or office computer onto the screen in your hands. Web browsing is for opening internal admin panels, Swagger pages, dashboards, and consoles. WebRTC targets more real-time audio/video and low-latency interactions.
+
+These used to be scattered across several apps, forcing users to jump between a networking app, an SSH client, a remote desktop tool, and a browser. Now they live in one place: discovery happens here, and so does access.
+
+## Step Four: Multi-Tab and Split Windows for Real Mobile Multitasking
+
+Putting several protocols into one app does not mean you can only do one thing at a time.
+
+Larktun supports **multi-tab** and **split-window** layouts for SSH, RDP, Web, and WebRTC. You can watch logs in a server's SSH terminal while operating another computer over RDP, all while keeping a tab open on an internal Web panel. When you need to compare, split the windows side by side; when you need to focus, fold them back into tabs.
+
+On a large-screen device like iPad, this interaction feels especially natural. It is no longer just a small tool for "peeking in remotely" — it is closer to a workspace where you can actually get work done.
+
+## Why We Focus on iPad
+
+iPad is a particularly good fit for this direction.
+
+Its screen is large enough to carry terminals, remote desktops, and Web panels — interfaces where details matter. Yet it is light enough to carry everywhere. Once smart discovery, multi-protocol access, multi-tab, and split windows all live in one app, iPad can take on two roles.
+
+One is **working directly on iPad** — networking, terminal, files, Web, and remote desktop are all at hand, so you can travel light without falling behind. The other is **working remotely on your computer** — while you are out, use iPad to connect back to the real host at home or the office and lean on its compute and environment for heavy lifting.
+
+Either way, iPad shifts from a supporting role to a main device that can replace a laptop, coming with us on the road with a genuinely light experience.
+
+## Going Further: Send Commands to Devices, So Smart Homes Secure Themselves
+
+The home application hub has one more direction we are excited about: sending commands to devices over the secure network.
+
+Today many smart home setups rely on a vendor's servers as a relay — you tap on your phone, the command detours through the vendor's cloud, and then comes back to the device at home. That adds latency, and it also hands part of the control over your home devices to a third party.
+
+If commands can travel directly to devices inside Larktun's end-to-end encrypted private network, smart homes can truly secure themselves: control never leaves the network, no external cloud relay is required, and the keys to your devices stay in your hands. This is the shape we hope to move toward step by step.
+
+## Making the Mesh a Genuinely Useful Entry Point
+
+Our motivation for the home application hub is simple: turn mesh networking from "connected, but you still have to fiddle" into "connected, and it just works."
+
+Secure networking provides the foundation, smart discovery removes the need to memorize, multi-protocol access consolidates the entry point, multi-tab and split windows enable real multitasking, and a device like iPad lets all of it travel with you. Further out, the secure network can extend to directly controlling home devices.
+
+We hope this home network application hub brings a little real, tangible convenience to more people.

@@ -106,3 +106,15 @@ nix:
   label: Nix
   permalink: /nix
   description: Nix build environments, dependency handling, and source compilation workflows.
+service-discovery:
+  label: service discovery
+  permalink: /service-discovery
+  description: Automatic service discovery inside a private network, device scanning, and aggregating private app entry points.
+smart-home:
+  label: smart home
+  permalink: /smart-home
+  description: Secure smart-home networking, self-hosted device control, and private networks without third-party cloud relays.
+rdp:
+  label: RDP
+  permalink: /rdp
+  description: RDP remote desktop, WebRTC, multi-tab Web, and mobile remote-work workflows.
