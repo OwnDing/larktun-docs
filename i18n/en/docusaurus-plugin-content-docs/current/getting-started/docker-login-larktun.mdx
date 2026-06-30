@@ -1,0 +1,135 @@
+---
+title: Log in to Larktun with Docker
+description: Use the Larktun Docker image to join a container to your Larktun network with an Auth Key and custom login server, including userspace and Kernel TUN modes.
+keywords:
+  - Larktun Docker
+  - Docker login Larktun
+  - Larktun Docker image
+  - TS_AUTHKEY
+  - TS_USERSPACE
+  - amd64
+  - arm64
+  - arm/v7
+  - headscale Docker
+  - Tailscale container
+sidebar_position: 8
+---
+
+# Log in to Larktun with Docker
+
+Larktun provides a Docker image for quickly joining Linux servers, NAS devices, gateway hosts, and containerized environments to your Larktun network. You can start with the default userspace mode for a lower-privilege setup, or use Kernel TUN mode when the container needs host-level networking capabilities.
+
+This guide uses the `registry.larktun.com/larktun/larktun:1.86.2` image and logs in with an Auth Key.
+
+## Before you begin
+
+- Docker is installed and running.
+- You have registered and signed in to the [Larktun console](https://larktun.com/auth/login).
+- Your account still has available device quota.
+- The host can reach the Larktun image registry at `registry.larktun.com`.
+
+An Auth Key is a device credential. Keep it private, do not commit it to a repository, and do not paste it into public chats, tickets, or screenshots.
+
+## 1. Pull the Larktun Docker image
+
+The Larktun Docker image is available for these architectures:
+
+- `linux/amd64`: common x86-64 servers, PCs, and virtual machines
+- `linux/arm64`: ARM64 NAS devices, Apple Silicon Linux virtual machines, and ARM servers
+- `linux/arm/v7`: selected 32-bit ARM devices
+
+Docker usually selects the matching image automatically based on the host architecture. If you need to force a platform in a special environment, add `--platform` to `docker pull` or `docker run`.
+
+Pull the pinned image version first:
+
+```bash
+docker pull registry.larktun.com/larktun/larktun:1.86.2
+```
+
+For production deployments, pinning the image version makes rollback and troubleshooting easier. The commands below use the same full image address.
+
+## 2. Get an Auth Key from the Larktun console
+
+1. Sign in to the [Larktun console](https://larktun.com/auth/login) and enter your tenant or workspace.
+2. Open **Machines (Nodes)** from the left navigation.
+3. Click **Create Auth Key** to generate a dedicated Auth Key for this Docker node.
+4. Copy and store the key. For security reasons, an Auth Key is usually shown in full only once.
+
+Use a dedicated key for Docker nodes instead of sharing one with desktop clients, routers, or NAS devices.
+
+## 3. Confirm the login server URL
+
+The default Larktun control-plane login server is:
+
+```text
+https://hs.larktun.com
+```
+
+The actual URL may differ for some users, tenants, or private deployments. Before running the container, open **Settings** in the console and check **Display configuration** for the login server URL assigned to your account.
+
+The commands below pass `--login-server` to the container startup flow through `TS_EXTRA_ARGS`. If your console shows a URL other than `https://hs.larktun.com`, replace it with the exact URL from your configuration.
+
+## 4. Option 1: Log in with userspace mode
+
+Userspace mode is the container default. It does not require `--network=host`, `NET_ADMIN`, or `/dev/net/tun`, which makes it a good first option for lower-privilege onboarding.
+
+```bash
+docker run -d --name larktun \
+  -e TS_AUTHKEY=tskey-... \
+  -e TS_STATE_DIR=/var/lib/larktun \
+  -e TS_EXTRA_ARGS=--login-server=https://hs.larktun.com \
+  -v larktun-state:/var/lib/larktun \
+  registry.larktun.com/larktun/larktun:1.86.2
+```
+
+Replace `tskey-...` with the Auth Key generated in the console.
+
+:::tip
+For production, you can add `--restart unless-stopped` so the container comes back automatically after Docker or host restarts.
+:::
+
+## 5. Option 2: Log in with Kernel TUN mode
+
+Use Kernel TUN mode when the container should use the host network stack or when you need more complete networking behavior. This mode requires `/dev/net/tun` on the host and grants the container `NET_ADMIN` and `NET_RAW`.
+
+```bash
+docker run -d --name larktun \
+  --network=host \
+  --cap-add=NET_ADMIN \
+  --cap-add=NET_RAW \
+  --device=/dev/net/tun \
+  -e TS_AUTHKEY=tskey-... \
+  -e TS_USERSPACE=false \
+  -e TS_STATE_DIR=/var/lib/larktun \
+  -e TS_EXTRA_ARGS=--login-server=https://hs.larktun.com \
+  -v larktun-state:/var/lib/larktun \
+  registry.larktun.com/larktun/larktun:1.86.2
+```
+
+If `/dev/net/tun` is missing, verify that the host kernel supports TUN/TAP and that your Docker environment allows the required device and capabilities.
+
+## Verify the login status
+
+After the container starts, check the container state and startup logs:
+
+```bash
+docker ps --filter name=larktun
+docker logs --tail=80 larktun
+```
+
+Then return to the **Nodes** page in the Larktun console and refresh the list. If the Auth Key and login server are correct, the new Docker node should appear online.
+
+## Troubleshooting
+
+- The device does not appear in the console: make sure `TS_AUTHKEY` is valid, has not expired, and has not been reused too many times. Also verify that `TS_EXTRA_ARGS=--login-server=...` matches the URL shown in the console.
+- A duplicate device appears after restarting the container: confirm that `-v larktun-state:/var/lib/larktun` is mounted and `TS_STATE_DIR=/var/lib/larktun` is spelled correctly.
+- Kernel TUN mode fails to start: confirm that `/dev/net/tun` exists on the host and that your Docker runtime allows `--cap-add=NET_ADMIN`, `--cap-add=NET_RAW`, and `--device=/dev/net/tun`.
+- The container name already exists: run `docker rm -f larktun` first, then start the container again. Removing the container does not delete the `larktun-state` volume used above.
+- Pulling the image fails: check connectivity to `registry.larktun.com`, plus any corporate proxy, firewall, or registry authentication rules.
+
+## Next steps
+
+- [Publish your first secure service](./publish-your-first-service)
+- [Approve subnet routes](./approve-subnet-routes)
+- [Log in with Tailscale Client](./tailscale-client-login)
+- [Troubleshooting](../troubleshooting/common-issues)

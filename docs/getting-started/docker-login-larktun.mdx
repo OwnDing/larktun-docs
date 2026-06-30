@@ -1,0 +1,135 @@
+---
+title: 使用 Docker 登入云雀通
+description: 使用云雀通 Larktun Docker 镜像，通过 Auth Key 与自定义 login server 将容器接入云雀通网络，支持默认 userspace 模式和 Kernel TUN 模式。
+keywords:
+  - Docker 登入云雀通
+  - Larktun Docker
+  - 云雀通 Docker 镜像
+  - TS_AUTHKEY
+  - TS_USERSPACE
+  - amd64
+  - arm64
+  - arm/v7
+  - headscale Docker
+  - Tailscale 容器
+sidebar_position: 8
+---
+
+# 使用 Docker 登入云雀通
+
+云雀通（Larktun）提供 Docker 镜像，适合在 Linux 服务器、NAS、旁路网关或容器化环境中快速接入云雀通网络。你可以使用默认的 userspace 模式低权限运行，也可以在需要宿主机网络能力时启用 Kernel TUN 模式。
+
+本教程使用 `registry.larktun.com/larktun/larktun:1.86.2` 镜像，通过 Auth Key 完成首次登入。
+
+## 开始前准备
+
+- 已安装并启动 Docker。
+- 已注册并登入 [云雀通控制台](https://larktun.com/auth/login)。
+- 当前账号仍有可用设备接入配额。
+- 已确认本机可以访问云雀通镜像仓库 `registry.larktun.com`。
+
+Auth Key 是设备接入凭证，请妥善保管，不要提交到代码仓库，也不要粘贴到公开聊天、工单或截图中。
+
+## 1. 下载云雀通 Docker 镜像
+
+云雀通 Docker 镜像提供以下架构：
+
+- `linux/amd64`：常见 x86-64 服务器、PC、虚拟机
+- `linux/arm64`：ARM64 NAS、Apple Silicon Linux 虚拟机、ARM 服务器
+- `linux/arm/v7`：部分 32 位 ARM 设备
+
+Docker 通常会根据当前宿主机架构自动选择匹配镜像。如果需要在特殊环境中手动指定架构，可以在 `docker pull` 或 `docker run` 中加入 `--platform`。
+
+先拉取指定版本镜像：
+
+```bash
+docker pull registry.larktun.com/larktun/larktun:1.86.2
+```
+
+建议在生产环境固定镜像版本，便于回滚和排查问题。后续命令也会使用同一个完整镜像地址。
+
+## 2. 从云雀通控制台获取 Auth Key
+
+1. 登入 [云雀通控制台](https://larktun.com/auth/login)，进入你的租户或工作空间。
+2. 在左侧导航栏中进入 **机器（Nodes）** 页面。
+3. 点击 **生成授权密钥**，为这台 Docker 节点生成一枚专用 Auth Key。
+4. 复制并保存密钥。出于安全考虑，Auth Key 通常只会完整显示一次。
+
+建议为 Docker 节点单独生成密钥，不要和桌面客户端、路由器或 NAS 共用同一枚 Auth Key。
+
+## 3. 确认 login server 地址
+
+云雀通的默认接入控制面地址为：
+
+```text
+https://hs.larktun.com
+```
+
+不同用户、租户或私有化环境的地址可能不同。运行命令前，请在控制台 **设置** 中查看 **显示配置**，确认当前账号应使用的 login server 地址。
+
+下方命令通过 `TS_EXTRA_ARGS` 把 `--login-server` 传给容器启动流程。如果你的控制台显示的地址不是 `https://hs.larktun.com`，请把命令中的地址替换为你的实际地址。
+
+## 4. 方式一：userspace 模式登入
+
+userspace 模式是容器默认模式，不需要 `--network=host`、`NET_ADMIN` 权限或 `/dev/net/tun` 设备，适合先完成低权限接入验证。
+
+```bash
+docker run -d --name larktun \
+  -e TS_AUTHKEY=tskey-... \
+  -e TS_STATE_DIR=/var/lib/larktun \
+  -e TS_EXTRA_ARGS=--login-server=https://hs.larktun.com \
+  -v larktun-state:/var/lib/larktun \
+  registry.larktun.com/larktun/larktun:1.86.2
+```
+
+请将 `tskey-...` 替换为你在控制台生成的 Auth Key。
+
+:::tip
+生产环境可以按需增加 `--restart unless-stopped`，让容器在 Docker 或宿主机重启后自动恢复。
+:::
+
+## 5. 方式二：Kernel TUN 模式登入
+
+如果你希望容器使用宿主机网络栈，或后续需要更完整的网络能力，可以使用 Kernel TUN 模式。该模式需要宿主机提供 `/dev/net/tun`，并授予容器 `NET_ADMIN` 与 `NET_RAW` 权限。
+
+```bash
+docker run -d --name larktun \
+  --network=host \
+  --cap-add=NET_ADMIN \
+  --cap-add=NET_RAW \
+  --device=/dev/net/tun \
+  -e TS_AUTHKEY=tskey-... \
+  -e TS_USERSPACE=false \
+  -e TS_STATE_DIR=/var/lib/larktun \
+  -e TS_EXTRA_ARGS=--login-server=https://hs.larktun.com \
+  -v larktun-state:/var/lib/larktun \
+  registry.larktun.com/larktun/larktun:1.86.2
+```
+
+如果你的 Linux 系统没有 `/dev/net/tun`，请先确认内核是否启用了 TUN/TAP，并检查宿主机权限或容器运行环境限制。
+
+## 验证登入状态
+
+容器启动后，先查看运行状态和启动日志：
+
+```bash
+docker ps --filter name=larktun
+docker logs --tail=80 larktun
+```
+
+然后回到云雀通控制台的 **Nodes（设备）** 页面并刷新列表。如果 Auth Key 和 login server 配置正确，你会看到新的 Docker 节点上线。
+
+## 常见问题
+
+- 容器启动后控制台看不到设备：确认 `TS_AUTHKEY` 没有过期、没有多次复用，并检查 `TS_EXTRA_ARGS=--login-server=...` 是否使用了控制台显示的地址。
+- 重启容器后出现重复设备：确认已挂载 `-v larktun-state:/var/lib/larktun`，并且 `TS_STATE_DIR=/var/lib/larktun` 没有写错。
+- Kernel TUN 模式启动失败：确认宿主机存在 `/dev/net/tun`，并且 Docker 运行环境允许 `--cap-add=NET_ADMIN`、`--cap-add=NET_RAW` 和 `--device=/dev/net/tun`。
+- 提示容器名已存在：先执行 `docker rm -f larktun` 删除旧容器，再重新运行命令。删除容器不会删除上面的 `larktun-state` 数据卷。
+- 镜像拉取失败：确认网络可以访问 `registry.larktun.com`，并检查企业代理、防火墙或镜像仓库认证策略。
+
+## 下一步
+
+- [开通第一条安全访问链路](./publish-your-first-service)
+- [批准子网路由](./approve-subnet-routes)
+- [使用 Tailscale 客户端登入](./tailscale-client-login)
+- [问题处理](../troubleshooting/common-issues)
