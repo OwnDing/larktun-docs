@@ -1,0 +1,59 @@
+---
+title: "Optimize iOS Remote Desktop: Enable RemoteFX"
+description: The Larktun iOS app's RDP remote desktop defaults to H.264 (AVC444) encoding. This guide shows how to enable classic RemoteFX on Windows so the fallback mode stays sharp and smooth when H.264 is unavailable.
+sidebar_position: 7
+---
+
+# Optimize iOS Remote Desktop: Enable RemoteFX
+
+The Larktun iOS app includes an RDP remote desktop that reaches Windows devices in your private network through `tsnet`, with no public port required. Graphics encoding is negotiated automatically in this order:
+
+1. **H.264 (AVC444)**: the default mode. Best quality and bandwidth; most Windows 10 / 11 machines need no configuration at all.
+2. **Classic RemoteFX**: the fallback mode. Used automatically when H.264 is unavailable — sharp text and low bandwidth, but it requires one group policy to be enabled on Windows.
+3. **Raw bitmap**: the last resort. Works against any server; the picture is correct but clarity and bandwidth are mediocre.
+
+If your connection already runs in the default H.264 mode, there is nothing to do. This guide only matters when:
+
+- You selected bitmap mode in the connection's Advanced Settings, or turned off the H.264 (AVC444) switch;
+- The remote Windows machine cannot encode H.264 (for example some N editions or older server versions);
+- You want the fallback mode to look as close to the primary mode as possible.
+
+## Enable RemoteFX on Windows
+
+Windows does not enable classic RemoteFX for these connections by default. On the **Windows machine you connect to**, do the following:
+
+1. Press `Win + R`, type `gpedit.msc`, and press Enter to open the Local Group Policy Editor.
+2. Navigate to: Computer Configuration → Administrative Templates → Windows Components → Remote Desktop Services → Remote Desktop Session Host → Remote Session Environment → RemoteFX for Windows Server 2008 R2.
+3. Double-click "Configure RemoteFX", select "Enabled", and confirm.
+4. Open a command prompt and run `gpupdate /force`.
+5. **Sign out** of the current remote session (not just disconnect), then reconnect from the Larktun app.
+
+After reconnecting, text in bitmap mode should be noticeably sharper, and scrolling and window dragging smoother.
+
+## No Group Policy Editor on Home edition?
+
+Windows Home has no `gpedit.msc`; the registry achieves the same result. Open an elevated command prompt and run:
+
+```
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /v fEnableVirtualizedGraphics /t REG_DWORD /d 1 /f
+```
+
+Then sign out of the remote session and reconnect. To undo it, run the command again with `/d 0`, or delete the value.
+
+## Still not working?
+
+- Make sure you changed the **machine being connected to** (the RDP server), not the device you connect from.
+- In the same policy folder, also set "Enable RemoteFX encoding for RemoteFX clients designed for Windows Server 2008 R2 SP1" to "Enabled", run `gpupdate /force`, and sign out and reconnect.
+- Check that the connection's color depth is 32-bit (the default). RemoteFX does not engage at 16-bit depth.
+- In managed corporate environments, domain policy may override local settings — contact your administrator.
+
+## FAQ
+
+**Is this setting a security risk?**
+No. It only changes how remote desktop graphics are encoded. Authentication, encryption, and network exposure are unaffected, and the connection still runs inside your Larktun private network.
+
+**Does Linux (xrdp) need configuration?**
+Usually not. The xrdp builds shipped by mainstream distributions include RemoteFX encoding, and the Larktun app negotiates it automatically.
+
+**Does the default H.264 mode need this setting?**
+No. This setting only affects the fallback mode; whenever H.264 negotiation succeeds, the app prefers H.264.
