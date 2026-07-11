@@ -38,5 +38,17 @@
   "sidebar.docsSidebar.category.问题处理.link.generated-index.description": {
     "message": "Diagnose offline devices, denied policies, unstable paths, and audit anomalies.",
     "description": "The generated-index page description for category '问题处理' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.专题指南": {
+    "message": "Topic Guides",
+    "description": "The label for category '专题指南' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.专题指南.link.generated-index.title": {
+    "message": "Topic Guides",
+    "description": "The generated-index page title for category '专题指南' in sidebar 'docsSidebar'"
+  },
+  "sidebar.docsSidebar.category.专题指南.link.generated-index.description": {
+    "message": "Search-focused guides for Larktun, Tailscale, Headscale, NAS remote access, secure SSH, AI Agent access, and mobile networking.",
+    "description": "The generated-index page description for category '专题指南' in sidebar 'docsSidebar'"
   }
 }
