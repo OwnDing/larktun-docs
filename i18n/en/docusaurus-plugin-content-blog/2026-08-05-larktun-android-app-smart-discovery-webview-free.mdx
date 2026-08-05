@@ -1,0 +1,116 @@
+---
+slug: larktun-android-app-smart-discovery-webview-free
+title: "The Larktun Android App Gets a Major Upgrade: Smart Discovery, a Powerful WebView, and It Is Free"
+description: "The Larktun Android app now discovers and opens Web, SSH, SFTP, and RDP services, while its upgraded browser supports ComfyUI, multiple tabs, fullscreen, and complete downloads. SSH and RDP are improved too — and the app is free to use."
+authors: [ownding]
+tags: [larktun, mobile, service-discovery, remote-access, ssh, rdp, remote-work]
+keywords:
+  - Larktun Android app
+  - free Android remote access app
+  - Android private network service discovery
+  - Android WebView ComfyUI
+  - remote access to ComfyUI
+  - Android WebView multiple tabs fullscreen downloads
+  - Android SSH client
+  - Android RDP remote desktop
+  - access NAS router and server from Android
+  - free private network app for Android
+image: /img/blog/android-app-upgrade/android-app-upgrade-en.svg
+---
+
+Accessing your own servers, NAS, router, or Windows PC from Android has traditionally required a toolkit. First connect to the private network, open an admin panel in a browser, switch to an SSH client to run commands, and then reach for yet another app when you need an RDP desktop. The network may be connected, but getting work done still means bouncing between apps.
+
+We have always believed that mesh networking should do more than open a path. It should tell you what is available on the network and give you the tools to open those services immediately.
+
+The latest Larktun Android app takes a major step in that direction. It adds Smart Discovery, gives the built-in WebView a comprehensive upgrade, and improves both SSH and RDP. Most importantly, all of it is **free to use**.
+
+{/* truncate */}
+
+![The upgraded Larktun Android app brings together Smart Discovery, WebView, SSH, and RDP for free](/img/blog/android-app-upgrade/android-app-upgrade-en.svg)
+
+## This Is Not About Adding More Features. It Is About Shortening the Path
+
+The traditional workflow begins with an address. You have to remember the IP, port, and protocol of a target device, then decide which app can open it.
+
+Larktun now begins with the service instead. Once connected to your Larktun network, the app can discover Web, SSH, SFTP, and RDP services and turn them into ready-to-tap entries. Discovery, connectivity, and the actual client all live in one app, so there is no address book to search and no stack of tools to jump between.
+
+That makes a real difference for home networks, homelabs, and small teams. A NAS console, OpenWrt panel, Home Assistant instance, Grafana dashboard, development server, and Windows workstation used to be a scattered list of addresses. Now they feel more like a collection of private apps on your Android device.
+
+## Smart Discovery: Let the Network Tell You What Is There
+
+The Larktun Android app now includes **Smart Discovery**.
+
+Start a scan and the app probes common services on your Larktun network. It recognizes Web pages, SSH, SFTP, and RDP using page titles, service responses, and protocol characteristics. A discovered service can be opened directly in the built-in browser, SSH terminal, SFTP workspace, or RDP desktop, and frequently used entries can be saved as favorites.
+
+This removes the step that most often stops a new user: configuration.
+
+You do not need to research which port a service uses or manually create a row of connection profiles. Open Smart Discovery, let the network return its results, and tap the service you need. Scanning a subnet route still requires explicit confirmation, and discovery results remain on the device. The boundary stays visible, and networks are not scanned unintentionally.
+
+## A Major WebView Upgrade: ComfyUI Is Now Ready for Real Work
+
+Many private services ultimately expose a Web interface. Modern Web apps, however, are much more than static pages. They rely on WebSockets, streaming responses, uploads, browser-generated files, and fullscreen canvases. A WebView that can merely display a basic page is not enough for ComfyUI, Home Assistant, Grafana, or a modern NAS console.
+
+That is why the Android WebView received a full upgrade rather than a small patch.
+
+### Built for ComfyUI and Complex Private Web Apps
+
+The built-in Larktun browser has been strengthened for large single-page applications such as ComfyUI. Page resources, live progress, workflow interaction, image uploads, and result downloads can all continue through the private Larktun connection. You can take out an Android phone or tablet while away from home and open ComfyUI on your workstation without exposing it to the public internet.
+
+The same improvements help with NAS consoles, Home Assistant, Grafana, Jellyfin, router admin pages, and other self-hosted services.
+
+### Multiple Tabs Keep Multiple Workspaces Alive
+
+The browser now supports multiple tabs. ComfyUI, your NAS, a monitoring dashboard, and a development environment can stay open separately, ready for quick switching. Leaving one page no longer means losing the workspace you just set up.
+
+New windows opened by a page can become new tabs, and frequently used pages can be saved as favorites. It feels much closer to a modern mobile browser on a phone and is even more useful during longer sessions on a tablet.
+
+### Fullscreen for Video, Dashboards, and Focused Work
+
+The new version supports both HTML5 fullscreen for pages and video, as well as an immersive browsing mode that hides the browser chrome.
+
+Jellyfin video, camera feeds, Grafana dashboards, and an enlarged ComfyUI canvas can finally use the whole display. A quick rotation control helps when landscape works better, without leaving the page surrounded by address bars and system UI.
+
+### Downloads That Work from Start to Finish
+
+Downloads have also been rebuilt. The browser handles regular HTTP/HTTPS files as well as generated `blob:` and `data:` downloads. That means ComfyUI images, Grafana CSV exports, and archives assembled by a NAS can make it from the Web app into your Android device.
+
+Tasks can continue in the background. The download center shows progress and offers open, share, retry, cancel, and cleanup actions. Closing the tab that started a download no longer kills the task with it.
+
+File uploads, desktop mode, self-signed certificates, page permissions, new windows, and in-page search have been improved as well. WebView is no longer a small accessory beside the device list; it is a built-in browser capable of doing real work.
+
+## Better SSH: A Mobile Terminal Should Feel Natural
+
+The value of SSH is not simply whether it connects. The real experience depends on reliable input, fast access to earlier commands, and convenient file handling once the session is open.
+
+The upgraded SSH workspace improves terminal input, scrolling, text selection, and common shortcuts. It supports password and private-key authentication, with keys available through either paste or Android's file picker. Command history can be viewed and searched, terminal output can be copied or saved, and shortcut commands reduce repetitive typing on a phone.
+
+The terminal and SFTP file manager also share one workspace. After running a command, you can download a log or upload a configuration file without leaving SSH to hunt for another SFTP client.
+
+This is closer to a real maintenance workflow. Instead of shrinking a desktop terminal onto a phone, the interaction has been reorganized around touchscreens, software keyboards, and quick mobile sessions.
+
+## Better RDP: Clearer When Possible, Compatible When Needed
+
+The RDP graphics path has been improved too.
+
+When the server supports it, Larktun can use EGFX with H.264/AVC444 for a clearer and more efficient remote image. When those capabilities are not available, it automatically falls back to a compatible classic graphics mode, helping avoid black blocks, smearing, and stale regions. Android-side decoding and initial frame presentation have been improved as well.
+
+The RDP workspace also brings together remote audio, clipboard access, and keyboard and pointer input. When a task requires a Windows-only desktop application, an Android phone or tablet can serve as the entry point in your pocket.
+
+## A Real Mobile Workflow
+
+These capabilities become more valuable together than they are on a checklist.
+
+For example, begin with Smart Discovery to find an AI workstation at home and open ComfyUI. While a job runs, switch to a second Web tab for the NAS, then open SSH to inspect GPU and service logs. If a Windows-only tool needs attention, jump into the RDP desktop on the same device. When generation finishes, save or share the result from the download center.
+
+The whole workflow stays inside one app, and none of the ComfyUI, SSH, or RDP ports need to be exposed publicly. This is the private-network experience we want on Android: connecting the network is only the beginning; discovering and using its services is the actual goal.
+
+## Most Importantly: It Is Free
+
+Smart Discovery, the upgraded WebView, SSH, SFTP, and RDP together form a complete mobile remote workspace.
+
+But the most important part of this release is still simple: **the Larktun Android app is free to use.**
+
+We want more people to securely access their own servers, NAS devices, routers, AI workstations, and remote computers from Android, without buying a separate tool for every protocol and without exposing private services directly to the internet.
+
+Visit the [Larktun download page](https://larktun.com/download) to get the Android app. Connect your network, let the app discover its services, and start using them.
+
