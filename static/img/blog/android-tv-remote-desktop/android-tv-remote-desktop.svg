@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">用云雀通把电脑搬到电视上</title>
+  <desc id="desc">云雀通 Android App 安装在电视上，配合蓝牙鼠标，在客厅大屏远程控制电脑。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2f8ff"/>
+      <stop offset="0.55" stop-color="#eef6ff"/>
+      <stop offset="1" stop-color="#f5f3ff"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.13"/>
+    </filter>
+    <style>
+      .text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; fill: #0f172a; }
+      .muted { fill: #475569; }
+      .white { fill: #ffffff; }
+      .title { font-size: 38px; font-weight: 800; }
+      .subtitle { font-size: 20px; font-weight: 600; }
+      .cardTitle { font-size: 22px; font-weight: 750; }
+      .cardText { font-size: 16px; font-weight: 600; }
+      .step { font-size: 17px; font-weight: 700; }
+      .card { fill: #ffffff; stroke: #dbe5ef; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="680" rx="34" fill="url(#bg)"/>
+  <circle cx="1080" cy="100" r="80" fill="#c7d2fe" opacity="0.4"/>
+  <circle cx="108" cy="596" r="90" fill="#99f6e4" opacity="0.32"/>
+  <text x="600" y="62" text-anchor="middle" class="text title">把电脑搬到电视上</text>
+  <text x="600" y="96" text-anchor="middle" class="text muted subtitle">云雀通 Android App · 客厅大屏就是你的远程桌面</text>
+
+  <g filter="url(#shadow)">
+    <rect x="82" y="146" width="620" height="366" rx="20" fill="#111827"/>
+    <rect x="96" y="160" width="592" height="322" rx="12" fill="url(#screen)"/>
+    <rect x="96" y="160" width="592" height="34" rx="12" fill="#0b1220"/>
+    <circle cx="120" cy="177" r="6" fill="#ef4444"/>
+    <circle cx="140" cy="177" r="6" fill="#f59e0b"/>
+    <circle cx="160" cy="177" r="6" fill="#22c55e"/>
+    <text x="392" y="183" text-anchor="middle" class="text white cardText">RDP · 远程桌面</text>
+
+    <rect x="126" y="222" width="238" height="118" rx="10" fill="#ffffff" opacity="0.13"/>
+    <rect x="146" y="246" width="150" height="12" rx="6" fill="#ffffff" opacity="0.55"/>
+    <rect x="146" y="272" width="198" height="12" rx="6" fill="#ffffff" opacity="0.32"/>
+    <rect x="146" y="298" width="118" height="12" rx="6" fill="#ffffff" opacity="0.32"/>
+
+    <rect x="392" y="222" width="266" height="118" rx="10" fill="#ffffff" opacity="0.13"/>
+    <path d="M414 322 L452 268 L486 306 L520 250 L562 322 Z" fill="#38bdf8" opacity="0.75"/>
+    <circle cx="618" cy="258" r="18" fill="#facc15" opacity="0.8"/>
+
+    <rect x="126" y="370" width="532" height="82" rx="10" fill="#ffffff" opacity="0.1"/>
+    <text x="150" y="404" class="text white cardText">C:\&gt; 家里的电脑，正在电视上运行</text>
+    <text x="150" y="432" class="text white cardText" opacity="0.7">不用映射 3389 端口，不用 DDNS</text>
+
+    <path d="M330 512 L454 512 L470 556 L314 556 Z" fill="#1f2937"/>
+    <rect x="286" y="556" width="212" height="14" rx="7" fill="#111827"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="742" y="146" width="376" height="150" rx="24" class="card"/>
+    <circle cx="792" cy="196" r="25" fill="#dbeafe"/>
+    <path d="M780 186 H804 V206 H780 Z M786 212 H798" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="836" y="203" class="text cardTitle">NoVPN 版 APK</text>
+    <text x="774" y="243" class="text muted cardText">arm64 + armv7 同一安装包</text>
+    <text x="774" y="271" class="text muted cardText">不占用系统 VPN 权限</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="742" y="326" width="376" height="150" rx="24" class="card"/>
+    <circle cx="792" cy="376" r="25" fill="#d1fae5"/>
+    <path d="M792 362 C801 362 806 369 806 378 V388 C806 396 800 401 792 401 C784 401 778 396 778 388 V378 C778 369 783 362 792 362 Z M792 362 V378" fill="none" stroke="#059669" stroke-width="4" stroke-linejoin="round"/>
+    <text x="836" y="383" class="text cardTitle">配一个蓝牙鼠标</text>
+    <text x="774" y="423" class="text muted cardText">遥控器负责导航</text>
+    <text x="774" y="451" class="text muted cardText">鼠标负责真正的操作</text>
+  </g>
+
+  <rect x="742" y="506" width="376" height="114" rx="24" fill="url(#accent)" filter="url(#shadow)"/>
+  <text x="930" y="548" text-anchor="middle" class="text white cardTitle">开发者模式 → 装 APK</text>
+  <text x="930" y="584" text-anchor="middle" class="text white cardTitle">→ 登入 → 远程电脑</text>
+
+  <g filter="url(#shadow)">
+    <rect x="82" y="592" width="620" height="56" rx="28" fill="#ffffff" stroke="#dbe5ef" stroke-width="1.5"/>
+    <text x="392" y="627" text-anchor="middle" class="text step">电视 · 电视盒子 · 投影仪，都能装</text>
+  </g>
+</svg>

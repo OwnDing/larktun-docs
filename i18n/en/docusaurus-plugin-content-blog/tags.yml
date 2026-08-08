@@ -118,3 +118,7 @@ rdp:
   label: RDP
   permalink: /rdp
   description: RDP remote desktop, WebRTC, multi-tab Web, and mobile remote-work workflows.
+android-tv:
+  label: Android TV
+  permalink: /android-tv
+  description: Remote desktop, big-screen access, and installation guides for Android TVs, TV boxes, and projectors.

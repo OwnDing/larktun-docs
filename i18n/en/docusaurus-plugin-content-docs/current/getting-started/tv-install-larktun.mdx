@@ -1,0 +1,128 @@
+---
+title: Install Larktun on a TV
+description: Enable developer mode on an Android TV or TV box, install the Larktun NoVPN APK (arm64 and armv7 in one package), sign in, pair a Bluetooth mouse, and control your computer from the big screen.
+keywords:
+  - install Larktun on TV
+  - Android TV install APK
+  - Android TV developer mode
+  - control PC from TV
+  - TV remote desktop
+  - TV box remote desktop
+  - Android TV RDP
+  - Larktun Android TV
+  - Bluetooth mouse Android TV
+sidebar_position: 9
+---
+
+# Install Larktun on a TV
+
+The Larktun Android app also runs on Android TVs, TV boxes, and smart projectors. Once installed and signed in, the TV joins your Larktun network as a node, so you can control a computer at home or at the office from the living-room screen — and open NAS panels, SSH terminals, and internal Web services along the way.
+
+TVs use the **Larktun NoVPN APK**. It connects to the network from inside the app and never requests system VPN permission, so it does not occupy the TV's VPN slot or interfere with the TV's own network settings.
+
+:::tip[The Whole Flow]
+Enable developer mode → download the NoVPN APK → install it → sign in → pair a Bluetooth mouse → connect to your computer.
+:::
+
+## Before You Start
+
+- An Android TV, TV box, or smart projector running Android, connected to the network.
+- A registered account signed in to the [Larktun Console](https://larktun.com/auth/login).
+- A Bluetooth mouse (strongly recommended). The remote works for installing and signing in, but remote desktop needs a real pointer.
+- The computer you want to reach already has Larktun installed, signed in, and online.
+
+:::note[About APK Architectures]
+The Larktun NoVPN APK ships both **arm64 (arm64-v8a)** and **armv7 (armeabi-v7a)** in a single package, so nearly every TV and TV box can install the same file — no need to pick a build for your model.
+:::
+
+## 1. Enable Developer Mode on the TV
+
+TV systems block sideloaded apps by default, so you need to turn on developer mode and allow installs from unknown sources.
+
+On stock Android TV:
+
+1. Go to **Settings > System > About** (some systems label it **Settings > About**).
+2. Find **Build number** and click it seven times with the remote.
+3. When **You are now a developer** appears, go back one level — **Developer options** is now visible.
+4. Go to **Settings > Apps > Special app access > Install unknown apps** (some systems use **Security & restrictions > Unknown sources**) and allow the app you'll install from — a file manager or browser.
+
+Menu names vary between brands. Xiaomi, TCL, Skyworth, Sony, and Nvidia Shield all use slightly different paths, but the logic is the same: **click the build number repeatedly to unlock developer mode, then grant install permission to one specific source app**.
+
+:::warning
+Grant unknown-source install permission only to the single app you actually use — for example, the built-in file manager. You can revoke it after installing; already installed apps keep working.
+:::
+
+## 2. Download the Larktun NoVPN APK
+
+Open the [Larktun download page](https://larktun.com/download) and pick the **Android NoVPN APK** — the file is named `larktun-novpn-latest.apk`. Choose whichever transfer method suits your TV:
+
+- **Download in the TV browser**: open the download page in the TV's built-in browser, then open the APK from the file manager. This is the simplest route.
+- **USB drive**: download the APK on a computer, copy it to a USB drive, plug it into the TV, and install from the file manager. Useful when the TV has no usable browser.
+- **Local network**: use the TV's file manager to reach a network share or NAS folder and open the APK directly.
+- **adb install**: if you have already enabled **USB debugging** or **network debugging** in developer options, run this from a computer:
+
+  ```bash
+  adb connect <TV LAN IP>:5555
+  adb install larktun-novpn-latest.apk
+  ```
+
+## 3. Install the APK
+
+Open the downloaded APK from the file manager and confirm the installation prompts.
+
+- If you see **install blocked from unknown sources**, return to step 1 and grant install permission to the current file manager or browser.
+- If you see **there was a problem parsing the package**, the download was usually incomplete — download it again.
+- After installation, Larktun appears in the TV's app list. Some TV systems keep sideloaded apps off the home screen, so look under **Settings > Apps** or the full app list and pin it to the home row yourself.
+
+## 4. Sign In to Larktun
+
+Open the Larktun app and choose a sign-in method:
+
+- **Account login**: sign in with your Larktun account and password. Best for everyday use.
+- **Auth Key login**: generate an Auth Key on the **Nodes** page of the console and paste it into the app. Typing a long key on a TV is tedious, so use a Bluetooth mouse or your TV's phone-remote app to paste it.
+- **Third-party login**: if you run Tailscale or a self-hosted Headscale, enter the matching Auth Key and control server URL in advanced settings. See [iOS App Third-party Tailscale / Headscale Login](./ios-third-party-login) — the Android fields are identical.
+
+Once signed in, the app pulls the device list you have permission to see, and the TV shows up on the **Nodes** page in the console.
+
+## 5. Pair a Bluetooth Mouse
+
+A TV remote only has a D-pad and a select button. That's fine for browsing the device list, but a remote desktop session needs a real pointer. **Pair a Bluetooth mouse with the TV** — it is the single biggest factor in how good the TV experience feels.
+
+Go to **Settings > Remotes & accessories > Add accessory**, put the mouse into pairing mode, and connect.
+
+Recommended setups:
+
+- **Bluetooth mouse + remote**: the cheapest combination, and enough for most remote work.
+- **Bluetooth keyboard and mouse set**: much better when you need to type on the computer — code, replies, or forms.
+- **Air mouse remote with a trackpad**: fine for occasional use, but less comfortable than a real mouse over long sessions.
+
+## 6. Control Your Computer from the TV
+
+Make sure remote desktop is enabled on the target computer (on Windows: **Settings > System > Remote Desktop**), then in the Larktun app on the TV:
+
+1. Find the computer in the device list and confirm it is online.
+2. Open the **RDP** remote desktop entry.
+3. Enter the computer's username and password (you can save them after the first connection).
+4. Enter the desktop, switch to fullscreen, and work normally with the Bluetooth mouse.
+
+The connection stays inside your Larktun network. The computer never needs port 3389 forwarded to the internet, and there is no DDNS to maintain.
+
+Beyond remote desktop, the Larktun app on the TV can also open internal Web services (NAS panels, Home Assistant, Jellyfin, and so on), SSH terminals, and SFTP file management. See [The Larktun Android App Gets a Major Upgrade](/blog/larktun-android-app-smart-discovery-webview-free) for the full feature set.
+
+## Troubleshooting
+
+- **No developer options**: make sure you clicked **Build number** on the **About** page — not the model or system version. Some systems need more than seven clicks.
+- **Installation blocked by the system**: TV vendors sometimes add extra install restrictions; look under **Security** or **App management** to allow it.
+- **Package cannot be parsed**: download the APK again and make sure the transfer did not get interrupted.
+- **App installed but missing from the home screen**: open it from the full app list, or add Larktun to a custom channel on the TV home screen.
+- **Computer not visible after login**: confirm Larktun is online on the computer, and check that your ACL allows the TV to reach it.
+- **Remote desktop won't connect**: confirm the remote desktop service is enabled, the credentials are correct, and the ACL allows the RDP port (3389 by default). Windows Home editions do not ship the remote desktop server.
+- **Choppy picture**: prefer wired networking or 5 GHz Wi-Fi on the TV. For cross-region access, switch to a closer relay on the **Derper** page in the console.
+- **The remote can't click buttons inside the desktop**: that's expected — remote desktop needs pointer input, so connect a Bluetooth mouse.
+
+## Next Steps
+
+- [Publish Your First Service](./publish-your-first-service)
+- [Desktop Client Operations](./desktop-client-operations)
+- [Approve Subnet Routes](./approve-subnet-routes)
+- [Common Issues](../troubleshooting/common-issues)

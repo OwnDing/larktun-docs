@@ -118,3 +118,7 @@ rdp:
   label: RDP
   permalink: /rdp
   description: RDP 远程桌面、WebRTC、Web 多标签和移动端远程办公相关文章。
+android-tv:
+  label: 电视大屏
+  permalink: /android-tv
+  description: Android TV 电视、电视盒子和投影仪上的远程桌面、大屏访问与安装实践文章。

@@ -1,0 +1,109 @@
+---
+slug: larktun-android-tv-remote-desktop
+title: "Peak Couch Mode: Put Your Computer on the TV with the Larktun Android App"
+description: "The Larktun Android app installs on Android TVs and TV boxes. Enable developer mode, install the NoVPN APK, sign in, pair a Bluetooth mouse, and control your home or office computer from the living-room screen — with no public port forwarding."
+authors: [ownding]
+tags: [larktun, remote-access, rdp, android-tv, remote-work, mobile]
+keywords:
+  - control PC from TV
+  - Android TV remote desktop
+  - install Larktun on TV
+  - TV box remote desktop
+  - Android TV RDP client
+  - Android TV install APK
+  - Android TV developer mode
+  - big screen remote work
+  - Bluetooth mouse TV remote desktop
+  - Larktun Android TV remote desktop
+image: /img/blog/android-tv-remote-desktop/android-tv-remote-desktop-en.svg
+---
+
+The biggest screen in your home mostly plays shows. The computer that actually does your work sits in another room, and using it means walking over, sitting down, and waking it up.
+
+Those two facts can be merged: put the computer on the TV.
+
+The Larktun Android app doesn't only run on phones and tablets. It installs just as well on Android TVs, TV boxes, and smart projectors. Install it, sign in, pair a Bluetooth mouse, and a 55-inch screen becomes your remote desktop. Sink into the couch on a weekend and bring your workstation, your office PC, and your NAS console right in front of you — peak couch mode, more or less.
+
+{/* truncate */}
+
+![Put your computer on the TV with Larktun: Android TV remote desktop](/img/blog/android-tv-remote-desktop/android-tv-remote-desktop-en.svg)
+
+## Why the TV
+
+The hard part of running a remote desktop from a phone was never connectivity. It's the screen. Squeeze a 1920×1080 desktop into six inches and you spend most of your time pinching and panning.
+
+A TV fixes exactly that. It is already the largest display in the house, it never moves, it's always powered, and it's closest to the couch. Only two pieces are missing: an app that can reach your private network, and a pointer that can click.
+
+Larktun provides the first. A cheap Bluetooth mouse provides the second.
+
+## An APK That Doesn't Take the System VPN Slot
+
+TVs use the **Larktun NoVPN APK**.
+
+It keeps the mesh networking inside the app: no system VPN permission, no takeover of the TV's global network. That matters even more on a TV than on a phone. TV firmware tends to be conservative about permissions, and once the VPN slot is claimed, other apps — including streaming sources — can break. Larktun establishes its encrypted connections inside its own process instead. The boundary is clear, and installing it doesn't disturb the system.
+
+The APK bundles both **arm64 (arm64-v8a)** and **armv7 (armeabi-v7a)**. TV and set-top chipsets are all over the map, but a single package covers the vast majority of devices, so there's no need to look up which build your model needs.
+
+## Three Steps: Developer Mode, Download, Install
+
+TV systems block sideloaded apps by default, so developer mode comes first.
+
+**Enable developer mode.** Go to **Settings > System > About**, find **Build number**, and click it seven times with the remote until you see "You are now a developer." Then head to app permissions and allow the file manager or browser you'll install from under "Install unknown apps." Menu names vary by brand, but the logic is identical everywhere.
+
+**Download the APK.** Grab the Android NoVPN package from the [Larktun download page](https://larktun.com/download). The TV's built-in browser can download it directly; if the browser is unusable, copy it over on a USB drive, read it from a network share, or push it with `adb install`.
+
+**Install and sign in.** Open the APK from the file manager, finish the install, then sign in with your Larktun account or an Auth Key generated in the console. Once you're in, every device you have permission to see shows up in the list.
+
+The full step-by-step walkthrough, including what to do when each step fails, is in the docs: [Install Larktun on a TV](/docs/getting-started/tv-install-larktun).
+
+## The Bluetooth Mouse Is the Dividing Line
+
+This deserves its own section, because it decides whether the TV experience is merely usable or genuinely good.
+
+A TV remote has a D-pad and a select button. That's plenty for browsing the device list and opening a service. But a remote desktop session drops you into an operating system designed for a mouse — close buttons, right-click menus, dragging windows, selecting text. A D-pad can't do any of that.
+
+So **pair a Bluetooth mouse with your TV**. Connect it under **Settings > Remotes & accessories**; an entry-level model is fine. If you also plan to type, a keyboard-and-mouse set makes the whole thing far more comfortable.
+
+Once it's set up, the division of labor feels natural: the remote navigates, the mouse operates, and the gap between this and sitting at the actual computer is much smaller than you'd expect.
+
+## What It Actually Feels Like
+
+Make sure remote desktop is enabled on the target computer and Larktun is signed in there. Find it in the device list on the TV, open the RDP entry, enter your credentials, and you're in.
+
+On the picture side, the Larktun Android client has been tuned for this: when the server supports it, EGFX with H.264/AVC444 delivers a sharper, more efficient remote image, and when the target environment doesn't, it falls back automatically to the more compatible classic graphics mode — no black blocks, no ghosting. Remote audio, clipboard, and keyboard/mouse input all live in the same RDP workspace.
+
+On a TV, these details get magnified. A big screen is far less forgiving about image quality, and the difference an H.264 pipeline makes is immediately visible. In fullscreen, with no address bar or toolbar stealing space, it really is just a remote monitor.
+
+And it isn't only remote desktop. The same app carries a built-in browser, an SSH terminal, and SFTP file management, so NAS consoles, Home Assistant, Jellyfin, and Grafana all open directly on the TV. Those capabilities are covered in full in [The Larktun Android App Gets a Major Upgrade](/blog/larktun-android-app-smart-discovery-webview-free).
+
+## The Security Boundary Stays Intact
+
+Reaching your computer from the TV sounds like one more layer of exposure. It's the opposite.
+
+The whole path runs inside your own Larktun network. The TV and the computer are both nodes on it, and the connection between them is established directly and encrypted. The computer never needs port 3389 forwarded on your router, never needs DDNS, and never needs a permanent hole in the firewall.
+
+Which TV can reach which computer is decided by your ACL rules in the console. If the living-room TV only needs one workstation, grant it exactly that. Revoking access is a matter of deleting the node.
+
+## A Few Real Uses
+
+**Weekend couch work.** Edit a document, check a running job, answer an email — no trip back to the desk, just two clicks on the TV.
+
+**Batch jobs and dashboards on the big screen.** Training runs, render progress, Grafana panels: leave them up on the TV and glance at them as you walk past.
+
+**Showing family and friends.** Walking a parent through a piece of software, or pulling up photos from the home NAS, is far more pleasant on a big screen than huddled around a phone.
+
+**The projector variant.** The same setup on a smart projector gives you a hundred-inch remote desktop you can roll out any time.
+
+## Demo Video
+
+For a look at the real thing, watch this demo:
+
+[躺平天花板！用 Larktun 把电脑搬到电视上，这才是周末该有的样子🛋️](https://www.bilibili.com/video/BV1oQug6SEgz/?share_source=copy_web&vd_source=9550a012bf30d7adb10982a6864c651c)
+
+## Try It Now
+
+The Larktun Android app is **free to use**, TVs included.
+
+Head to the [Larktun download page](https://larktun.com/download) for the NoVPN APK, follow [Install Larktun on a TV](/docs/getting-started/tv-install-larktun), and pick up a Bluetooth mouse along the way.
+
+Then go back to the couch and see what else that big screen can do.
