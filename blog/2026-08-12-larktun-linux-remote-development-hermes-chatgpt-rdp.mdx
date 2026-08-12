@@ -1,0 +1,170 @@
+---
+slug: larktun-linux-remote-development-hermes-chatgpt-rdp
+title: "Larktun 远程开发新体验：Linux、Hermes、ChatGPT 与 RDP"
+description: "在 Linux 服务器安装云雀通，通过 Larktun App 使用 SSH、Hermes Agent、内置 WebView 与 RDP；随时编写代码、预览 Agent 开发的网页，并打开 ChatGPT/Codex 桌面程序。"
+authors: [ownding]
+tags: [larktun, remote-access, ssh, rdp, remote-work, server-access, mobile, service-discovery]
+keywords:
+  - Larktun 远程开发
+  - Linux 服务器远程开发
+  - 手机 SSH 开发
+  - Hermes Agent Linux
+  - ChatGPT Linux 桌面版
+  - Codex Linux 桌面版
+  - Larktun 内置 WebView
+  - AI Agent 网页预览
+  - Linux RDP 远程桌面
+  - iPad 远程开发
+  - 不开放 22 端口 SSH
+  - 不开放 3389 端口 RDP
+image: /img/blog/linux-chatgpt-desktop/hermes.webp
+---
+
+远程开发过去常常意味着一串妥协：随身带着性能足够的电脑，在不稳定的网络里连接 VPN，再分别打开 SSH、远程桌面和各种开发工具。服务器明明有更强的 CPU、更大的内存和更稳定的运行环境，我们却依然把主要工作现场绑在眼前这台设备上。
+
+最近我换了一种思路：**让 Linux 服务器成为真正的开发主机，让 Larktun App 成为随身入口。**
+
+服务器安装云雀通后，我可以在手机或平板上直接 SSH 进去，把编码、排错和环境配置交给 Hermes 这样的 Agent；Agent 开发出网页后，直接用 Larktun 内置 WebView 打开开发服务、查看实际效果；需要 IDE 或其他桌面软件时，再通过 App 内置的 RDP 进入 Linux 桌面。甚至连 ChatGPT/Codex 桌面程序的安装，也可以先交给 Hermes 自动完成。
+
+这样一来，随身设备不再承担所有计算，只负责把我安全地带回同一个开发现场。
+
+{/* truncate */}
+
+![Hermes 在 Linux 服务器上自动安装并验证 ChatGPT/Codex 桌面程序](/img/blog/linux-chatgpt-desktop/hermes.webp)
+
+## 一套环境，三种入口
+
+这套体验的关键不是“用手机模拟电脑”，而是根据任务选择最短的入口。
+
+| 要做的事 | 更合适的入口 | 体验 |
+| --- | --- | --- |
+| 写代码、改配置、查看日志、执行测试 | SSH + Hermes | 轻量、响应快，弱网下也容易保持连续性 |
+| 预览 Agent 开发的网页、前端或管理后台 | 内置 WebView | 不用加载完整桌面，直接打开开发服务查看真实效果 |
+| 使用 IDE、文件管理器或桌面应用 | RDP | 保留完整 Linux 图形桌面和窗口状态 |
+| 快速检查任务与服务 | SSH | 打开 App 就能处理，不必加载整个桌面 |
+| 处理需要视觉确认的流程 | RDP | 可以直接看到登录页、弹窗和最终画面 |
+
+SSH、WebView 和 RDP 并不是三套互相割裂的环境。它们连接的是同一台 Linux 服务器、同一个项目目录和同一组运行中的任务。在 SSH 里让 Agent 完成修改后，可以先用 WebView 查看网页效果，也可以切到 RDP 打开桌面应用；发现问题后，再立即回到终端让 Agent 继续处理。
+
+## 第一步：让 Linux 服务器加入云雀通网络
+
+先在 Linux 服务器上安装云雀通程序并登入账号。服务器上线后，它会成为云雀通私有网络中的一个节点；手机或平板上的 Larktun App 只要拥有相应权限，就可以通过设备名或私有地址访问它。
+
+这一步改变的是服务器的入口边界：
+
+- SSH 不必再把公网 `22` 端口开放给所有来源。
+- RDP 也不必把 `3389` 端口直接暴露在公网。
+- 访问权限可以围绕账号、设备和 ACL 管理，而不是依赖不断变化的公网 IP 白名单。
+- 网络条件允许时可以建立更直接的连接；受 NAT 或网络策略限制时，仍可通过加密中继保持可达。
+
+Linux 安装方式可以参考 [在 ARM Linux NAS 上安装云雀通](/docs/getting-started/nas-install-larktun) 中的一键安装流程。虽然文档以 NAS 为例，同样的客户端安装思路也适用于常见 Linux 服务器。关于关闭公网 SSH 入口的完整方案，可以继续阅读 [用云雀通安全连接开发/生产服务器](/blog/secure-ssh-to-server-with-larktun)。
+
+## SSH 进去，把具体工作交给 Hermes
+
+服务器加入云雀通后，在 Larktun App 里找到这台设备，打开内置 SSH 终端就可以开始工作。手机上不适合长时间敲复杂命令，却非常适合描述目标、检查变更和批准下一步——这恰好是 Agent 工作流需要的交互方式。
+
+[Hermes Agent](https://hermes-agent.nousresearch.com/docs/getting-started/installation/) 是由 Nous Research 开源的终端 Agent，支持在 Linux 上运行。安装并配置模型后，可以直接在服务器的项目目录中启动它：
+
+```bash
+cd ~/projects/my-app
+hermes
+```
+
+接下来不必逐条输入命令，而是把结果说清楚：
+
+> 检查这个项目的依赖，修复当前构建错误，运行测试，并总结修改过的文件。不要改动生产配置。
+
+Hermes 可以读取项目、调用终端工具、执行安装和测试，再把结果带回当前会话。手机负责下达目标与审核，真正耗费 CPU、内存和时间的工作都留在服务器上。即使锁屏或换到另一台设备，项目和进程也仍然留在原来的 Linux 环境里。
+
+当然，Agent 不是 `root` 权限的替代品。更稳妥的方式是使用普通开发账号运行 Hermes，只在确实需要安装系统包时临时提升权限，并在执行前检查它准备运行的命令。
+
+## Agent 写完网页，直接用内置 WebView 看效果
+
+如果 Agent 正在开发网站、管理后台、接口文档或其他 Web 应用，其实不必为了看一次页面就先安装桌面、再打开 RDP 和浏览器。Larktun App 本身带有内置 WebView，可以直接访问 Linux 服务器上运行的开发服务。
+
+这会形成一个非常短的前端迭代循环：
+
+1. 在 SSH 中让 Hermes 修改页面、组件或样式。
+2. 让 Agent 启动项目自己的开发或预览命令，例如 `npm run dev`。
+3. 在 Larktun App 中通过智能发现找到 Web 服务，或者打开已保存的开发地址。
+4. 用内置 WebView 查看真实页面，测试交互、响应式布局和接口结果。
+5. 把看到的问题告诉 Hermes，刷新页面继续验证。
+
+源码、开发服务器和浏览器看到的页面都在同一条云雀通访问链路里。你不需要把开发端口映射到公网，也不用在外部浏览器里反复复制服务器 IP 和端口。对于 Agent 生成的落地页、React/Vue 前端、内部控制台或 API 文档，这比加载完整 RDP 桌面更快，也更适合手机和平板上的高频检查。
+
+如果开发服务默认只监听 `127.0.0.1`，需要按项目框架的方式让它监听服务器上可通过云雀通访问的接口；同时继续使用防火墙和 ACL 限制来源，不要为了预览页面把 `3000`、`5173` 等开发端口开放到公网。关于智能发现与增强 WebView 的更多能力，可以阅读 [云雀通 Android App 全面升级](/blog/larktun-android-app-smart-discovery-webview-free)。
+
+## 给服务器装上桌面，再从 Larktun App 打开 RDP
+
+并不是所有开发任务都适合终端。OAuth 登录、浏览器调试、桌面 IDE、可视化数据库工具和需要观察窗口状态的应用，都更适合图形界面。
+
+这时可以为 Linux 服务器安装一个轻量桌面环境和 RDP 服务。具体软件包会因 Ubuntu、Debian、Oracle Linux、Rocky Linux 等发行版而不同，但目标一致：
+
+1. 安装 GNOME、XFCE 等桌面环境。
+2. 安装并启动兼容的 RDP 服务，例如 `xrdp`。
+3. 为远程登录准备普通用户，确认桌面会话可以正常启动。
+4. 用服务器防火墙和云雀通 ACL 限制 RDP 来源，不向公网开放 `3389`。
+5. 在 Larktun App 中找到 RDP 服务，保存为常用入口。
+
+配置完成后，手机和平板就像多了一块通往 Linux 的屏幕。临时查看任务可以直接触屏；需要认真操作时，接上键盘和鼠标；在 iPad 上还可以把 RDP 与 SSH 分别放在不同窗口中，一边看桌面，一边让 Agent 继续跑任务。
+
+## 一句话，让 Hermes 安装 ChatGPT/Codex 桌面程序
+
+这次体验中，我直接在 SSH 会话里告诉 Hermes：为当前 Linux 桌面下载并安装可用的 ChatGPT/Codex 桌面程序，然后启动并检查登录界面。
+
+Hermes 自动识别了这台服务器的 ARM64/aarch64 架构，下载 RPM 包、完成安装，并尝试从当前图形会话启动程序。截图中的环境是 **Oracle Linux 9 ARM64**；Hermes 还发现系统 `glibc` 版本与安装包声明的依赖不完全一致，并在结果中明确记录了兼容性处理。
+
+这正是 Agent 最省时间的地方：它不仅执行“安装”这一个动作，还会检查架构、包格式、依赖、启动命令和进程状态，把一串原本需要来回搜索的步骤压缩成一次对话。
+
+![通过 Larktun RDP 进入 Oracle Linux 桌面并打开 ChatGPT 登录界面](/img/blog/linux-chatgpt-desktop/linux-rdp-chatgpt.webp)
+
+随后切换到 Larktun App 的 RDP 会话，就能看到 Linux 桌面中的 ChatGPT 登录界面。终端里的自动化和桌面里的视觉确认在这里接上了：Hermes 负责安装与启动，我通过 RDP 完成登录、授权并确认最终状态。
+
+:::caution 关于 Linux 版本与安装包
+
+本文记录的是在特定 Oracle Linux 9 ARM64 环境中使用已获得 RPM 包的实测结果。OpenAI 官方帮助中心当前仍将新版 ChatGPT 桌面 App 的公开平台列为 macOS 和 Windows；Linux 安装包的来源、账号可用性、发行版兼容性与更新方式，可能与公开支持矩阵不同。请只使用可信渠道获得的安装包，并以 [OpenAI 官方桌面版说明](https://help.openai.com/en/articles/20001276/) 和当前下载页为准。
+
+截图中的 `rpm --nodeps` 是 Agent 针对这台测试机依赖差异采取的兼容性操作，不代表通用安装方法。生产服务器不要跳过依赖检查；更稳妥的做法是选择匹配的发行版/运行库，或把桌面开发环境与生产负载隔离。
+
+:::
+
+## 真正改变体验的是“现场一直都在”
+
+远程开发最容易被低估的价值，不是省下一次 SSH 登录，而是让工作现场从随身设备里解耦出来。
+
+早上在电脑上启动的构建任务，出门后可以在手机 SSH 里查看；Hermes 改完网页后，可以用内置 WebView 立即预览；需要桌面程序时，再到平板 RDP 里确认。临时收到反馈时，不必先找到装有完整工具链的电脑，因为依赖、源码、缓存和正在运行的服务都留在服务器上。
+
+一次完整流程可以很简单：
+
+1. Linux 服务器安装云雀通并保持在线。
+2. 用 Larktun App 的 SSH 进入服务器，启动 Hermes。
+3. 让 Hermes 拉取代码、修改、测试或准备桌面软件。
+4. 如果是 Web 项目，直接用内置 WebView 打开开发服务、查看页面效果。
+5. 需要完整图形桌面时，再切换到同一设备的 RDP 会话。
+6. 检查结果、继续下达任务，完成后提交或部署。
+
+网络入口、终端 Agent、WebView 和图形桌面被收进同一个 App 后，手机与平板不只是“应急登录工具”，而是能够接续真实工作的移动开发终端。
+
+## 保持方便，也要守住安全边界
+
+Agent 可以执行命令，RDP 可以控制完整桌面，因此入口越方便，权限设计越重要：
+
+- 关闭公网 `22`、`3389` 和前端开发端口，只允许通过云雀通私有网络访问。
+- 使用 SSH 密钥和普通用户，避免默认使用 `root`。
+- 用 ACL 只授权自己的移动设备访问开发服务器需要的端口。
+- 给 Hermes 最小必要权限，安装系统软件或改动关键配置前先审核命令。
+- 不要把 API Key、登录令牌和生产密钥写进提示词、仓库或终端历史。
+- 及时更新 Linux、桌面环境、RDP 服务、云雀通和 Agent。
+- 生产环境与日常 Agent 开发环境尽量分开，至少使用独立账号、容器或虚拟机隔离。
+
+Larktun 解决的是“从哪里安全到达服务器”，Hermes 解决的是“到达以后如何更快完成工作”，内置 WebView 让网页效果随改随看，RDP 则补上完整图形桌面。这些能力组合起来，才是一套既顺手又边界清楚的远程开发体验。
+
+## 把开发机留在云上，把入口放进口袋
+
+以前说“随时随地远程开发”，通常只是指随时能打开一个终端。现在，SSH 里有可以执行任务的 Agent，内置 WebView 可以立即预览 Agent 开发的网页，服务器上有持续存在的完整环境，需要时还有 RDP 图形桌面，体验已经完全不同。
+
+前往 [Larktun 下载页](https://larktun.com/download) 在 Linux 服务器和移动设备上完成接入，先从一台开发机、一个普通账号和最小化 ACL 开始。配置好 SSH 和 WebView 预览链路，再按需要补上桌面与 RDP。
+
+下一次离开电脑时，不必把整个开发环境一起带走。
+
+它已经在服务器上等你，而 Larktun App 就是回去的入口。
