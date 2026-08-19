@@ -1,0 +1,122 @@
+---
+title: 在 iPhone 和 iPad 上使用 Tailscale 登入云雀通
+description: 零基础图文教程：在云雀通控制台创建 Auth Key，然后在 iOS Tailscale App 中填写密钥与 https://hs.larktun.com，让 iPhone 或 iPad 加入云雀通网络。
+keywords:
+  - iOS Tailscale 登入云雀通
+  - iPhone Tailscale Auth Key
+  - iPad Tailscale 配置
+  - Tailscale 自定义协调服务器
+  - 云雀通 Auth Key
+  - hs.larktun.com
+image: /img/docs/quickstart/ios-tailscale/ios-tailscale-auth-key-custom-server.webp
+sidebar_position: 10
+---
+
+# 在 iPhone 和 iPad 上使用 Tailscale 登入云雀通
+
+你可以直接使用 iOS 版 Tailscale App 接入云雀通，不需要输入命令。整个过程只要两项信息：
+
+- 在云雀通控制台创建的 **Auth Key（授权密钥）**
+- 云雀通服务器地址 `https://hs.larktun.com`
+
+完成后，你的 iPhone 或 iPad 会成为云雀通网络中的一台设备。
+
+:::important[先记住这一点]
+本教程使用的 Auth Key 必须在**云雀通控制台**创建，不是在 Tailscale 管理后台创建。Auth Key 相当于设备的登入密码，请勿发给他人，也不要放进截图。
+:::
+
+## 开始前准备
+
+- 一个可用的云雀通账号
+- 已在 iPhone 或 iPad 上安装官方 **Tailscale** App
+- 手机或平板可以正常访问互联网
+
+## 1. 在云雀通设备页面创建密钥
+
+1. 登入[云雀通控制台](https://larktun.com/auth/login)。
+2. 进入你的租户或工作空间。
+3. 在左侧导航栏打开 **Nodes（设备）** 页面。
+4. 点击 **生成授权密钥**，创建一枚 Auth Key。
+5. 立即复制并保存密钥。密钥通常只会完整显示一次。
+
+复制时不要带上前后的空格或换行。为了安全，建议为这台 iPhone 或 iPad 单独创建一枚密钥。
+
+## 2. 在 Tailscale App 中选择 Auth Key 登入
+
+打开 Tailscale App，进入 **Settings**，然后点击 **Log In...**。
+
+如果 App 已经登入了其他网络，请选择 **Add Account...** 添加账号，不需要删除原来的账号。
+
+<p style={{textAlign: 'center'}}>
+  <img
+    src="/img/docs/quickstart/ios-tailscale/ios-tailscale-settings-login.webp"
+    alt="在 iOS Tailscale 设置页面点击 Log In"
+    width="390"
+    loading="lazy"
+  />
+</p>
+
+进入添加账号页面后，打开 **Advanced Login Options** 菜单，再点击 **Use an auth key**。
+
+<p style={{textAlign: 'center'}}>
+  <img
+    src="/img/docs/quickstart/ios-tailscale/ios-tailscale-use-auth-key.webp"
+    alt="在 iOS Tailscale 高级登入选项中选择 Use an auth key"
+    width="390"
+    loading="lazy"
+  />
+</p>
+
+## 3. 填入密钥和云雀通服务器地址
+
+在 **Use an auth key** 页面按顺序操作：
+
+1. 在第一个输入框粘贴刚才从云雀通控制台复制的 Auth Key。
+2. 打开 **Use a custom coordination server** 开关。
+3. 在下方服务器输入框填写 `https://hs.larktun.com`。
+4. 检查地址包含 `https://`，末尾没有空格，然后点击右上角 **Log in**。
+
+<p style={{textAlign: 'center'}}>
+  <img
+    src="/img/docs/quickstart/ios-tailscale/ios-tailscale-auth-key-custom-server.webp"
+    alt="在 iOS Tailscale 中填写云雀通 Auth Key 和 hs.larktun.com 自定义协调服务器"
+    width="390"
+    loading="lazy"
+  />
+</p>
+
+第一次连接时，iOS 可能会询问是否允许 Tailscale 添加 VPN 配置。请选择**允许**，并按提示使用 Face ID、Touch ID 或锁屏密码确认。
+
+## 4. 确认设备已经上线
+
+登入成功后：
+
+1. 回到 Tailscale App，确认连接状态已经开启。
+2. 返回云雀通控制台的 **Nodes（设备）** 页面并刷新。
+3. 在设备列表中看到这台 iPhone 或 iPad，且状态为在线，即表示接入成功。
+
+现在你可以用这台 iOS 设备访问云雀通网络中已授权的其他设备和服务。
+
+## 常见问题
+
+### 点击 Log in 后提示密钥无效
+
+重新复制 Auth Key，并检查是否多复制了空格或换行。如果密钥已过期、被撤销或已经使用，请在云雀通 **Nodes（设备）** 页面重新生成一枚密钥。
+
+### 无法登入或一直加载
+
+确认自定义协调服务器填写为完整的 `https://hs.larktun.com`，并检查手机当前网络是否可以访问互联网。不要把服务器地址填成 `larktun.com` 或省略 `https://`。
+
+### 看不到 Use an auth key
+
+请先将 Tailscale App 更新到较新的版本，再到添加账号页面打开 **Advanced Login Options**。
+
+### 控制台中看不到 iPhone 或 iPad
+
+等待几秒后刷新 **Nodes（设备）** 页面，并确认你创建密钥和查看设备时进入的是同一个租户或工作空间。如果 iOS 曾拒绝添加 VPN 配置，请到系统设置中重新允许 Tailscale。
+
+## 下一步
+
+- [使用 Tailscale 客户端登入云雀通](./tailscale-client-login)
+- [开通第一条安全访问链路](./publish-your-first-service)
+- [问题处理](../troubleshooting/common-issues)

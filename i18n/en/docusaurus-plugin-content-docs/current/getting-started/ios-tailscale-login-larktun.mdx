@@ -1,0 +1,122 @@
+---
+title: Log in to Larktun with Tailscale on iPhone and iPad
+description: A beginner-friendly visual guide to creating a Larktun Auth Key, entering it in the iOS Tailscale app, and using https://hs.larktun.com to connect an iPhone or iPad.
+keywords:
+  - Tailscale iOS Larktun login
+  - iPhone Tailscale Auth Key
+  - iPad Tailscale setup
+  - Tailscale custom coordination server
+  - Larktun Auth Key
+  - hs.larktun.com
+image: /img/docs/quickstart/ios-tailscale/ios-tailscale-auth-key-custom-server.webp
+sidebar_position: 10
+---
+
+# Log in to Larktun with Tailscale on iPhone and iPad
+
+You can connect the official Tailscale iOS app directly to Larktun without using a command line. You only need two things:
+
+- An **Auth Key** created in the Larktun console
+- The Larktun server address `https://hs.larktun.com`
+
+When you finish, your iPhone or iPad will appear as a device in your Larktun network.
+
+:::important[Remember this first]
+The Auth Key in this guide must be created in the **Larktun console**, not in the Tailscale admin console. Treat the key like a device password: do not share it or include it in screenshots.
+:::
+
+## Before you begin
+
+- A working Larktun account
+- The official **Tailscale** app installed on your iPhone or iPad
+- An internet connection on the iOS device
+
+## 1. Create an Auth Key on the Larktun Devices page
+
+1. Sign in to the [Larktun console](https://larktun.com/auth/login).
+2. Enter your tenant or workspace.
+3. Open **Nodes (Devices)** from the left navigation.
+4. Click **Create Auth Key** to generate a key.
+5. Copy and save the key immediately. It is usually shown in full only once.
+
+Make sure you do not copy a leading or trailing space or line break. For better security, create a separate key for this iPhone or iPad.
+
+## 2. Choose Auth Key login in the Tailscale app
+
+Open the Tailscale app, go to **Settings**, and tap **Log In...**.
+
+If the app is already connected to another network, choose **Add Account...** instead. You do not need to remove the existing account.
+
+<p style={{textAlign: 'center'}}>
+  <img
+    src="/img/docs/quickstart/ios-tailscale/ios-tailscale-settings-login.webp"
+    alt="Tap Log In on the Tailscale Settings screen on iOS"
+    width="390"
+    loading="lazy"
+  />
+</p>
+
+On the Add Account screen, open **Advanced Login Options**, then tap **Use an auth key**.
+
+<p style={{textAlign: 'center'}}>
+  <img
+    src="/img/docs/quickstart/ios-tailscale/ios-tailscale-use-auth-key.webp"
+    alt="Choose Use an auth key from Advanced Login Options in Tailscale for iOS"
+    width="390"
+    loading="lazy"
+  />
+</p>
+
+## 3. Enter the key and Larktun server address
+
+On the **Use an auth key** screen:
+
+1. Paste the Auth Key copied from the Larktun console into the first field.
+2. Turn on **Use a custom coordination server**.
+3. Enter `https://hs.larktun.com` in the server field.
+4. Check that the URL includes `https://` and has no trailing spaces, then tap **Log in** in the top-right corner.
+
+<p style={{textAlign: 'center'}}>
+  <img
+    src="/img/docs/quickstart/ios-tailscale/ios-tailscale-auth-key-custom-server.webp"
+    alt="Enter a Larktun Auth Key and hs.larktun.com as the custom coordination server in Tailscale for iOS"
+    width="390"
+    loading="lazy"
+  />
+</p>
+
+The first time you connect, iOS may ask for permission to add a VPN configuration. Tap **Allow**, then confirm with Face ID, Touch ID, or your device passcode.
+
+## 4. Confirm that the device is online
+
+After login succeeds:
+
+1. Return to the Tailscale app and confirm that the connection is enabled.
+2. Go back to **Nodes (Devices)** in the Larktun console and refresh the page.
+3. If your iPhone or iPad appears online, the setup is complete.
+
+You can now use this iOS device to reach other devices and services allowed in your Larktun network.
+
+## Troubleshooting
+
+### Log in reports an invalid key
+
+Copy the Auth Key again and check for extra spaces or line breaks. If the key has expired, was revoked, or has already been used, create a new one on the Larktun **Nodes (Devices)** page.
+
+### Login does not finish
+
+Make sure the complete custom coordination server URL is `https://hs.larktun.com`, and confirm that the iPhone or iPad can access the internet. Do not enter `larktun.com` or omit `https://`.
+
+### Use an auth key is missing
+
+Update the Tailscale app to a recent version, then open **Advanced Login Options** from the Add Account screen.
+
+### The iPhone or iPad does not appear in the console
+
+Wait a few seconds and refresh **Nodes (Devices)**. Make sure the key was created in the same tenant or workspace you are viewing. If you previously denied the iOS VPN configuration request, open system settings and allow Tailscale again.
+
+## Next steps
+
+- [Log in with the Tailscale client](./tailscale-client-login)
+- [Create your first secure access path](./publish-your-first-service)
+- [Troubleshooting](../troubleshooting/common-issues)
