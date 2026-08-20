@@ -1,0 +1,218 @@
+---
+title: 在群晖 NAS 上安装 Tailscale 并登入云雀通
+description: 零基础图文教程：在群晖 Synology DSM 安装 Tailscale、开启 SSH、创建云雀通 Auth Key，并通过 hs.larktun.com 让 NAS 安全接入云雀通网络。
+keywords:
+  - 群晖 NAS 安装 Tailscale
+  - 群晖 NAS 使用云雀通
+  - Synology Tailscale 教程
+  - 群晖 SSH 登入
+  - 云雀通 Auth Key
+  - hs.larktun.com
+image: /img/docs/quickstart/synology/larktun-synology-device-online.webp
+sidebar_position: 13
+---
+
+# 在群晖 NAS 上安装 Tailscale 并登入云雀通
+
+这篇教程会带你完成一件事：让群晖 NAS 加入云雀通网络。完成后，你会在云雀通的设备列表中看到这台 NAS，并获得一个云雀通私有地址。
+
+整个过程分为 7 步：
+
+1. 找到群晖 NAS 的局域网 IP。
+2. 在群晖 DSM 中安装 Tailscale。
+3. 临时开启群晖的 SSH 功能。
+4. 从电脑登入群晖终端。
+5. 在云雀通创建 Auth Key。
+6. 在群晖终端运行登入命令。
+7. 回到云雀通确认 NAS 已经在线。
+
+不需要 Linux 基础。请按照图片顺序操作，不要直接复制图片中的账号、IP 地址或密钥。
+
+:::important[开始前准备]
+- 一台可以正常上网的群晖 NAS
+- 一个属于 `administrators` 管理员组的 DSM 账号及其密码
+- 一台与 NAS 连接到同一局域网的 Windows、macOS 或 Linux 电脑
+- 一个可用的[云雀通账号](https://larktun.com/auth/login)
+:::
+
+## 1. 确认 DSM 版本和 NAS 局域网 IP
+
+先登入群晖 DSM。打开右上角的系统信息，可以看到 DSM 版本；右侧的 **系统状况** 小组件通常会显示 NAS 的局域网 IP。
+
+下图使用 DSM `7.4.1`，示例 IP 是 `192.168.139.128`。你的版本和 IP 很可能不同，这是正常的。请记下**你自己的 NAS IP**，后面 SSH 登入时会用到。
+
+![在群晖 DSM 查看系统版本和 NAS 局域网 IP](/img/docs/quickstart/synology/synology-dsm-version-and-lan-ip.webp)
+
+## 2. 在群晖套件中心安装 Tailscale
+
+在 DSM 桌面打开 **套件中心**。
+
+![打开群晖 DSM 套件中心](/img/docs/quickstart/synology/synology-package-center.webp)
+
+在顶部搜索框输入 `tailscale`。找到由 **Tailscale, Inc.** 提供的 Tailscale 套件，然后点击 **安装套件**。
+
+![在群晖套件中心搜索 Tailscale](/img/docs/quickstart/synology/synology-package-center-search-tailscale.webp)
+
+安装过程中，DSM 可能提示该套件由第三方开发者提供。确认开发者是 **Tailscale, Inc.** 后，点击 **同意** 继续。
+
+![群晖安装 Tailscale 时显示第三方套件确认提示](/img/docs/quickstart/synology/synology-tailscale-third-party-package-warning.webp)
+
+安装完成后，Tailscale 会出现在 **已安装** 列表中，并显示 **打开** 按钮。看到这个状态，就说明套件已经装好。
+
+![Tailscale 已成功安装到群晖 NAS](/img/docs/quickstart/synology/synology-tailscale-installed.webp)
+
+:::tip
+这一步只完成了软件安装。暂时不要在 Tailscale 页面使用普通账号登入；后面我们会在终端中把它登入到云雀通。
+:::
+
+## 3. 临时开启群晖 SSH
+
+我们只需要运行一条命令，所以会临时开启 SSH。先从 DSM 桌面打开 **控制面板**。
+
+![打开群晖 DSM 控制面板](/img/docs/quickstart/synology/synology-control-panel.webp)
+
+在左侧找到 **连接性 > 终端机和 SNMP**，进入 **终端机** 页面。第一次打开时，**启动 SSH 功能**通常没有勾选。
+
+![进入群晖终端机和 SNMP 的 SSH 设置页面](/img/docs/quickstart/synology/synology-terminal-ssh-settings.webp)
+
+勾选 **启动 SSH 功能**，端口保持默认的 `22`，然后点击右下角 **应用**。
+
+![在群晖 DSM 启动 SSH 功能并保留 22 端口](/img/docs/quickstart/synology/synology-enable-ssh-service.webp)
+
+:::warning[不要把 SSH 暴露到公网]
+只在可信的家庭或办公局域网中使用 SSH，不要在路由器上把 `22` 端口映射到公网。完成本教程后，如果不再需要 SSH，可以回到这里取消勾选并点击 **应用**；Tailscale 套件仍会继续运行。
+:::
+
+## 4. 从电脑登入群晖终端
+
+在 Windows 中打开 **PowerShell** 或 **Windows Terminal**；在 macOS、Linux 中打开 **终端**。输入下面的命令：
+
+```bash
+ssh YOUR_DSM_USERNAME@YOUR_NAS_IP
+```
+
+请先替换命令中的两项内容：
+
+- `YOUR_DSM_USERNAME`：你的 DSM 管理员账号名称，不是云雀通账号。
+- `YOUR_NAS_IP`：第 1 步记下的群晖局域网 IP。
+
+例如，DSM 用户名是 `djc`、NAS IP 是 `192.168.139.128` 时，命令就是：
+
+```bash
+ssh djc@192.168.139.128
+```
+
+![在 Windows PowerShell 输入群晖 NAS 的 SSH 登入命令](/img/docs/quickstart/synology/synology-ssh-command-windows-powershell.webp)
+
+第一次连接时，终端可能显示一段英文，并询问：
+
+```text
+Are you sure you want to continue connecting (yes/no/[fingerprint])?
+```
+
+确认 IP 是你的 NAS 后，输入 `yes` 并按回车。
+
+![首次 SSH 连接群晖时输入 yes 确认主机指纹](/img/docs/quickstart/synology/synology-ssh-host-key-confirmation.webp)
+
+接下来会看到 `password:`。输入**群晖 DSM 账号密码**并按回车。
+
+:::note[输入密码时屏幕没有反应是正常的]
+终端不会显示你输入的密码，也不会显示星号。正常输入完整密码后直接按回车即可。如果看到 `Permission denied, please try again.`，请检查密码后重试。
+:::
+
+当命令行前面出现类似 `用户名@NAS名称:~$` 的提示符时，就表示已经登入成功。截图中的 `Could not chdir to home directory` 只是该 DSM 账号没有启用用户主目录，不影响本教程继续操作。
+
+![输入 DSM 密码后成功登入群晖 SSH 终端](/img/docs/quickstart/synology/synology-ssh-password-login-success.webp)
+
+## 5. 创建云雀通 Auth Key
+
+现在先不要关闭终端，在浏览器中打开并登入[云雀通控制台](https://larktun.com/auth/login)：
+
+1. 进入你的租户或工作空间。
+2. 在左侧打开 **机器（Nodes）** 页面。
+3. 点击右上角 **生成授权密钥**。
+4. 在弹窗中点击 **立即生成密钥**。
+5. 立即复制生成的密钥并妥善保存。密钥通常只会完整显示一次。
+
+![在云雀通机器页面生成用于群晖 NAS 的授权密钥](/img/docs/quickstart/synology/larktun-create-auth-key.webp)
+
+:::warning[Auth Key 相当于设备登入密码]
+不要把真实 Auth Key 发给他人，也不要放进截图、聊天记录或公开文档。本文终端截图中的密钥值已经遮挡。
+:::
+
+## 6. 在群晖终端中登入云雀通
+
+回到刚才已经登入的群晖终端。先看懂命令中的两个关键参数：
+
+- **server**：`--login-server=https://hs.larktun.com` 指定云雀通接入服务器。它告诉 Tailscale 应该连接云雀通，而不是其他控制服务。
+- **key**：`--auth-key=YOUR_AUTH_KEY` 携带刚才在云雀通生成的授权密钥。你需要把 `YOUR_AUTH_KEY` 完整替换为自己的密钥。
+
+替换好密钥后，执行这一整行命令：
+
+```bash
+sudo tailscale up --login-server=https://hs.larktun.com --auth-key=YOUR_AUTH_KEY
+```
+
+注意：
+
+- 不要保留示例文字 `YOUR_AUTH_KEY`。
+- 参数等号 `=` 两边不要添加空格。
+- 不要把命令中的服务器写成 `larktun.com`；这里应是完整的 `https://hs.larktun.com`。
+- 如果你的云雀通控制台明确显示了其他 server 地址，请以控制台显示的地址为准。
+
+![在群晖终端运行 Tailscale 命令登入云雀通，密钥值已遮挡](/img/docs/quickstart/synology/synology-tailscale-login-larktun-command.webp)
+
+执行后，`sudo` 可能再次显示 `Password:`。这里仍然输入**群晖 DSM 账号密码**，不是 Auth Key。输入时屏幕同样不会显示任何字符。
+
+如果没有报错，并且终端回到 `用户名@NAS名称:~$` 提示符，通常就表示登入命令已经成功完成。
+
+![群晖执行 Tailscale 云雀通登入命令后成功返回终端提示符](/img/docs/quickstart/synology/synology-tailscale-login-success.webp)
+
+## 7. 在云雀通确认群晖 NAS 已上线
+
+回到云雀通控制台的 **机器（Nodes）** 页面，点击 **刷新**。等待几秒后，如果看到群晖 NAS 的名称、云雀通私有地址，以及绿色的 **连接** 状态，就表示接入成功。
+
+![云雀通控制台显示群晖 NAS 设备已经连接上线](/img/docs/quickstart/synology/larktun-synology-device-online.webp)
+
+现在，这台群晖 NAS 已经成为云雀通网络中的一台设备。你可以继续让电脑或手机接入同一个云雀通网络，再通过 NAS 的云雀通私有地址访问已授权的服务。
+
+## 常见问题
+
+### 套件中心搜索不到 Tailscale
+
+先确认 NAS 可以访问互联网，并刷新套件中心。也请检查搜索结果是否位于 **社区** 区域，以及套件是否由 **Tailscale, Inc.** 提供。
+
+### SSH 提示 Connection refused
+
+回到 **控制面板 > 终端机和 SNMP**，确认已经勾选 **启动 SSH 功能**、端口是 `22`，并点击了 **应用**。电脑还必须与 NAS 位于同一可互通的局域网。
+
+### SSH 一直提示 Permission denied
+
+确认使用的是 DSM 用户名和 DSM 密码，并且该账号属于 `administrators` 管理员组。密码区分大小写；输入密码时终端不会显示字符。
+
+### 终端提示 tailscale: command not found
+
+确认 Tailscale 已出现在套件中心的 **已安装** 列表中。关闭当前 SSH 窗口，重新连接后再执行命令。
+
+### 执行登入命令后提示密钥无效
+
+Auth Key 可能已过期、被撤销、复制不完整或已经使用。回到云雀通 **机器（Nodes）** 页面重新生成一枚密钥，并检查密钥前后没有空格或换行。
+
+### 命令没有报错，但云雀通看不到 NAS
+
+等待几秒后刷新设备列表，并依次检查：
+
+1. 创建密钥和查看设备时是否进入了同一个租户或工作空间。
+2. server 是否完整填写为 `https://hs.larktun.com`，或你的控制台指定的地址。
+3. 群晖 Tailscale 套件是否仍处于已安装、运行状态。
+
+## 完成后的安全收尾
+
+如果以后不需要通过局域网管理群晖终端，请回到 **控制面板 > 终端机和 SNMP**，取消勾选 **启动 SSH 功能** 并应用设置。关闭 SSH 不会让已经运行的 Tailscale 套件退出云雀通。
+
+## 下一步
+
+- [使用 Tailscale 客户端登入云雀通](./tailscale-client-login)
+- [开通第一条安全访问链路](./publish-your-first-service)
+- [远程访问 NAS：不暴露公网端口的安全方案](../topics/secure-nas-remote-access)
+- [问题处理](../troubleshooting/common-issues)

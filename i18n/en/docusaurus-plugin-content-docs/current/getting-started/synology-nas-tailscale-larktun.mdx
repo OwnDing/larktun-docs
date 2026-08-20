@@ -1,0 +1,218 @@
+---
+title: Install Tailscale on Synology NAS and Log In to Larktun
+description: A beginner-friendly visual guide to installing Tailscale on Synology DSM, enabling SSH, creating a Larktun Auth Key, and connecting the NAS through hs.larktun.com.
+keywords:
+  - install Tailscale on Synology NAS
+  - connect Synology NAS to Larktun
+  - Synology Tailscale tutorial
+  - Synology DSM SSH login
+  - Larktun Auth Key
+  - hs.larktun.com
+image: /img/docs/quickstart/synology/larktun-synology-device-online.webp
+sidebar_position: 13
+---
+
+# Install Tailscale on Synology NAS and Log In to Larktun
+
+This guide walks you through one goal: adding a Synology NAS to your Larktun network. When you finish, the NAS will appear in Larktun's device list and receive a private Larktun address.
+
+The setup has seven steps:
+
+1. Find the Synology NAS LAN IP.
+2. Install Tailscale in Synology DSM.
+3. Temporarily enable SSH on the NAS.
+4. Open the Synology terminal from your computer.
+5. Create a Larktun Auth Key.
+6. Run the Larktun login command in the Synology terminal.
+7. Return to Larktun and confirm that the NAS is online.
+
+You do not need Linux experience. Follow the screenshots in order, and do not copy the example username, IP address, or key from an image.
+
+:::important[Before you start]
+- A Synology NAS with internet access
+- A DSM account in the `administrators` group and its password
+- A Windows, macOS, or Linux computer on the same local network as the NAS
+- A working [Larktun account](https://larktun.com/auth/login)
+:::
+
+## 1. Find the DSM version and NAS LAN IP
+
+Sign in to Synology DSM first. Open the system information menu in the top-right corner to see the DSM version. The **System Health** widget normally shows the NAS LAN IP.
+
+The screenshots use DSM `7.4.1` and the example IP `192.168.139.128`. Your version and IP will probably be different. Write down **your own NAS IP** because you will use it for SSH later.
+
+![Find the DSM version and Synology NAS LAN IP in System Health](/img/docs/quickstart/synology/synology-dsm-version-and-lan-ip.webp)
+
+## 2. Install Tailscale from Synology Package Center
+
+Open **Package Center** from the DSM desktop.
+
+![Open Package Center on the Synology DSM desktop](/img/docs/quickstart/synology/synology-package-center.webp)
+
+Enter `tailscale` in the search box. Find the Tailscale package published by **Tailscale, Inc.**, then click **Install**.
+
+![Search for Tailscale in Synology Package Center](/img/docs/quickstart/synology/synology-package-center-search-tailscale.webp)
+
+DSM may warn that a third-party developer provides the package. After confirming that the developer is **Tailscale, Inc.**, click **Agree** to continue.
+
+![Confirm the third-party package warning when installing Tailscale on Synology](/img/docs/quickstart/synology/synology-tailscale-third-party-package-warning.webp)
+
+When installation finishes, Tailscale appears under **Installed** with an **Open** button. This means the package is ready.
+
+![Tailscale successfully installed on a Synology NAS](/img/docs/quickstart/synology/synology-tailscale-installed.webp)
+
+:::tip
+The software is installed but not connected yet. Do not use a normal Tailscale account login here. You will point the package to Larktun from the terminal later.
+:::
+
+## 3. Temporarily enable SSH on Synology DSM
+
+You only need SSH to run one command. Start by opening **Control Panel** from the DSM desktop.
+
+![Open Control Panel on Synology DSM](/img/docs/quickstart/synology/synology-control-panel.webp)
+
+Open **Connectivity > Terminal & SNMP** from the left navigation, then select the **Terminal** page. **Enable SSH service** is normally unchecked the first time you open it.
+
+![Open the Terminal and SNMP page for Synology SSH settings](/img/docs/quickstart/synology/synology-terminal-ssh-settings.webp)
+
+Select **Enable SSH service**, keep the default port `22`, and click **Apply** in the bottom-right corner.
+
+![Enable the SSH service on port 22 in Synology DSM](/img/docs/quickstart/synology/synology-enable-ssh-service.webp)
+
+:::warning[Do not expose SSH to the public internet]
+Use SSH only from a trusted home or office LAN. Do not forward port `22` from your router to the public internet. After setup, you can return to this page, clear the checkbox, and click **Apply**. The Tailscale package will keep running.
+:::
+
+## 4. Log in to the Synology terminal from your computer
+
+On Windows, open **PowerShell** or **Windows Terminal**. On macOS or Linux, open **Terminal**. Enter:
+
+```bash
+ssh YOUR_DSM_USERNAME@YOUR_NAS_IP
+```
+
+Replace both placeholders first:
+
+- `YOUR_DSM_USERNAME` is your DSM administrator username, not your Larktun account.
+- `YOUR_NAS_IP` is the Synology LAN IP you found in step 1.
+
+For example, if the DSM username is `djc` and the NAS IP is `192.168.139.128`, the command is:
+
+```bash
+ssh djc@192.168.139.128
+```
+
+![Enter the Synology NAS SSH login command in Windows PowerShell](/img/docs/quickstart/synology/synology-ssh-command-windows-powershell.webp)
+
+The first connection may display a message and ask:
+
+```text
+Are you sure you want to continue connecting (yes/no/[fingerprint])?
+```
+
+After checking that the IP belongs to your NAS, enter `yes` and press Enter.
+
+![Enter yes to trust the Synology host key on the first SSH connection](/img/docs/quickstart/synology/synology-ssh-host-key-confirmation.webp)
+
+At the `password:` prompt, enter your **Synology DSM account password** and press Enter.
+
+:::note[It is normal for the password to stay invisible]
+The terminal does not show your password or even placeholder characters. Type the complete password and press Enter. If you see `Permission denied, please try again.`, check the password and retry.
+:::
+
+When you see a prompt similar to `username@NAS-name:~$`, the SSH login has succeeded. The `Could not chdir to home directory` warning in the screenshot only means that DSM user homes are disabled for this account. It does not block the rest of the guide.
+
+![Successfully log in to the Synology SSH terminal with a DSM password](/img/docs/quickstart/synology/synology-ssh-password-login-success.webp)
+
+## 5. Create a Larktun Auth Key
+
+Keep the terminal open. In your browser, open and sign in to the [Larktun console](https://larktun.com/auth/login):
+
+1. Enter your tenant or workspace.
+2. Open **Nodes (Devices)** from the left navigation.
+3. Click **Create Auth Key** in the top-right corner.
+4. Click **Create Key Now** in the dialog.
+5. Copy and safely store the generated key immediately. The complete key is normally shown only once.
+
+![Create an Auth Key for a Synology NAS on the Larktun Nodes page](/img/docs/quickstart/synology/larktun-create-auth-key.webp)
+
+:::warning[An Auth Key is a device login credential]
+Never send a real Auth Key to another person or include it in screenshots, chats, or public documentation. The key value in this guide's terminal screenshots has been covered.
+:::
+
+## 6. Log in to Larktun from the Synology terminal
+
+Return to the Synology terminal. First, understand the two important parameters:
+
+- **server**: `--login-server=https://hs.larktun.com` selects the Larktun access server. It tells Tailscale to connect to Larktun instead of another control service.
+- **key**: `--auth-key=YOUR_AUTH_KEY` supplies the key created in Larktun. Replace `YOUR_AUTH_KEY` completely with your own key.
+
+After replacing the key, run this complete command on one line:
+
+```bash
+sudo tailscale up --login-server=https://hs.larktun.com --auth-key=YOUR_AUTH_KEY
+```
+
+Check these details:
+
+- Do not leave the placeholder `YOUR_AUTH_KEY` in the command.
+- Do not add spaces around either equals sign (`=`).
+- Do not shorten the server to `larktun.com`; use the complete `https://hs.larktun.com` URL.
+- If your Larktun console explicitly shows a different server URL, use the URL shown there.
+
+![Run the Tailscale command to log in to Larktun on Synology with the key value covered](/img/docs/quickstart/synology/synology-tailscale-login-larktun-command.webp)
+
+The `sudo` command may show another `Password:` prompt. Enter your **Synology DSM account password**, not the Auth Key. The password remains invisible while you type.
+
+If no error appears and the terminal returns to a prompt such as `username@NAS-name:~$`, the login command has normally completed successfully.
+
+![The Synology Tailscale login command succeeds and returns to the terminal prompt](/img/docs/quickstart/synology/synology-tailscale-login-success.webp)
+
+## 7. Confirm that the Synology NAS is online in Larktun
+
+Return to **Nodes (Devices)** in the Larktun console and click **Refresh**. After a few seconds, the Synology NAS should appear with its name, a private Larktun address, and a green **Connected** status.
+
+![Larktun console shows the Synology NAS online and connected](/img/docs/quickstart/synology/larktun-synology-device-online.webp)
+
+The Synology NAS is now a device in your Larktun network. Connect a computer or phone to the same network next, then use the NAS's private Larktun address to reach authorized services.
+
+## Troubleshooting
+
+### Tailscale does not appear in Package Center
+
+Confirm that the NAS can access the internet, then refresh Package Center. Also check the **Community** section and make sure the package is published by **Tailscale, Inc.**
+
+### SSH reports Connection refused
+
+Return to **Control Panel > Terminal & SNMP**. Make sure **Enable SSH service** is selected, the port is `22`, and you clicked **Apply**. The computer and NAS must also be on local networks that can reach each other.
+
+### SSH keeps reporting Permission denied
+
+Use the DSM username and DSM password, and confirm that the account belongs to the `administrators` group. Passwords are case-sensitive and remain invisible in the terminal.
+
+### The terminal reports tailscale: command not found
+
+Confirm that Tailscale appears under **Installed** in Package Center. Close the SSH window, reconnect, and run the command again.
+
+### The login command reports an invalid key
+
+The Auth Key may have expired, been revoked, been copied incompletely, or already been used. Create a new key on the Larktun **Nodes (Devices)** page and check for leading or trailing spaces or line breaks.
+
+### The command succeeds, but the NAS does not appear in Larktun
+
+Wait a few seconds and refresh the device list, then check:
+
+1. You created the key and viewed devices in the same tenant or workspace.
+2. The server is the complete `https://hs.larktun.com` URL or the URL specified by your console.
+3. The Synology Tailscale package is still installed and running.
+
+## Security cleanup after setup
+
+If you no longer need local terminal access, return to **Control Panel > Terminal & SNMP**, clear **Enable SSH service**, and apply the change. Disabling SSH does not disconnect the running Tailscale package from Larktun.
+
+## Next steps
+
+- [Log in with the Tailscale client](./tailscale-client-login)
+- [Create your first secure access path](./publish-your-first-service)
+- [Secure NAS remote access without public port exposure](../topics/secure-nas-remote-access)
+- [Troubleshooting](../troubleshooting/common-issues)
