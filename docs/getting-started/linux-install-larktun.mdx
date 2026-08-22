@@ -1,0 +1,176 @@
+---
+title: 在 Linux 系统上安装并登入云雀通
+description: Linux 部署云雀通（Larktun）教程：在官网下载页获取一键安装脚本，自动安装 larktun 与 larktund 服务，并使用 sudo larktun up 命令登入云雀通网络，实现无公网 IP 的安全远程访问。
+keywords:
+  - Linux 安装云雀通
+  - Linux 部署 Larktun
+  - Linux 一键安装脚本
+  - Ubuntu 内网穿透
+  - Debian 远程访问
+  - CentOS VPN 组网
+  - Linux 服务器远程访问
+  - sudo larktun up
+  - headscale Linux 客户端
+  - Larktun Linux
+sidebar_position: 14
+---
+
+# 在 Linux 系统上安装并登入云雀通
+
+云雀通（Larktun）为 Linux 提供一键安装脚本。脚本会自动识别 CPU 架构，下载命令行工具 `larktun` 与后台守护进程 `larktund`，并按当前系统的启动方式把它注册成开机自启服务。安装完成后，只需要一条 `sudo larktun up` 命令，就能把这台 Linux 主机接入你的云雀通网络。
+
+接入之后，你不需要公网 IP、不需要配置 DDNS，也不用把 SSH 或管理端口映射到公网，就可以从任意一台已登入云雀通的设备，通过私有地址访问这台 Linux 主机上的 SSH、Web 服务或数据库。
+
+整个过程分为 4 步：
+
+1. 在官网下载页获取当前的 Linux 安装命令。
+2. 在 Linux 终端运行一键安装脚本。
+3. 使用 `sudo larktun up` 登入云雀通。
+4. 回到控制台确认设备已经在线。
+
+:::important[开始前准备]
+- 一台可以访问互联网的 Linux 主机，CPU 架构为 **x86-64**（`x86_64` / `amd64`）或 **ARM64**（`aarch64` / `arm64`）。
+- 一个拥有 `root`、`sudo` 或 `doas` 权限的账号。
+- 系统已安装 `curl` 或 `wget`。
+- 一个可用的[云雀通账号](https://larktun.com/auth/login)。
+:::
+
+## 1. 在官网下载页获取安装命令
+
+打开[云雀通下载页](https://larktun.com/download)，在平台列表中找到 **Linux**。页面上可以切换下载通道：
+
+- **国内通道**：`https://download2.larktun.com`，中国大陆网络环境建议使用。
+- **国际通道**：`https://download.larktun.com`，海外服务器或国内通道不可用时使用。
+
+选择通道后，下载页会给出对应的一键安装命令。下载页的命令始终对应当前版本，建议每次安装前都先在下载页确认一次。
+
+## 2. 运行一键安装脚本
+
+通过 SSH 或本地终端进入这台 Linux 主机，执行安装命令。
+
+使用国内通道：
+
+```bash
+curl -fsSL https://download2.larktun.com/install.sh | sh
+```
+
+如果这台主机在海外，或者国内通道下载缓慢，改用国际通道：
+
+```bash
+curl -fsSL https://download.larktun.com/install.sh | sh
+```
+
+如果主机上只有 `wget`，把 `curl -fsSL` 换成 `wget -qO-` 即可，脚本本身两者都支持。
+
+脚本会依次完成：
+
+- 检测操作系统与 CPU 架构，目前支持 `amd64` 与 `arm64`。
+- 安装命令行工具 `/usr/bin/larktun` 与守护进程 `/usr/sbin/larktund`。
+- 生成配置文件 `/etc/default/larktund`，默认使用 UDP 端口 `41641`。
+- 按当前系统的启动方式注册服务：systemd（`larktund.service`）、OpenRC 或 SysV init，并设置开机自启后立即启动。
+
+安装成功后，终端会输出类似下面的提示，说明程序已经就绪，只差登入这一步：
+
+```text
+Installation complete! Log in to start using Larktun by running:
+
+sudo larktun up --accept-routes=false --accept-dns=false
+```
+
+这段提示里的命令没有包含云雀通的接入地址和 Auth Key，请按下一节给出的完整命令登入。
+
+:::tip
+如果系统没有 systemd、OpenRC，也没有 `/etc/init.d`（例如部分精简容器环境），脚本只会安装程序文件，并在终端提示手动启动守护进程的命令。这类环境建议改用[使用 Docker 登入云雀通](./docker-login-larktun)。
+:::
+
+## 3. 使用 sudo larktun up 命令登入
+
+安装完成后，使用 `larktun up` 把这台主机接入云雀通网络。云雀通使用 Auth Key 完成登入，命令需要管理员权限，因此前面要加 `sudo`；如果当前已经是 `root` 账号，可以省略 `sudo`。
+
+### 在控制台生成 Auth Key
+
+1. 登入[云雀通控制台](https://larktun.com/auth/login)，进入你的租户或工作空间。
+2. 在左侧导航栏中进入 **机器（Nodes）** 页面。
+3. 点击 **生成授权密钥**，为这台 Linux 主机生成一枚专用 Auth Key。
+4. 复制并保存密钥。出于安全考虑，Auth Key 只会完整显示一次，请不要粘贴到公开聊天、工单或截图中，也不要提交到代码仓库。
+
+建议为每台服务器单独生成 Auth Key，不要和桌面客户端、路由器或 NAS 共用同一枚密钥。
+
+### 执行登入命令
+
+回到 Linux 终端，把 `<您的 Auth Key>` 替换为上一步生成的密钥后执行：
+
+```bash
+sudo larktun up --login-server=https://hs.larktun.com --auth-key=<您的 Auth Key>
+```
+
+:::note
+`--login-server` 需要指向云雀通的接入控制面（例如 `https://hs.larktun.com`，具体请以控制台页面中的引导提示为准）。
+:::
+
+### 生产服务器建议附加的参数
+
+安装脚本提示中的两个参数可以直接追加到登入命令后面：
+
+```bash
+sudo larktun up --login-server=https://hs.larktun.com --auth-key=<您的 Auth Key> --accept-routes=false --accept-dns=false
+```
+
+- `--accept-routes=false`：不接受其他节点发布的子网路由，保留服务器原有的默认路由。
+- `--accept-dns=false`：不接管服务器现有的 DNS 配置。
+
+生产服务器建议先用这组参数完成首次接入，确认原有业务不受影响后，再按需要单独打开路由或 DNS。
+
+## 4. 验证设备是否上线
+
+在 Linux 主机上查看连接状态：
+
+```bash
+larktun status
+```
+
+查看本机分配到的云雀通私有地址：
+
+```bash
+larktun ip -4
+```
+
+然后回到云雀通控制台的 **Nodes（设备）** 页面刷新列表，确认这台 Linux 主机已经显示为在线。设备的初始名称通常是主机名，建议按用途重命名，例如 `prod-web-01`，方便后续在 ACL 中引用。
+
+最后在另一台已接入云雀通的设备上做一次最小范围验证，例如用私有地址 SSH 登入这台主机：
+
+```bash
+ssh <用户名>@100.x.x.x
+```
+
+验证通过后，再按实际需要在控制台配置 ACL，只放行必要的端口，不要长期把服务器全部端口开放给所有设备。
+
+## 常用运维命令
+
+- 查看连接状态：`larktun status`
+- 查看本机私有地址：`larktun ip -4`
+- 断开网络但保留登入状态：`sudo larktun down`
+- 退出登入并清除本机凭据：`sudo larktun logout`
+- 查看服务状态：`sudo systemctl status larktund`
+- 重启服务：`sudo systemctl restart larktund`
+- 查看服务日志：`sudo journalctl -u larktund -f`
+
+使用 OpenRC 或 SysV init 的系统，把上面的 `systemctl` 命令替换为 `rc-service larktund restart` 或 `/etc/init.d/larktund restart`，日志默认写入 `/var/log/larktun.log`。
+
+## 安装或登入失败怎么办
+
+- **提示 CPU 架构不支持**：一键安装脚本目前支持 `amd64` 与 `arm64`。32 位 ARM（例如 ARMv7）设备可以改用[使用 Docker 登入云雀通](./docker-login-larktun)，或[使用 Tailscale 客户端登入](./tailscale-client-login)。
+- **提示需要 root、sudo 或 doas**：脚本需要写入 `/usr/bin`、`/usr/sbin` 和系统服务目录，请换用具备管理员权限的账号执行。
+- **提示找不到 curl 或 wget**：先用系统包管理器安装其中之一，例如 `apt install curl` 或 `yum install curl`。
+- **下载缓慢或中断**：切换到另一条下载通道重试，并确认主机可以正常解析并访问 `download2.larktun.com` 或 `download.larktun.com`。
+- **执行 `larktun up` 后设备一直不上线**：确认 `--login-server` 地址完整且拼写正确；使用 Auth Key 时确认密钥没有过期或被重复使用；再检查主机出站方向是否放行了 UDP `41641`。
+- **接入后服务器 DNS 异常**：部分云厂商（例如阿里云）的内网 DNS 地址落在 `100.64.0.0/10` 网段内，可能与云雀通地址段重叠。安装脚本已经附带 `/usr/lib/larktun/preserve-underlay-routes.sh` 来保留这类底层 DNS 路由；如果仍有问题，先加上 `--accept-dns=false` 重新执行 `larktun up`。
+- **主机重启后没有自动接入**：确认服务已设置开机自启，例如执行 `sudo systemctl is-enabled larktund` 查看。
+- **仍未解决**：参考[问题处理](../troubleshooting/common-issues)，或在控制台提交工单时附上发行版及版本号、`uname -m` 的输出和完整的命令日志。
+
+## 下一步
+
+- [开通第一条安全访问链路](./publish-your-first-service)
+- [批准子网路由](./approve-subnet-routes)
+- [安全 SSH：不开放公网 22 端口连接服务器](../topics/secure-ssh-without-public-port)
+- [问题处理](../troubleshooting/common-issues)
