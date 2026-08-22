@@ -1,0 +1,176 @@
+---
+title: Install and Log In to Larktun on Linux
+description: Deploy Larktun on Linux — get the one-line install script from the official download page, install the larktun CLI and larktund service automatically, then run sudo larktun up to join your Larktun network without a public IP.
+keywords:
+  - install Larktun on Linux
+  - Linux VPN
+  - Linux remote access
+  - Ubuntu mesh networking
+  - Debian zero trust
+  - CentOS remote access
+  - Linux install script
+  - sudo larktun up
+  - headscale Linux client
+  - Larktun Linux
+sidebar_position: 14
+---
+
+# Install and Log In to Larktun on Linux
+
+Larktun ships a one-line install script for Linux. The script detects the CPU architecture, installs the `larktun` command-line tool and the `larktund` background daemon, and registers the daemon as a boot-time service using whatever init system the host runs. Once it finishes, a single `sudo larktun up` command joins the Linux host to your Larktun network.
+
+After the host joins, you don't need a public IP, DDNS, or a port forward for SSH and admin interfaces. Any device signed in to the same Larktun network can reach the host's SSH, web services, or databases over a private address.
+
+The process takes four steps:
+
+1. Get the current Linux install command from the official download page.
+2. Run the one-line install script in a Linux terminal.
+3. Log in with `sudo larktun up`.
+4. Confirm the device is online in the console.
+
+:::important[Before You Start]
+- A Linux host with internet access, running **x86-64** (`x86_64` / `amd64`) or **ARM64** (`aarch64` / `arm64`).
+- An account with `root`, `sudo`, or `doas` privileges.
+- `curl` or `wget` installed.
+- An active [Larktun account](https://larktun.com/auth/login).
+:::
+
+## 1. Get the Install Command from the Download Page
+
+Open the [Larktun download page](https://larktun.com/download) and find **Linux** in the platform list. You can switch the download channel on the page:
+
+- **China channel**: `https://download2.larktun.com` — recommended for networks in mainland China.
+- **Global channel**: `https://download.larktun.com` — for overseas servers, or whenever the China channel is unavailable.
+
+Once you pick a channel, the page shows the matching one-line install command. The download page always reflects the current release, so it's worth checking there before every install.
+
+## 2. Run the One-Line Install Script
+
+Open a terminal on the Linux host, over SSH or locally, and run the install command.
+
+Using the China channel:
+
+```bash
+curl -fsSL https://download2.larktun.com/install.sh | sh
+```
+
+If the host is outside mainland China, or the China channel is slow, switch to the global channel:
+
+```bash
+curl -fsSL https://download.larktun.com/install.sh | sh
+```
+
+If the host only has `wget`, replace `curl -fsSL` with `wget -qO-` — the script supports both.
+
+The script then:
+
+- Detects the operating system and CPU architecture; `amd64` and `arm64` are supported.
+- Installs the `/usr/bin/larktun` CLI and the `/usr/sbin/larktund` daemon.
+- Creates `/etc/default/larktund`, which uses UDP port `41641` by default.
+- Registers a service for the host's init system — systemd (`larktund.service`), OpenRC, or SysV init — enables it at boot, and starts it right away.
+
+On success, the terminal prints something like the following, which means the binaries are ready and only the login step is left:
+
+```text
+Installation complete! Log in to start using Larktun by running:
+
+sudo larktun up --accept-routes=false --accept-dns=false
+```
+
+The command in that message carries neither the Larktun login server nor an Auth Key — use the complete command from the next section instead.
+
+:::tip
+If the system has no systemd, no OpenRC, and no `/etc/init.d` (some minimal container images, for example), the script installs the binaries only and prints the command for starting the daemon manually. For those environments, use [Log in to Larktun with Docker](./docker-login-larktun) instead.
+:::
+
+## 3. Log In with sudo larktun up
+
+With the binaries installed, use `larktun up` to join the host to your Larktun network. Larktun signs a host in with an Auth Key. The command needs administrator privileges, so prefix it with `sudo` — you can drop `sudo` if you're already running as `root`.
+
+### Generate an Auth Key in the Console
+
+1. Sign in to the [Larktun Console](https://larktun.com/auth/login) and enter your tenant or workspace.
+2. Open the **Machines (Nodes)** page from the left navigation menu.
+3. Click **Create Auth Key** to generate a dedicated key for this Linux host.
+4. Copy and store the key. For security reasons the Auth Key is only shown in full once — don't paste it into public chats, tickets, or screenshots, and don't commit it to a repository.
+
+Generate a separate Auth Key for each server rather than reusing one key across desktop clients, routers, or a NAS.
+
+### Run the Login Command
+
+Back in the Linux terminal, replace `<Your Auth Key>` with the key you generated and run:
+
+```bash
+sudo larktun up --login-server=https://hs.larktun.com --auth-key=<Your Auth Key>
+```
+
+:::note
+`--login-server` must point to the Larktun access control plane (e.g., `https://hs.larktun.com`; refer to the console's setup instructions for the exact URL).
+:::
+
+### Recommended Flags for Production Servers
+
+The two flags from the install script's message can be appended to the login command:
+
+```bash
+sudo larktun up --login-server=https://hs.larktun.com --auth-key=<Your Auth Key> --accept-routes=false --accept-dns=false
+```
+
+- `--accept-routes=false`: don't accept subnet routes advertised by other nodes, keeping the server's existing default route.
+- `--accept-dns=false`: don't take over the server's existing DNS configuration.
+
+On production servers, do the first login with these flags, confirm existing workloads are unaffected, and only then enable Larktun routes or DNS if you actually need them.
+
+## 4. Verify the Device Is Online
+
+Check the connection status on the Linux host:
+
+```bash
+larktun status
+```
+
+Show the private address assigned to this host:
+
+```bash
+larktun ip -4
+```
+
+Then refresh the **Nodes** page in the Larktun console and confirm the Linux host shows up as online. The device name defaults to the hostname; rename it by purpose — `prod-web-01`, for example — so it's easier to reference in ACLs later.
+
+Finally, run one minimal check from another device on the Larktun network, such as an SSH session to the host over its private address:
+
+```bash
+ssh <username>@100.x.x.x
+```
+
+Once that works, configure ACLs in the console to allow only the ports you need. Don't leave every port on the server open to every device.
+
+## Everyday Commands
+
+- Check connection status: `larktun status`
+- Show the private address: `larktun ip -4`
+- Disconnect but stay logged in: `sudo larktun down`
+- Log out and clear local credentials: `sudo larktun logout`
+- Check the service: `sudo systemctl status larktund`
+- Restart the service: `sudo systemctl restart larktund`
+- Follow the service logs: `sudo journalctl -u larktund -f`
+
+On OpenRC or SysV init systems, replace the `systemctl` commands with `rc-service larktund restart` or `/etc/init.d/larktund restart`; logs go to `/var/log/larktun.log` by default.
+
+## Troubleshooting
+
+- **Unsupported CPU architecture**: the install script supports `amd64` and `arm64`. For 32-bit ARM devices (ARMv7, for example), use [Log in to Larktun with Docker](./docker-login-larktun) or [Log in with Tailscale Client](./tailscale-client-login) instead.
+- **The script asks for root, sudo, or doas**: it writes to `/usr/bin`, `/usr/sbin`, and the system service directory, so run it from an account with administrator privileges.
+- **`curl` or `wget` not found**: install one of them with the system package manager first, e.g. `apt install curl` or `yum install curl`.
+- **Slow or interrupted download**: retry with the other download channel, and confirm the host can resolve and reach `download2.larktun.com` or `download.larktun.com`.
+- **The device never comes online after `larktun up`**: check that `--login-server` is complete and correctly spelled, confirm the Auth Key hasn't expired or already been used, and make sure outbound UDP `41641` is permitted.
+- **Server DNS breaks after joining**: some cloud providers (Alibaba Cloud, for example) use internal DNS addresses inside `100.64.0.0/10`, which overlaps Larktun's address range. The install script ships `/usr/lib/larktun/preserve-underlay-routes.sh` to preserve those underlay DNS routes; if problems persist, re-run `larktun up` with `--accept-dns=false`.
+- **The host doesn't reconnect after a reboot**: confirm the service is enabled at boot, e.g. with `sudo systemctl is-enabled larktund`.
+- **Still stuck**: see [Common Issues](../troubleshooting/common-issues), or include the distribution and version, the output of `uname -m`, and the full command log when filing a support ticket.
+
+## Next Steps
+
+- [Create Your First Secure Access Path](./publish-your-first-service)
+- [Approve Subnet Routes](./approve-subnet-routes)
+- [Secure SSH Without Exposing Public Port 22](../topics/secure-ssh-without-public-port)
+- [Common Issues](../troubleshooting/common-issues)
