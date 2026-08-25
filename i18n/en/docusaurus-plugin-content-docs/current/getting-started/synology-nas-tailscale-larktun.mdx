@@ -1,14 +1,16 @@
 ---
 title: Install Tailscale on Synology NAS and Log In to Larktun
-description: A beginner-friendly visual guide to installing Tailscale on Synology DSM, enabling SSH, creating a Larktun Auth Key, and connecting the NAS through hs.larktun.com.
+description: A beginner-friendly guide to installing Tailscale on Synology DSM, connecting the NAS to Larktun, and accessing DSM from a computer through its private 100.64.0.x IP.
 keywords:
   - install Tailscale on Synology NAS
   - connect Synology NAS to Larktun
   - Synology Tailscale tutorial
   - Synology DSM SSH login
+  - access Synology with 100.64.0.x
+  - remote access Synology DSM
   - Larktun Auth Key
   - hs.larktun.com
-image: /img/docs/quickstart/synology/larktun-synology-device-online.webp
+image: /img/docs/quickstart/synology/synology-access-dsm-with-larktun-private-ip.webp
 sidebar_position: 13
 ---
 
@@ -16,7 +18,7 @@ sidebar_position: 13
 
 This guide walks you through one goal: adding a Synology NAS to your Larktun network. When you finish, the NAS will appear in Larktun's device list and receive a private Larktun address.
 
-The setup has seven steps:
+The setup has eight steps:
 
 1. Find the Synology NAS LAN IP.
 2. Install Tailscale in Synology DSM.
@@ -25,6 +27,7 @@ The setup has seven steps:
 5. Create a Larktun Auth Key.
 6. Run the Larktun login command in the Synology terminal.
 7. Return to Larktun and confirm that the NAS is online.
+8. Sign in to Larktun on your computer and open DSM through the NAS's private `100.64.0.x` IP.
 
 You do not need Linux experience. Follow the screenshots in order, and do not copy the example username, IP address, or key from an image.
 
@@ -174,7 +177,45 @@ Return to **Nodes (Devices)** in the Larktun console and click **Refresh**. Afte
 
 ![Larktun console shows the Synology NAS online and connected](/img/docs/quickstart/synology/larktun-synology-device-online.webp)
 
-The Synology NAS is now a device in your Larktun network. Connect a computer or phone to the same network next, then use the NAS's private Larktun address to reach authorized services.
+The Synology NAS is now a device in your Larktun network. Next, connect your computer to the same Larktun network and use the NAS's private address to open DSM.
+
+## 8. Access Synology DSM from a computer through 100.64.0.x
+
+After connecting the NAS, sign in to Larktun on the computer you will use for access. The computer can run Windows or macOS and does not need to remain on the same LAN as the NAS.
+
+1. Install and open the Larktun desktop client. See the [Desktop Client Guide](./desktop-client-operations) for detailed instructions.
+2. Sign in to the **same Larktun account, tenant, or workspace** used by the Synology NAS.
+3. Confirm that the top of the client shows **Connected** and that the Synology NAS appears **Online** in the device list.
+4. Find the Synology NAS private IP in the device list or Larktun console. It normally has the form `100.64.0.x`, such as `100.64.0.2` in the screenshot.
+5. Open a browser and enter the NAS private IP together with the DSM port.
+
+The default DSM HTTP port is normally `5000`, so the address format is:
+
+```text
+http://NAS_PRIVATE_IP:5000
+```
+
+For example, enter the following only if your own NAS private IP is actually `100.64.0.2`:
+
+```text
+http://100.64.0.2:5000
+```
+
+If HTTPS is enabled for DSM, the commonly used port is `5001`:
+
+```text
+https://NAS_PRIVATE_IP:5001
+```
+
+:::important[Do not copy the IP from the screenshot]
+The screenshot's `100.64.0.2` is only an example. Find **your own Synology NAS** in the Larktun device list and copy its `100.64.0.x` address. Do not use the private IP assigned to your computer.
+:::
+
+![Open the Synology DSM login page through the NAS private 100.64.0.x IP after connecting the computer to Larktun](/img/docs/quickstart/synology/synology-access-dsm-with-larktun-private-ip.webp)
+
+When the Synology DSM login page appears, the computer can reach the NAS through the Larktun private network. Sign in with your existing DSM username and password.
+
+The browser may show **Not secure** when you use `http://...:5000` because DSM port `5000` uses HTTP. If you have configured HTTPS for DSM, use `https://...:5001` instead. Always use the actual ports configured in your DSM settings.
 
 ## Troubleshooting
 
@@ -206,12 +247,23 @@ Wait a few seconds and refresh the device list, then check:
 2. The server is the complete `https://hs.larktun.com` URL or the URL specified by your console.
 3. The Synology Tailscale package is still installed and running.
 
+### The computer cannot open DSM through 100.64.0.x
+
+Check the following items in order:
+
+1. The desktop Larktun client shows **Connected**, and the Synology NAS appears **Online**.
+2. You entered the NAS private IP rather than the computer's own `100.64.0.x` address.
+3. The DSM management port is still `5000`, or the HTTPS port is `5001`.
+4. The Larktun ACL and Synology firewall allow this computer to access the DSM port.
+5. If you changed the DSM ports, replace `5000` or `5001` with the actual configured port.
+
 ## Security cleanup after setup
 
 If you no longer need local terminal access, return to **Control Panel > Terminal & SNMP**, clear **Enable SSH service**, and apply the change. Disabling SSH does not disconnect the running Tailscale package from Larktun.
 
 ## Next steps
 
+- [Desktop Client Guide](./desktop-client-operations)
 - [Log in with the Tailscale client](./tailscale-client-login)
 - [Create your first secure access path](./publish-your-first-service)
 - [Secure NAS remote access without public port exposure](../topics/secure-nas-remote-access)
