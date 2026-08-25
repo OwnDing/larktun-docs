@@ -1,14 +1,16 @@
 ---
 title: 在群晖 NAS 上安装 Tailscale 并登入云雀通
-description: 零基础图文教程：在群晖 Synology DSM 安装 Tailscale、开启 SSH、创建云雀通 Auth Key，并通过 hs.larktun.com 让 NAS 安全接入云雀通网络。
+description: 零基础图文教程：在群晖 Synology DSM 安装 Tailscale、接入云雀通，并让电脑通过 NAS 的 100.64.0.x 私有 IP 安全访问 DSM。
 keywords:
   - 群晖 NAS 安装 Tailscale
   - 群晖 NAS 使用云雀通
   - Synology Tailscale 教程
   - 群晖 SSH 登入
+  - 群晖 100.64.0.x 访问
+  - 远程访问群晖 DSM
   - 云雀通 Auth Key
   - hs.larktun.com
-image: /img/docs/quickstart/synology/larktun-synology-device-online.webp
+image: /img/docs/quickstart/synology/synology-access-dsm-with-larktun-private-ip.webp
 sidebar_position: 13
 ---
 
@@ -16,7 +18,7 @@ sidebar_position: 13
 
 这篇教程会带你完成一件事：让群晖 NAS 加入云雀通网络。完成后，你会在云雀通的设备列表中看到这台 NAS，并获得一个云雀通私有地址。
 
-整个过程分为 7 步：
+整个过程分为 8 步：
 
 1. 找到群晖 NAS 的局域网 IP。
 2. 在群晖 DSM 中安装 Tailscale。
@@ -25,6 +27,7 @@ sidebar_position: 13
 5. 在云雀通创建 Auth Key。
 6. 在群晖终端运行登入命令。
 7. 回到云雀通确认 NAS 已经在线。
+8. 让电脑登入云雀通，并通过 NAS 的 `100.64.0.x` 私有 IP 访问 DSM。
 
 不需要 Linux 基础。请按照图片顺序操作，不要直接复制图片中的账号、IP 地址或密钥。
 
@@ -174,7 +177,45 @@ sudo tailscale up --login-server=https://hs.larktun.com --auth-key=YOUR_AUTH_KEY
 
 ![云雀通控制台显示群晖 NAS 设备已经连接上线](/img/docs/quickstart/synology/larktun-synology-device-online.webp)
 
-现在，这台群晖 NAS 已经成为云雀通网络中的一台设备。你可以继续让电脑或手机接入同一个云雀通网络，再通过 NAS 的云雀通私有地址访问已授权的服务。
+现在，这台群晖 NAS 已经成为云雀通网络中的一台设备。下一步让电脑接入同一个云雀通网络，再通过 NAS 的云雀通私有地址访问 DSM。
+
+## 8. 在电脑上通过 100.64.0.x 访问群晖 DSM
+
+完成 NAS 接入后，还需要让用于访问的电脑登入云雀通。电脑可以是 Windows 或 macOS，也不必一直与 NAS 位于同一个局域网。
+
+1. 在电脑上安装并打开云雀通客户端。详细步骤参见[电脑客户端操作](./desktop-client-operations)。
+2. 使用与群晖 NAS **相同的云雀通账号、租户或工作空间**登入。
+3. 确认客户端顶部显示 **已连接**，并且设备列表中的群晖 NAS 显示 **在线**。
+4. 在设备列表或云雀通控制台中找到群晖 NAS 的私有 IP。它通常是 `100.64.0.x` 形式，例如截图中的 `100.64.0.2`。
+5. 打开电脑浏览器，在地址栏输入 NAS 的私有 IP 和 DSM 端口。
+
+DSM 默认 HTTP 端口通常是 `5000`，地址格式为：
+
+```text
+http://NAS_PRIVATE_IP:5000
+```
+
+例如，只有当你自己的 NAS 私有 IP 确实是 `100.64.0.2` 时，才输入：
+
+```text
+http://100.64.0.2:5000
+```
+
+如果 DSM 已经启用 HTTPS，常用端口是 `5001`：
+
+```text
+https://NAS_PRIVATE_IP:5001
+```
+
+:::important[不要照抄截图中的 IP]
+截图里的 `100.64.0.2` 只是示例。请在云雀通设备列表中找到**你自己的群晖 NAS**，复制它对应的 `100.64.0.x` 地址。不要误用电脑本身的私有 IP。
+:::
+
+![电脑登入云雀通后使用群晖 NAS 的 100.64.0.x 私有 IP 打开 DSM 登录页面](/img/docs/quickstart/synology/synology-access-dsm-with-larktun-private-ip.webp)
+
+看到群晖 DSM 登录页面，就说明电脑已经可以通过云雀通私有网络访问 NAS。此时使用原来的 DSM 用户名和密码登入即可。
+
+浏览器可能会在使用 `http://...:5000` 时显示 **不安全**，这是因为 DSM 的 `5000` 端口使用 HTTP。如果你已经为 DSM 配置 HTTPS，可以改用 `https://...:5001`；具体端口仍以你自己的 DSM 设置为准。
 
 ## 常见问题
 
@@ -206,12 +247,23 @@ Auth Key 可能已过期、被撤销、复制不完整或已经使用。回到�
 2. server 是否完整填写为 `https://hs.larktun.com`，或你的控制台指定的地址。
 3. 群晖 Tailscale 套件是否仍处于已安装、运行状态。
 
+### 电脑无法通过 100.64.0.x 打开 DSM
+
+依次检查以下内容：
+
+1. 电脑端云雀通是否显示 **已连接**，群晖 NAS 是否显示 **在线**。
+2. 输入的是群晖 NAS 的私有 IP，而不是电脑自己的 `100.64.0.x`。
+3. DSM 管理端口是否仍为 `5000`，或 HTTPS 端口是否为 `5001`。
+4. 云雀通 ACL 和群晖防火墙是否允许这台电脑访问 DSM 端口。
+5. 如果修改过 DSM 端口，请把地址中的 `5000` 或 `5001` 替换为实际端口。
+
 ## 完成后的安全收尾
 
 如果以后不需要通过局域网管理群晖终端，请回到 **控制面板 > 终端机和 SNMP**，取消勾选 **启动 SSH 功能** 并应用设置。关闭 SSH 不会让已经运行的 Tailscale 套件退出云雀通。
 
 ## 下一步
 
+- [电脑客户端操作](./desktop-client-operations)
 - [使用 Tailscale 客户端登入云雀通](./tailscale-client-login)
 - [开通第一条安全访问链路](./publish-your-first-service)
 - [远程访问 NAS：不暴露公网端口的安全方案](../topics/secure-nas-remote-access)
