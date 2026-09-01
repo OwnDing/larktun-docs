@@ -1,0 +1,220 @@
+---
+title: "Larktun on Alibaba Cloud: Linux and Docker DNS Fix"
+description: Fix Alibaba Cloud ECS DNS failures after installing Tailscale or Larktun. Learn how Larktun protects 100.100.2.136/138 routes on Linux and Docker.
+keywords:
+  - Larktun Alibaba Cloud
+  - Alibaba Cloud Tailscale no internet
+  - Alibaba Cloud DNS 100.100.2.136
+  - Larktun Linux DNS
+  - Larktun Docker DNS
+  - Tailscale table 52
+  - TS_PRESERVE_UNDERLAY_ROUTES
+  - TS_PRESERVE_UNDERLAY_DNS
+sidebar_label: Larktun on Alibaba Cloud
+sidebar_position: 4
+---
+
+# Larktun on Alibaba Cloud: Linux and Docker DNS Fix
+
+On some Alibaba Cloud ECS instances, installing Tailscale or joining Larktun in Kernel TUN mode can make the server appear to lose internet access. In many cases, the public connection is not completely down. Instead:
+
+- Public IP addresses remain reachable, but domain names do not resolve.
+- A ping to an IP address may work while `apt`, `yum`, `curl`, or applications that use domain names fail.
+- `/etc/resolv.conf` still contains DNS addresses, but requests no longer use Alibaba Cloud's original gateway.
+
+Larktun now includes underlay DNS route protection in both the **Linux one-click installer** and the **Docker Kernel TUN image** to reduce the impact of this Alibaba Cloud routing conflict.
+
+:::important[First confirm that this is a DNS routing conflict]
+This guide applies when IP connectivity mostly works but DNS resolution fails. If both IP addresses and domain names are unreachable, check Alibaba Cloud security groups, VPC routes, the NAT gateway, the host's default route, and its firewall first.
+:::
+
+## Why this happens on Alibaba Cloud
+
+Common internal DNS addresses on Alibaba Cloud ECS include:
+
+```text
+100.100.2.136
+100.100.2.138
+```
+
+These addresses are inside the `100.64.0.0/10` CGNAT range. Tailscale and Larktun also use this range for private IPv4 addresses.
+
+In Linux Kernel TUN mode, the client uses policy routing and Linux `table 52` for Larktun network routes. Without a more specific underlay DNS route, traffic to `100.100.2.136` or `100.100.2.138` may be sent to a virtual interface such as `tailscale0` instead of Alibaba Cloud's original default gateway.
+
+The server may therefore appear online while DNS resolution, package updates, and application requests that depend on domain names fail.
+
+## What Larktun optimizes
+
+| Version | Automatic protection | Scope |
+| --- | --- | --- |
+| Larktun Linux one-click installer | Installs `preserve-underlay-routes.sh`, discovers CGNAT DNS servers, and writes `/32` routes to `main` and `table 52` | Linux hosts using systemd, OpenRC, or SysV init |
+| Larktun Docker `latest` | Enables underlay route protection by default in Kernel TUN mode, reads DNS settings, detects Alibaba Cloud ECS, and checks routes periodically | Containers using host networking with `TS_USERSPACE=false` |
+
+Both implementations keep underlay DNS traffic on the server's original default gateway instead of sending it into the Larktun virtual interface.
+
+### Linux protection
+
+The current Linux installer installs:
+
+```text
+/usr/lib/larktun/preserve-underlay-routes.sh
+```
+
+The helper:
+
+1. Reads DNS addresses from `/etc/resolv.conf`, `/run/systemd/resolve/resolv.conf`, `resolvectl`, or `systemd-resolve`.
+2. Automatically selects IPv4 DNS addresses inside `100.64.0.0/10`.
+3. Finds the host's original default gateway and network interface.
+4. Writes a more specific `/32` route for each DNS server to Linux `main` and `table 52`.
+5. Runs again when the systemd, OpenRC, or SysV service starts.
+
+The Linux installation flow also recommends `--accept-routes=false --accept-dns=false` so a server does not immediately adopt routes or DNS settings from another node during its first connection.
+
+### Docker protection
+
+The Docker image enables the following by default when `TS_USERSPACE=false`:
+
+```yaml
+TS_PRESERVE_UNDERLAY_ROUTES: "true"
+```
+
+It reads resolver configuration visible inside the container and checks DMI information for Alibaba Cloud ECS. When Alibaba Cloud is detected, the common `100.100.2.136` and `100.100.2.138` addresses are protected even if resolver files expose only a local stub address.
+
+The route preserver checks several times shortly after startup, then checks every five minutes so startup order or later DNS changes do not silently remove the protection. To specify underlay DNS addresses explicitly, use:
+
+```yaml
+TS_PRESERVE_UNDERLAY_DNS: "100.100.2.136,100.100.2.138"
+```
+
+Userspace mode (`TS_USERSPACE=true`) does not install Larktun routes in the host kernel, so it does not require this Kernel TUN route protection.
+
+## Step 1: confirm the symptoms
+
+Run these commands on the Alibaba Cloud server:
+
+```bash
+ping -c 3 223.5.5.5
+getent hosts www.baidu.com
+
+cat /etc/resolv.conf
+cat /run/systemd/resolve/resolv.conf 2>/dev/null || true
+resolvectl dns 2>/dev/null || systemd-resolve --status 2>/dev/null || true
+```
+
+If the IP test mostly works but `getent hosts` returns no address, inspect the routes:
+
+```bash
+ip -4 route show default
+ip -4 route get 100.100.2.136
+ip -4 route show table main | grep -E '100\.100\.2\.(136|138)' || true
+ip -4 route show table 52 | grep -E '100\.100\.2\.(136|138)' || true
+```
+
+The issue described here is likely present if the DNS route points to `tailscale0`, or if `main` and `table 52` do not contain `/32` routes for the DNS servers.
+
+## Step 2: fix Larktun for Linux
+
+First, check whether the route helper is installed:
+
+```bash
+sudo test -x /usr/lib/larktun/preserve-underlay-routes.sh \
+  && echo "underlay route helper is installed"
+```
+
+If it exists, run:
+
+```bash
+sudo /usr/lib/larktun/preserve-underlay-routes.sh
+sudo larktun set --accept-routes=false --accept-dns=false
+```
+
+If the helper is missing, the installed version is older. Temporarily disconnect Larktun to restore the original network, then follow [Install and log in to Larktun on Linux](../getting-started/linux-install-larktun) to run the current installer:
+
+```bash
+sudo larktun down
+curl -fsSL https://download2.larktun.com/install.sh | sh
+```
+
+Then reconnect:
+
+```bash
+sudo larktun up --accept-routes=false --accept-dns=false
+```
+
+For a first login, you also need an Auth Key created in the Larktun console and `https://hs.larktun.com`. See the linked Linux installation guide for the complete command.
+
+## Step 3: fix Larktun for Docker
+
+This conflict primarily affects Kernel TUN mode. Use the currently recommended image and keep these settings in Docker Compose:
+
+```yaml
+services:
+  larktun:
+    image: registry.larktun.com/larktun/larktun:latest
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      TS_USERSPACE: "false"
+      TS_PRESERVE_UNDERLAY_ROUTES: "true"
+      TS_PRESERVE_UNDERLAY_DNS: "100.100.2.136,100.100.2.138"
+```
+
+Pull the latest image and recreate the container:
+
+```bash
+docker compose pull
+docker compose up -d --force-recreate
+```
+
+Inspect route-protection logs:
+
+```bash
+docker compose logs --tail=100 larktun \
+  | grep -E 'Preserved underlay routes|failed to preserve underlay' || true
+```
+
+After the DNS addresses are detected and protected, the log includes a message similar to `Preserved underlay routes for 2 CGNAT DNS server(s)`. See [Log in to Larktun with Docker](../getting-started/docker-login-larktun) for the full deployment configuration.
+
+## Step 4: verify the fix
+
+Check both routing tables again:
+
+```bash
+ip -4 route show table main | grep -E '100\.100\.2\.(136|138)'
+ip -4 route show table 52 | grep -E '100\.100\.2\.(136|138)'
+```
+
+Both DNS servers should use Alibaba Cloud's original default gateway and physical interface, not `tailscale0`:
+
+```text
+100.100.2.136 via <host-default-gateway> dev <host-interface>
+100.100.2.138 via <host-default-gateway> dev <host-interface>
+```
+
+Finally, test DNS and HTTPS:
+
+```bash
+getent hosts www.baidu.com
+curl -I https://larktun.com
+```
+
+If the domain returns an IP address and the HTTPS request receives a response, DNS access has recovered.
+
+## If the server is still offline
+
+- **The actual DNS addresses are not `100.100.2.136/138`**: use `resolvectl dns` or the real resolver file as the source of truth. In Docker, set the actual addresses with `TS_PRESERVE_UNDERLAY_DNS`.
+- **Both IP addresses and domains fail**: this is usually not a DNS route conflict. Check security groups, VPC, NAT, the default route, and the host firewall.
+- **Linux routes are still missing**: make sure `iproute2` is installed, then run `/usr/lib/larktun/preserve-underlay-routes.sh` again.
+- **Docker has no protection log**: confirm the image is `latest`, `TS_USERSPACE=false`, host networking is enabled, and the container has `NET_ADMIN`.
+- **Do not rely on permanently overwriting `/etc/resolv.conf`**: systemd-resolved or DHCP may regenerate it, and changing only the resolver does not fix the underlying route conflict.
+
+## Related documentation
+
+- [Install and log in to Larktun on Linux](../getting-started/linux-install-larktun)
+- [Log in to Larktun with Docker](../getting-started/docker-login-larktun)
+- [Diagnostics](./diagnostics)
+- [Common Issues](./common-issues)

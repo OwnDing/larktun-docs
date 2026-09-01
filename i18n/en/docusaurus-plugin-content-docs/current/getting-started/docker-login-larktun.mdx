@@ -1,135 +1,291 @@
 ---
-title: Log in to Larktun with Docker
-description: Use the Larktun Docker image to join a container to your Larktun network with an Auth Key and custom login server, including userspace and Kernel TUN modes.
+title: "Docker Login for Larktun: Userspace and TUN Modes"
+description: Connect Linux servers, NAS devices, and containers to Larktun with Docker, an Auth Key, hs.larktun.com, userspace networking, or Kernel TUN mode.
 keywords:
-  - Larktun Docker
-  - Docker login Larktun
+  - Larktun Docker login
+  - Larktun Docker tutorial
   - Larktun Docker image
-  - TS_AUTHKEY
+  - Docker userspace networking
+  - Docker TUN mode
+  - Larktun Auth Key
+  - hs.larktun.com
   - TS_USERSPACE
-  - amd64
-  - arm64
-  - arm/v7
-  - headscale Docker
-  - Tailscale container
+  - Tailscale Docker
+sidebar_label: Docker Login
 sidebar_position: 8
 ---
 
-# Log in to Larktun with Docker
+# Docker Login for Larktun: Userspace and TUN Modes
 
-Larktun provides a Docker image for quickly joining Linux servers, NAS devices, gateway hosts, and containerized environments to your Larktun network. You can start with the default userspace mode for a lower-privilege setup, or use Kernel TUN mode when the container needs host-level networking capabilities.
+Larktun provides a multi-architecture Docker image that connects Linux servers, NAS devices, gateway hosts, and other containerized systems to a Larktun network. This guide covers both login methods:
 
-This guide uses the `registry.larktun.com/larktun/larktun:1.86.2` image and logs in with an Auth Key.
+- **Userspace mode**: requires fewer privileges and does not need a TUN device on the host.
+- **Kernel TUN mode**: uses the host network stack and is designed for Linux systems that need full networking or subnet-routing capabilities.
+
+Whichever mode you choose, use an Auth Key created in the **Larktun console** and set the login server to `https://hs.larktun.com`.
+
+:::important[The Auth Key must come from Larktun]
+Do not use a key from the Tailscale admin console. The Auth Key in this guide must be created in the Larktun console. Treat it like a device password: never commit it to Git or include it in chats, tickets, or screenshots.
+:::
 
 ## Before you begin
 
-- Docker is installed and running.
-- You have registered and signed in to the [Larktun console](https://larktun.com/auth/login).
-- Your account still has available device quota.
-- The host can reach the Larktun image registry at `registry.larktun.com`.
+- A Linux server, NAS, or other device with Docker installed and running.
+- A working [Larktun account](https://larktun.com/auth/login).
+- An available device slot on your account.
+- Network access to the image registry at `registry.larktun.com` and the login server at `https://hs.larktun.com`.
 
-An Auth Key is a device credential. Keep it private, do not commit it to a repository, and do not paste it into public chats, tickets, or screenshots.
+First, confirm that Docker is running:
+
+```bash
+docker version
+```
 
 ## 1. Pull the Larktun Docker image
 
-The Larktun Docker image is available for these architectures:
-
-- `linux/amd64`: common x86-64 servers, PCs, and virtual machines
-- `linux/arm64`: ARM64 NAS devices, Apple Silicon Linux virtual machines, and ARM servers
-- `linux/arm/v7`: selected 32-bit ARM devices
-
-Docker usually selects the matching image automatically based on the host architecture. If you need to force a platform in a special environment, add `--platform` to `docker pull` or `docker run`.
-
-Pull the pinned image version first:
+The currently recommended image is:
 
 ```bash
-docker pull registry.larktun.com/larktun/larktun:1.86.2
+docker pull registry.larktun.com/larktun/larktun:latest
 ```
 
-For production deployments, pinning the image version makes rollback and troubleshooting easier. The commands below use the same full image address.
+The `latest` tag is a multi-architecture image. Docker automatically selects the image for your host:
 
-## 2. Get an Auth Key from the Larktun console
+- `linux/amd64`: common x86-64 servers, PCs, and virtual machines
+- `linux/arm64`: ARM64 NAS devices, ARM servers, and Apple Silicon Linux virtual machines
+- `linux/arm/v7`: selected 32-bit ARM devices
+
+:::tip[Production recommendation]
+After testing, replace `latest` with a validated version tag or image digest to make rollback and troubleshooting easier.
+:::
+
+## 2. Create an Auth Key in the Larktun console
 
 1. Sign in to the [Larktun console](https://larktun.com/auth/login) and enter your tenant or workspace.
-2. Open **Machines (Nodes)** from the left navigation.
-3. Click **Create Auth Key** to generate a dedicated Auth Key for this Docker node.
-4. Copy and store the key. For security reasons, an Auth Key is usually shown in full only once.
+2. Open **Nodes (Devices)** from the left navigation.
+3. Click **Create Auth Key** to create a dedicated key for this Docker device.
+4. Copy and store the key immediately. It is usually shown in full only once.
 
-Use a dedicated key for Docker nodes instead of sharing one with desktop clients, routers, or NAS devices.
+Do not share one Auth Key across desktop clients, routers, and other servers.
 
-## 3. Confirm the login server URL
+To keep the key out of your shell history, run the following in Linux Bash:
 
-The default Larktun control-plane login server is:
-
-```text
-https://hs.larktun.com
+```bash
+read -rsp "Paste your Larktun Auth Key (input is hidden): " TS_AUTHKEY && echo
+export TS_AUTHKEY
 ```
 
-The actual URL may differ for some users, tenants, or private deployments. Before running the container, open **Settings** in the console and check **Display configuration** for the login server URL assigned to your account.
+The Docker commands below read this temporary environment variable. Do not paste a real key into this document or commit it to a repository.
 
-The commands below pass `--login-server` to the container startup flow through `TS_EXTRA_ARGS`. If your console shows a URL other than `https://hs.larktun.com`, replace it with the exact URL from your configuration.
+## 3. Choose a login mode
+
+Both modes log the Docker node in to Larktun, but their networking capabilities and privilege requirements differ. **Choose only one; do not start two containers with the same name.**
+
+| Comparison | Userspace mode | Kernel TUN mode |
+| --- | --- | --- |
+| Requires `/dev/net/tun` | No | Yes |
+| Extra privileges | No `NET_ADMIN` required | Requires `NET_ADMIN` and `NET_RAW` |
+| Uses host networking | No | Yes, with `--network=host` |
+| Best for | Low-privilege login, container access, SOCKS5/HTTP proxy | Full Linux host networking and subnet routing |
+| Suitable for advertising host subnets | No | Yes |
+
+If you are unsure, start with userspace mode. Choose Kernel TUN only when you specifically need host routes or subnet routing.
 
 ## 4. Option 1: Log in with userspace mode
 
-Userspace mode is the container default. It does not require `--network=host`, `NET_ADMIN`, or `/dev/net/tun`, which makes it a good first option for lower-privilege onboarding.
+Userspace mode is the default. It does not require `--network=host`, `NET_ADMIN`, or `/dev/net/tun`. Run:
 
 ```bash
 docker run -d --name larktun \
-  -e TS_AUTHKEY=tskey-... \
-  -e TS_STATE_DIR=/var/lib/larktun \
-  -e TS_EXTRA_ARGS=--login-server=https://hs.larktun.com \
+  --restart unless-stopped \
+  -e TS_AUTHKEY \
+  -e TS_EXTRA_ARGS="--login-server=https://hs.larktun.com" \
+  -e TS_USERSPACE="true" \
+  -e TS_STATE_DIR="/var/lib/larktun" \
+  -e TS_HOSTNAME="larktun-userspace" \
+  -e TS_AUTH_ONCE="true" \
   -v larktun-state:/var/lib/larktun \
-  registry.larktun.com/larktun/larktun:1.86.2
+  registry.larktun.com/larktun/larktun:latest
 ```
 
-Replace `tskey-...` with the Auth Key generated in the console.
+This mode joins the container to Larktun, but it **does not automatically add Larktun routes to the host and cannot advertise the host subnet**.
 
-:::tip
-For production, you can add `--restart unless-stopped` so the container comes back automatically after Docker or host restarts.
-:::
+If a host application needs to reach the Larktun network through a proxy, add these options when creating the container to enable SOCKS5 and HTTP proxies bound to localhost only:
+
+```text
+-p 127.0.0.1:1080:1080
+-p 127.0.0.1:8080:8080
+-e TS_SOCKS5_SERVER=0.0.0.0:1080
+-e TS_OUTBOUND_HTTP_PROXY_LISTEN=0.0.0.0:8080
+```
+
+The proxy URLs are `socks5://127.0.0.1:1080` and `http://127.0.0.1:8080`. Do not bind these proxy ports to a public interface without access controls.
 
 ## 5. Option 2: Log in with Kernel TUN mode
 
-Use Kernel TUN mode when the container should use the host network stack or when you need more complete networking behavior. This mode requires `/dev/net/tun` on the host and grants the container `NET_ADMIN` and `NET_RAW`.
+Kernel TUN mode uses the host network namespace and creates Larktun-related interfaces and routes. It is intended for Linux servers that need full networking and is required when advertising subnet routes from Docker.
+
+First, confirm that the host has a TUN device:
+
+```bash
+ls -l /dev/net/tun
+```
+
+Then run:
 
 ```bash
 docker run -d --name larktun \
+  --restart unless-stopped \
   --network=host \
   --cap-add=NET_ADMIN \
   --cap-add=NET_RAW \
-  --device=/dev/net/tun \
-  -e TS_AUTHKEY=tskey-... \
-  -e TS_USERSPACE=false \
-  -e TS_STATE_DIR=/var/lib/larktun \
-  -e TS_EXTRA_ARGS=--login-server=https://hs.larktun.com \
+  --device=/dev/net/tun:/dev/net/tun \
+  -e TS_AUTHKEY \
+  -e TS_EXTRA_ARGS="--login-server=https://hs.larktun.com" \
+  -e TS_USERSPACE="false" \
+  -e TS_STATE_DIR="/var/lib/larktun" \
+  -e TS_HOSTNAME="larktun-tun" \
+  -e TS_AUTH_ONCE="true" \
+  -e TS_PRESERVE_UNDERLAY_ROUTES="true" \
   -v larktun-state:/var/lib/larktun \
-  registry.larktun.com/larktun/larktun:1.86.2
+  registry.larktun.com/larktun/larktun:latest
 ```
 
-If `/dev/net/tun` is missing, verify that the host kernel supports TUN/TAP and that your Docker environment allows the required device and capabilities.
+`TS_PRESERVE_UNDERLAY_ROUTES=true` protects the host's existing underlay network and DNS routes. If a cloud provider uses DNS addresses inside `100.64.0.0/10`, you can also set `TS_PRESERVE_UNDERLAY_DNS` to the actual addresses. Common Alibaba Cloud addresses, for example, are `100.100.2.136,100.100.2.138`.
 
-## Verify the login status
+To reach a LAN behind the host, set `TS_ROUTES` in TUN mode and approve the advertised routes in the console. See [Approve subnet routes](./approve-subnet-routes) for the complete procedure.
 
-After the container starts, check the container state and startup logs:
+### Deploy a TUN subnet router with Docker Compose
+
+To keep the deployment configuration in one reusable file, create `compose.yaml` in your deployment directory. This example uses Kernel TUN mode and advertises the host LAN subnet `192.168.1.0/24`:
+
+```yaml title="compose.yaml"
+services:
+  larktun:
+    image: registry.larktun.com/larktun/larktun:latest
+    container_name: larktun
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      TS_AUTHKEY: "replace-with-your-auth-key"
+      TS_EXTRA_ARGS: "--login-server=https://hs.larktun.com"
+      TS_USERSPACE: "false"
+      TS_STATE_DIR: "/var/lib/larktun"
+      TS_HOSTNAME: "larktun-subnet-router"
+      TS_ROUTES: "192.168.1.0/24"
+      TS_PRESERVE_UNDERLAY_ROUTES: "true"
+      TS_PRESERVE_UNDERLAY_DNS: "100.100.2.136,100.100.2.138"
+    volumes:
+      - larktun-state:/var/lib/larktun
+
+volumes:
+  larktun-state:
+```
+
+Before deployment, change:
+
+- Replace `replace-with-your-auth-key` with an Auth Key created in the Larktun console.
+- Replace `192.168.1.0/24` with the actual LAN subnet the host should advertise. Separate multiple subnets with commas.
+- `100.100.2.136,100.100.2.138` are common Alibaba Cloud underlay DNS addresses. Use the actual DNS addresses in other environments, or remove `TS_PRESERVE_UNDERLAY_DNS` when manual protection is unnecessary.
+
+:::warning[Protect the Auth Key in compose.yaml]
+This example stores the Auth Key in `compose.yaml`. Restrict access to the file, add it to `.gitignore`, and never commit the real key. Use protected secret management for stricter production environments.
+:::
+
+Start the deployment and check its status:
+
+```bash
+docker compose up -d
+docker compose ps
+docker compose logs --tail=80 larktun
+docker compose exec larktun larktun status
+```
+
+After the device comes online, approve the subnet advertised by `TS_ROUTES` in the Larktun console. Other devices will not use the subnet route until it is approved.
+
+When updating the image and recreating the container later, the `larktun-state` volume preserves the node state:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+## 6. Confirm a successful login
+
+If you used the earlier `docker run` method and temporary environment variable, first clear the key from the current terminal:
+
+```bash
+unset TS_AUTHKEY
+```
+
+Then check the container, its logs, and the Larktun status:
 
 ```bash
 docker ps --filter name=larktun
 docker logs --tail=80 larktun
+docker exec -it larktun larktun status
 ```
 
-Then return to the **Nodes** page in the Larktun console and refresh the list. If the Auth Key and login server are correct, the new Docker node should appear online.
+A successful login has all three signals:
+
+1. The `larktun` container is running in `docker ps`.
+2. `larktun status` lists devices in the current Larktun network.
+3. After you refresh **Nodes (Devices)** in the Larktun console, the new Docker node appears online.
+
+Node state is stored in the `larktun-state` volume. Mount the same volume when recreating the container and keep `TS_AUTH_ONCE=true` so an existing node does not use the Auth Key again unnecessarily.
 
 ## Troubleshooting
 
-- The device does not appear in the console: make sure `TS_AUTHKEY` is valid, has not expired, and has not been reused too many times. Also verify that `TS_EXTRA_ARGS=--login-server=...` matches the URL shown in the console.
-- A duplicate device appears after restarting the container: confirm that `-v larktun-state:/var/lib/larktun` is mounted and `TS_STATE_DIR=/var/lib/larktun` is spelled correctly.
-- Kernel TUN mode fails to start: confirm that `/dev/net/tun` exists on the host and that your Docker runtime allows `--cap-add=NET_ADMIN`, `--cap-add=NET_RAW`, and `--device=/dev/net/tun`.
-- The container name already exists: run `docker rm -f larktun` first, then start the container again. Removing the container does not delete the `larktun-state` volume used above.
-- Pulling the image fails: check connectivity to `registry.larktun.com`, plus any corporate proxy, firewall, or registry authentication rules.
+### The Docker device does not appear in the console
+
+Make sure the Auth Key came from the Larktun console and has not expired or been revoked. Check that `TS_EXTRA_ARGS` contains the complete value `--login-server=https://hs.larktun.com`, then inspect `docker logs --tail=80 larktun` for the exact error.
+
+### A duplicate device appears after a container restart
+
+Confirm that the command includes `TS_STATE_DIR=/var/lib/larktun`, `TS_AUTH_ONCE=true`, and `-v larktun-state:/var/lib/larktun`. Removing a container does not automatically remove its volume, but using a new volume loses the existing node state.
+
+### TUN mode reports that `/dev/net/tun` is missing
+
+The host kernel may not have TUN/TAP loaded, or the Docker environment may not allow the device mapping. Fix TUN support on the host first. If the environment cannot provide TUN, use userspace mode.
+
+### DNS resolution fails after TUN mode starts
+
+Keep `TS_PRESERVE_UNDERLAY_ROUTES=true`. If the cloud provider's underlay DNS addresses are inside `100.64.0.0/10`, set the actual addresses with `TS_PRESERVE_UNDERLAY_DNS`, then recreate the container. For complete Alibaba Cloud ECS diagnostics, see [Larktun on Alibaba Cloud: Fix Linux and Docker DNS Failures](../troubleshooting/larktun-alibaba-cloud-dns).
+
+### A container named `larktun` already exists
+
+When switching modes, remove the old container before running the command for the selected mode:
+
+```bash
+docker rm -f larktun
+```
+
+This command does not delete the `larktun-state` volume. Do not delete that volume unless you intend to log out and erase the saved node state.
+
+## Updates and routine operations
+
+```bash
+# Show the installed version
+docker exec -it larktun larktun version
+
+# Follow logs
+docker logs -f larktun
+
+# Pull the recommended image
+docker pull registry.larktun.com/larktun/larktun:latest
+
+# Restart without deleting saved state
+docker restart larktun
+```
 
 ## Next steps
 
-- [Publish your first secure service](./publish-your-first-service)
 - [Approve subnet routes](./approve-subnet-routes)
-- [Log in with Tailscale Client](./tailscale-client-login)
+- [Publish your first secure service](./publish-your-first-service)
+- [Log in with the Tailscale client](./tailscale-client-login)
 - [Troubleshooting](../troubleshooting/common-issues)
