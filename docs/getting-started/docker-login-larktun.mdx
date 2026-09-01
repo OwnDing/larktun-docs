@@ -1,135 +1,291 @@
 ---
-title: 使用 Docker 登入云雀通
-description: 使用云雀通 Larktun Docker 镜像，通过 Auth Key 与自定义 login server 将容器接入云雀通网络，支持默认 userspace 模式和 Kernel TUN 模式。
+title: "Docker 登入云雀通：用户态与 TUN 模式"
+description: 云雀通 Larktun Docker 入门教程：使用 Auth Key 和 hs.larktun.com，通过低权限用户态网络或内核 TUN 模式让 Linux 服务器、NAS 与容器安全接入云雀通。
 keywords:
   - Docker 登入云雀通
-  - Larktun Docker
+  - Larktun Docker 教程
   - 云雀通 Docker 镜像
-  - TS_AUTHKEY
+  - Docker 用户态网络
+  - Docker TUN 模式
+  - Larktun Auth Key
+  - hs.larktun.com
   - TS_USERSPACE
-  - amd64
-  - arm64
-  - arm/v7
-  - headscale Docker
-  - Tailscale 容器
+  - Tailscale Docker
+sidebar_label: Docker 登入
 sidebar_position: 8
 ---
 
-# 使用 Docker 登入云雀通
+# Docker 登入云雀通：用户态与 TUN 模式
 
-云雀通（Larktun）提供 Docker 镜像，适合在 Linux 服务器、NAS、旁路网关或容器化环境中快速接入云雀通网络。你可以使用默认的 userspace 模式低权限运行，也可以在需要宿主机网络能力时启用 Kernel TUN 模式。
+云雀通（Larktun）提供多架构 Docker 镜像，可以让 Linux 服务器、NAS、旁路网关或其他容器化设备接入云雀通网络。本教程会介绍两种登入方式：
 
-本教程使用 `registry.larktun.com/larktun/larktun:1.86.2` 镜像，通过 Auth Key 完成首次登入。
+- **用户态（userspace）模式**：权限要求低，不需要宿主机提供 TUN 设备。
+- **内核 TUN 模式**：使用宿主机网络栈，适合需要完整网络能力或子网路由的 Linux 设备。
+
+无论选择哪一种方式，都需要使用在**云雀通控制台**创建的 Auth Key，并把登录服务器设置为 `https://hs.larktun.com`。
+
+:::important[Auth Key 必须来自云雀通]
+不要使用 Tailscale 管理后台创建的密钥。本教程所需的 Auth Key 必须在云雀通控制台创建。它相当于设备的登入密码，请勿提交到 Git 仓库，也不要放进聊天记录、工单或截图。
+:::
 
 ## 开始前准备
 
-- 已安装并启动 Docker。
-- 已注册并登入 [云雀通控制台](https://larktun.com/auth/login)。
-- 当前账号仍有可用设备接入配额。
-- 已确认本机可以访问云雀通镜像仓库 `registry.larktun.com`。
+- 一台已经安装并启动 Docker 的 Linux 服务器、NAS 或其他设备。
+- 一个可用的[云雀通账号](https://larktun.com/auth/login)。
+- 当前账号还有可用的设备接入名额。
+- 宿主机可以访问镜像仓库 `registry.larktun.com` 和登录服务器 `https://hs.larktun.com`。
 
-Auth Key 是设备接入凭证，请妥善保管，不要提交到代码仓库，也不要粘贴到公开聊天、工单或截图中。
+可以先确认 Docker 正常运行：
+
+```bash
+docker version
+```
 
 ## 1. 下载云雀通 Docker 镜像
 
-云雀通 Docker 镜像提供以下架构：
+当前推荐镜像是：
 
-- `linux/amd64`：常见 x86-64 服务器、PC、虚拟机
-- `linux/arm64`：ARM64 NAS、Apple Silicon Linux 虚拟机、ARM 服务器
+```bash
+docker pull registry.larktun.com/larktun/larktun:latest
+```
+
+`latest` 是多架构镜像，Docker 会根据宿主机自动选择：
+
+- `linux/amd64`：常见的 x86-64 服务器、PC 和虚拟机
+- `linux/arm64`：ARM64 NAS、ARM 服务器和 Apple Silicon Linux 虚拟机
 - `linux/arm/v7`：部分 32 位 ARM 设备
 
-Docker 通常会根据当前宿主机架构自动选择匹配镜像。如果需要在特殊环境中手动指定架构，可以在 `docker pull` 或 `docker run` 中加入 `--platform`。
-
-先拉取指定版本镜像：
-
-```bash
-docker pull registry.larktun.com/larktun/larktun:1.86.2
-```
-
-建议在生产环境固定镜像版本，便于回滚和排查问题。后续命令也会使用同一个完整镜像地址。
-
-## 2. 从云雀通控制台获取 Auth Key
-
-1. 登入 [云雀通控制台](https://larktun.com/auth/login)，进入你的租户或工作空间。
-2. 在左侧导航栏中进入 **机器（Nodes）** 页面。
-3. 点击 **生成授权密钥**，为这台 Docker 节点生成一枚专用 Auth Key。
-4. 复制并保存密钥。出于安全考虑，Auth Key 通常只会完整显示一次。
-
-建议为 Docker 节点单独生成密钥，不要和桌面客户端、路由器或 NAS 共用同一枚 Auth Key。
-
-## 3. 确认 login server 地址
-
-云雀通的默认接入控制面地址为：
-
-```text
-https://hs.larktun.com
-```
-
-不同用户、租户或私有化环境的地址可能不同。运行命令前，请在控制台 **设置** 中查看 **显示配置**，确认当前账号应使用的 login server 地址。
-
-下方命令通过 `TS_EXTRA_ARGS` 把 `--login-server` 传给容器启动流程。如果你的控制台显示的地址不是 `https://hs.larktun.com`，请把命令中的地址替换为你的实际地址。
-
-## 4. 方式一：userspace 模式登入
-
-userspace 模式是容器默认模式，不需要 `--network=host`、`NET_ADMIN` 权限或 `/dev/net/tun` 设备，适合先完成低权限接入验证。
-
-```bash
-docker run -d --name larktun \
-  -e TS_AUTHKEY=tskey-... \
-  -e TS_STATE_DIR=/var/lib/larktun \
-  -e TS_EXTRA_ARGS=--login-server=https://hs.larktun.com \
-  -v larktun-state:/var/lib/larktun \
-  registry.larktun.com/larktun/larktun:1.86.2
-```
-
-请将 `tskey-...` 替换为你在控制台生成的 Auth Key。
-
-:::tip
-生产环境可以按需增加 `--restart unless-stopped`，让容器在 Docker 或宿主机重启后自动恢复。
+:::tip[生产环境建议]
+完成测试后，可以把 `latest` 替换为经过验证的固定版本或镜像摘要，便于以后回滚和排查问题。
 :::
 
-## 5. 方式二：Kernel TUN 模式登入
+## 2. 在云雀通控制台创建 Auth Key
 
-如果你希望容器使用宿主机网络栈，或后续需要更完整的网络能力，可以使用 Kernel TUN 模式。该模式需要宿主机提供 `/dev/net/tun`，并授予容器 `NET_ADMIN` 与 `NET_RAW` 权限。
+1. 登入[云雀通控制台](https://larktun.com/auth/login)，进入你的租户或工作空间。
+2. 在左侧导航栏打开 **Nodes（设备）** 页面。
+3. 点击 **生成授权密钥**，为这台 Docker 设备创建一枚专用 Auth Key。
+4. 立即复制并妥善保存密钥。密钥通常只会完整显示一次。
+
+不要和桌面客户端、路由器或其他服务器共用同一枚 Auth Key。
+
+为了避免把密钥直接写进 Shell 历史记录，可以在 Linux Bash 中执行：
+
+```bash
+read -rsp "粘贴云雀通 Auth Key（输入内容不会显示）: " TS_AUTHKEY && echo
+export TS_AUTHKEY
+```
+
+后面的 Docker 命令会读取这个临时环境变量。请不要把真实密钥替换进本文或提交到仓库。
+
+## 3. 选择登入方式
+
+两种模式都能让 Docker 节点登入云雀通，但网络能力和权限不同。**只需选择其中一种运行，不要同时启动两个同名容器。**
+
+| 对比项 | 用户态（userspace）模式 | 内核 TUN 模式 |
+| --- | --- | --- |
+| 是否需要 `/dev/net/tun` | 不需要 | 需要 |
+| 是否需要额外权限 | 不需要 `NET_ADMIN` | 需要 `NET_ADMIN` 与 `NET_RAW` |
+| 是否使用宿主机网络 | 否 | 是，使用 `--network=host` |
+| 适合场景 | 低权限登入、容器自身接入、SOCKS5/HTTP 代理 | Linux 服务器完整接入、宿主机网络、子网路由 |
+| 是否适合宣告宿主机子网 | 不适合 | 适合 |
+
+不确定时，先使用用户态模式；只有在明确需要宿主机路由或子网路由时，再选择内核 TUN 模式。
+
+## 4. 方式一：使用用户态模式登入
+
+用户态模式是默认方式，不需要 `--network=host`、`NET_ADMIN` 或 `/dev/net/tun`。运行下面的命令：
 
 ```bash
 docker run -d --name larktun \
+  --restart unless-stopped \
+  -e TS_AUTHKEY \
+  -e TS_EXTRA_ARGS="--login-server=https://hs.larktun.com" \
+  -e TS_USERSPACE="true" \
+  -e TS_STATE_DIR="/var/lib/larktun" \
+  -e TS_HOSTNAME="larktun-userspace" \
+  -e TS_AUTH_ONCE="true" \
+  -v larktun-state:/var/lib/larktun \
+  registry.larktun.com/larktun/larktun:latest
+```
+
+这个模式只会让容器进入云雀通网络，**不会自动给宿主机添加云雀通路由，也不能宣告宿主机子网**。
+
+如果宿主机上的程序需要通过代理访问云雀通网络，可以在创建容器时额外启用仅本机可访问的 SOCKS5 或 HTTP 代理：
+
+```text
+-p 127.0.0.1:1080:1080
+-p 127.0.0.1:8080:8080
+-e TS_SOCKS5_SERVER=0.0.0.0:1080
+-e TS_OUTBOUND_HTTP_PROXY_LISTEN=0.0.0.0:8080
+```
+
+代理地址分别是 `socks5://127.0.0.1:1080` 和 `http://127.0.0.1:8080`。不要在没有访问控制的情况下把代理端口绑定到公网地址。
+
+## 5. 方式二：使用内核 TUN 模式登入
+
+内核 TUN 模式会使用宿主机网络 namespace，并创建云雀通相关接口和路由。它适合需要完整网络能力的 Linux 服务器，也是在 Docker 中宣告子网路由的前提。
+
+先确认宿主机存在 TUN 设备：
+
+```bash
+ls -l /dev/net/tun
+```
+
+然后运行：
+
+```bash
+docker run -d --name larktun \
+  --restart unless-stopped \
   --network=host \
   --cap-add=NET_ADMIN \
   --cap-add=NET_RAW \
-  --device=/dev/net/tun \
-  -e TS_AUTHKEY=tskey-... \
-  -e TS_USERSPACE=false \
-  -e TS_STATE_DIR=/var/lib/larktun \
-  -e TS_EXTRA_ARGS=--login-server=https://hs.larktun.com \
+  --device=/dev/net/tun:/dev/net/tun \
+  -e TS_AUTHKEY \
+  -e TS_EXTRA_ARGS="--login-server=https://hs.larktun.com" \
+  -e TS_USERSPACE="false" \
+  -e TS_STATE_DIR="/var/lib/larktun" \
+  -e TS_HOSTNAME="larktun-tun" \
+  -e TS_AUTH_ONCE="true" \
+  -e TS_PRESERVE_UNDERLAY_ROUTES="true" \
   -v larktun-state:/var/lib/larktun \
-  registry.larktun.com/larktun/larktun:1.86.2
+  registry.larktun.com/larktun/larktun:latest
 ```
 
-如果你的 Linux 系统没有 `/dev/net/tun`，请先确认内核是否启用了 TUN/TAP，并检查宿主机权限或容器运行环境限制。
+`TS_PRESERVE_UNDERLAY_ROUTES=true` 用于保护宿主机已有的底层网络和 DNS 路由。对于底层 DNS 位于 `100.64.0.0/10` 网段的云服务器，还可以按实际地址设置 `TS_PRESERVE_UNDERLAY_DNS`；例如阿里云常见地址为 `100.100.2.136,100.100.2.138`。
 
-## 验证登入状态
+如果还要访问宿主机所在局域网，需要在 TUN 模式中设置 `TS_ROUTES`，并在控制台批准宣告的路由。具体步骤请参阅[批准子网路由](./approve-subnet-routes)。
 
-容器启动后，先查看运行状态和启动日志：
+### 使用 Docker Compose 部署 TUN 子网路由
+
+如果希望把配置保存下来统一管理，可以在部署目录中创建 `compose.yaml`。下面的示例使用内核 TUN 模式，并宣告宿主机局域网 `192.168.1.0/24`：
+
+```yaml title="compose.yaml"
+services:
+  larktun:
+    image: registry.larktun.com/larktun/larktun:latest
+    container_name: larktun
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      TS_AUTHKEY: "替换成你的-auth-key"
+      TS_EXTRA_ARGS: "--login-server=https://hs.larktun.com"
+      TS_USERSPACE: "false"
+      TS_STATE_DIR: "/var/lib/larktun"
+      TS_HOSTNAME: "larktun-subnet-router"
+      TS_ROUTES: "192.168.1.0/24"
+      TS_PRESERVE_UNDERLAY_ROUTES: "true"
+      TS_PRESERVE_UNDERLAY_DNS: "100.100.2.136,100.100.2.138"
+    volumes:
+      - larktun-state:/var/lib/larktun
+
+volumes:
+  larktun-state:
+```
+
+部署前需要修改：
+
+- 把 `替换成你的-auth-key` 换成在云雀通控制台创建的 Auth Key。
+- 把 `192.168.1.0/24` 换成宿主机实际要宣告的局域网子网。多个子网使用英文逗号分隔。
+- `100.100.2.136,100.100.2.138` 是阿里云常见的底层 DNS。其他环境应改成实际 DNS 地址；不需要手动保护时可以删除 `TS_PRESERVE_UNDERLAY_DNS`。
+
+:::warning[保护 compose.yaml 中的 Auth Key]
+这个示例会把 Auth Key 写入 `compose.yaml`。请限制文件权限，并确保它被 `.gitignore` 排除，不要把真实密钥提交到仓库。更严格的生产环境应使用受保护的密钥管理方式。
+:::
+
+启动并检查状态：
+
+```bash
+docker compose up -d
+docker compose ps
+docker compose logs --tail=80 larktun
+docker compose exec larktun larktun status
+```
+
+设备上线后，还需要在云雀通控制台批准 `TS_ROUTES` 宣告的子网，否则其他设备不会使用这条子网路由。
+
+以后更新镜像并重新创建容器时，`larktun-state` 数据卷会继续保留节点状态：
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+## 6. 确认登入成功
+
+如果使用了前面的 `docker run` 方式和临时环境变量，先清除当前终端里的密钥变量：
+
+```bash
+unset TS_AUTHKEY
+```
+
+然后依次检查容器、日志和云雀通状态：
 
 ```bash
 docker ps --filter name=larktun
 docker logs --tail=80 larktun
+docker exec -it larktun larktun status
 ```
 
-然后回到云雀通控制台的 **Nodes（设备）** 页面并刷新列表。如果 Auth Key 和 login server 配置正确，你会看到新的 Docker 节点上线。
+登入成功时，你应该看到：
+
+1. `docker ps` 中的 `larktun` 容器处于运行状态。
+2. `larktun status` 能列出当前云雀通网络中的设备。
+3. 返回云雀通控制台的 **Nodes（设备）** 页面并刷新后，新 Docker 节点显示为在线。
+
+状态目录保存在 `larktun-state` 数据卷中。重新创建容器时继续挂载这个数据卷，并保留 `TS_AUTH_ONCE=true`，可以避免已有状态下重复使用 Auth Key 登入。
 
 ## 常见问题
 
-- 容器启动后控制台看不到设备：确认 `TS_AUTHKEY` 没有过期、没有多次复用，并检查 `TS_EXTRA_ARGS=--login-server=...` 是否使用了控制台显示的地址。
-- 重启容器后出现重复设备：确认已挂载 `-v larktun-state:/var/lib/larktun`，并且 `TS_STATE_DIR=/var/lib/larktun` 没有写错。
-- Kernel TUN 模式启动失败：确认宿主机存在 `/dev/net/tun`，并且 Docker 运行环境允许 `--cap-add=NET_ADMIN`、`--cap-add=NET_RAW` 和 `--device=/dev/net/tun`。
-- 提示容器名已存在：先执行 `docker rm -f larktun` 删除旧容器，再重新运行命令。删除容器不会删除上面的 `larktun-state` 数据卷。
-- 镜像拉取失败：确认网络可以访问 `registry.larktun.com`，并检查企业代理、防火墙或镜像仓库认证策略。
+### 控制台中看不到 Docker 设备
+
+确认 Auth Key 来自云雀通控制台、没有过期或被撤销，并检查 `TS_EXTRA_ARGS` 中的地址完整写成 `--login-server=https://hs.larktun.com`。然后查看 `docker logs --tail=80 larktun` 中的具体错误。
+
+### 容器重启后出现重复设备
+
+确认命令中同时包含 `TS_STATE_DIR=/var/lib/larktun`、`TS_AUTH_ONCE=true` 和 `-v larktun-state:/var/lib/larktun`。删除容器不会自动删除数据卷，但换用新的数据卷会丢失原有节点状态。
+
+### TUN 模式提示找不到 `/dev/net/tun`
+
+宿主机内核可能没有加载 TUN/TAP，或者当前 Docker 环境不允许映射该设备。请先修复宿主机 TUN 支持；如果环境无法提供 TUN，请改用用户态模式。
+
+### TUN 模式启动后域名解析失败
+
+保留 `TS_PRESERVE_UNDERLAY_ROUTES=true`。如果云服务器的底层 DNS 地址位于 `100.64.0.0/10`，再通过 `TS_PRESERVE_UNDERLAY_DNS` 明确填写 DNS 地址，然后重新创建容器。
+
+### 提示容器名 `larktun` 已存在
+
+如果正在切换模式，可以删除旧容器后重新运行所选模式的命令：
+
+```bash
+docker rm -f larktun
+```
+
+这个命令不会删除 `larktun-state` 数据卷。除非你明确要注销并清除节点状态，否则不要删除该数据卷。
+
+## 更新与日常操作
+
+```bash
+# 查看版本
+docker exec -it larktun larktun version
+
+# 查看日志
+docker logs -f larktun
+
+# 拉取推荐镜像
+docker pull registry.larktun.com/larktun/larktun:latest
+
+# 保留状态并重启
+docker restart larktun
+```
 
 ## 下一步
 
-- [开通第一条安全访问链路](./publish-your-first-service)
 - [批准子网路由](./approve-subnet-routes)
-- [使用 Tailscale 客户端登入](./tailscale-client-login)
+- [开通第一条安全访问链路](./publish-your-first-service)
+- [使用 Tailscale 客户端登入云雀通](./tailscale-client-login)
 - [问题处理](../troubleshooting/common-issues)
