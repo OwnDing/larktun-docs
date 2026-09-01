@@ -255,7 +255,7 @@ The host kernel may not have TUN/TAP loaded, or the Docker environment may not a
 
 ### DNS resolution fails after TUN mode starts
 
-Keep `TS_PRESERVE_UNDERLAY_ROUTES=true`. If the cloud provider's underlay DNS addresses are inside `100.64.0.0/10`, set the actual addresses with `TS_PRESERVE_UNDERLAY_DNS`, then recreate the container.
+Keep `TS_PRESERVE_UNDERLAY_ROUTES=true`. If the cloud provider's underlay DNS addresses are inside `100.64.0.0/10`, set the actual addresses with `TS_PRESERVE_UNDERLAY_DNS`, then recreate the container. For complete Alibaba Cloud ECS diagnostics, see [Larktun on Alibaba Cloud: Fix Linux and Docker DNS Failures](../troubleshooting/larktun-alibaba-cloud-dns).
 
 ### A container named `larktun` already exists
 

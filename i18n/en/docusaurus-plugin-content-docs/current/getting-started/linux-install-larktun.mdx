@@ -164,7 +164,7 @@ On OpenRC or SysV init systems, replace the `systemctl` commands with `rc-servic
 - **`curl` or `wget` not found**: install one of them with the system package manager first, e.g. `apt install curl` or `yum install curl`.
 - **Slow or interrupted download**: retry with the other download channel, and confirm the host can resolve and reach `download2.larktun.com` or `download.larktun.com`.
 - **The device never comes online after `larktun up`**: check that `--login-server` is complete and correctly spelled, confirm the Auth Key hasn't expired or already been used, and make sure outbound UDP `41641` is permitted.
-- **Server DNS breaks after joining**: some cloud providers (Alibaba Cloud, for example) use internal DNS addresses inside `100.64.0.0/10`, which overlaps Larktun's address range. The install script ships `/usr/lib/larktun/preserve-underlay-routes.sh` to preserve those underlay DNS routes; if problems persist, re-run `larktun up` with `--accept-dns=false`.
+- **Server DNS breaks after joining**: some cloud providers (Alibaba Cloud, for example) use internal DNS addresses inside `100.64.0.0/10`, which overlaps Larktun's address range. The install script ships `/usr/lib/larktun/preserve-underlay-routes.sh` to preserve those underlay DNS routes. If the problem persists, follow [Larktun on Alibaba Cloud: Fix Linux and Docker DNS Failures](../troubleshooting/larktun-alibaba-cloud-dns).
 - **The host doesn't reconnect after a reboot**: confirm the service is enabled at boot, e.g. with `sudo systemctl is-enabled larktund`.
 - **Still stuck**: see [Common Issues](../troubleshooting/common-issues), or include the distribution and version, the output of `uname -m`, and the full command log when filing a support ticket.
 

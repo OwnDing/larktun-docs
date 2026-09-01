@@ -164,7 +164,7 @@ ssh <用户名>@100.x.x.x
 - **提示找不到 curl 或 wget**：先用系统包管理器安装其中之一，例如 `apt install curl` 或 `yum install curl`。
 - **下载缓慢或中断**：切换到另一条下载通道重试，并确认主机可以正常解析并访问 `download2.larktun.com` 或 `download.larktun.com`。
 - **执行 `larktun up` 后设备一直不上线**：确认 `--login-server` 地址完整且拼写正确；使用 Auth Key 时确认密钥没有过期或被重复使用；再检查主机出站方向是否放行了 UDP `41641`。
-- **接入后服务器 DNS 异常**：部分云厂商（例如阿里云）的内网 DNS 地址落在 `100.64.0.0/10` 网段内，可能与云雀通地址段重叠。安装脚本已经附带 `/usr/lib/larktun/preserve-underlay-routes.sh` 来保留这类底层 DNS 路由；如果仍有问题，先加上 `--accept-dns=false` 重新执行 `larktun up`。
+- **接入后服务器 DNS 异常**：部分云厂商（例如阿里云）的内网 DNS 地址落在 `100.64.0.0/10` 网段内，可能与云雀通地址段重叠。安装脚本已经附带 `/usr/lib/larktun/preserve-underlay-routes.sh` 来保留这类底层 DNS 路由；如果仍有问题，请按照[云雀通与阿里云：解决 Linux 与 Docker DNS 无法联网](../troubleshooting/larktun-alibaba-cloud-dns)排查。
 - **主机重启后没有自动接入**：确认服务已设置开机自启，例如执行 `sudo systemctl is-enabled larktund` 查看。
 - **仍未解决**：参考[问题处理](../troubleshooting/common-issues)，或在控制台提交工单时附上发行版及版本号、`uname -m` 的输出和完整的命令日志。
 

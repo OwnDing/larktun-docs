@@ -53,6 +53,7 @@ const CORE_SITEMAP_PATHS = [
   '/docs/getting-started/ios-tailscale-login-larktun',
   '/docs/getting-started/tv-install-larktun',
   '/docs/troubleshooting/common-issues',
+  '/docs/troubleshooting/larktun-alibaba-cloud-dns',
   '/docs/topics/tailscale-alternative',
   '/docs/topics/secure-ssh-without-public-port',
   '/blog',

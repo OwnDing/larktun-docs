@@ -255,7 +255,7 @@ docker exec -it larktun larktun status
 
 ### TUN 模式启动后域名解析失败
 
-保留 `TS_PRESERVE_UNDERLAY_ROUTES=true`。如果云服务器的底层 DNS 地址位于 `100.64.0.0/10`，再通过 `TS_PRESERVE_UNDERLAY_DNS` 明确填写 DNS 地址，然后重新创建容器。
+保留 `TS_PRESERVE_UNDERLAY_ROUTES=true`。如果云服务器的底层 DNS 地址位于 `100.64.0.0/10`，再通过 `TS_PRESERVE_UNDERLAY_DNS` 明确填写 DNS 地址，然后重新创建容器。阿里云 ECS 的完整排查步骤请参阅[云雀通与阿里云：解决 Linux 与 Docker DNS 无法联网](../troubleshooting/larktun-alibaba-cloud-dns)。
 
 ### 提示容器名 `larktun` 已存在
 
