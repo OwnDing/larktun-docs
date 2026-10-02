@@ -122,3 +122,7 @@ android-tv:
   label: 电视大屏
   permalink: /android-tv
   description: Android TV 电视、电视盒子和投影仪上的远程桌面、大屏访问与安装实践文章。
+ai-assistant:
+  label: AI 助手
+  permalink: /ai-assistant
+  description: 云雀通 AI 助手、自然语言操作、SSH 命令辅助与私有网络智能访问实践。

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">你的私有网络，现在可以直接问</title>
+  <desc id="desc">Larktun iOS App · 全局 AI 助手与 SSH AI 助手. 功能概览示意图，非 App 截图。</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0f172a"/><stop offset="1" stop-color="#172554"/></linearGradient>
+    <linearGradient id="accent" x2="1" y2="1"><stop stop-color="#38bdf8"/><stop offset="1" stop-color="#a78bfa"/></linearGradient>
+    <style>text {font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;fill:#f8fafc} .muted {fill:#cbd5e1} .accent {fill:#7dd3fc}</style>
+  </defs>
+  <rect width="1200" height="680" rx="32" fill="url(#bg)"/>
+  <circle cx="1130" cy="40" r="240" fill="#6366f1" opacity=".12"/>
+  <text x="64" y="72" font-size="21" font-weight="700" class="accent">LARKTUN / AI ASSISTANT</text>
+  <text x="64" y="142" font-size="48" font-weight="750">你的私有网络，现在可以直接问</text>
+  <text x="64" y="187" font-size="23" class="muted">Larktun iOS App · 全局 AI 助手与 SSH AI 助手</text>
+  <rect x="64" y="225" width="1072" height="154" rx="24" fill="#ffffff" fill-opacity=".06" stroke="#475569"/>
+  <circle cx="112" cy="271" r="20" fill="url(#accent)"/>
+  <path d="M112 257 L116 267 L126 271 L116 275 L112 285 L108 275 L98 271 L108 267 Z" fill="#0f172a"/>
+  <text x="151" y="280" font-size="28" font-weight="650">找到家里的 NAS，打开管理页面。</text>
+  <text x="151" y="335" font-size="22" class="accent">查找设备 → 定位服务 → 打开入口</text>
+  <rect x="64" y="410" width="250" height="168" rx="20" fill="#ffffff" fill-opacity=".055" stroke="#334155"/>
+  <text x="84" y="448" font-size="18" class="accent">01</text>
+  <text x="84" y="491" font-size="25" font-weight="700">设备与服务</text>
+  <text x="84" y="539" font-size="20" class="muted">查找 · 扫描 · 打开</text>
+  <rect x="338" y="410" width="250" height="168" rx="20" fill="#ffffff" fill-opacity=".055" stroke="#334155"/>
+  <text x="358" y="448" font-size="18" class="accent">02</text>
+  <text x="358" y="491" font-size="25" font-weight="700">连接诊断</text>
+  <text x="358" y="539" font-size="20" class="muted">延迟 · 丢包 · 路径</text>
+  <rect x="612" y="410" width="250" height="168" rx="20" fill="#ffffff" fill-opacity=".055" stroke="#334155"/>
+  <text x="632" y="448" font-size="18" class="accent">03</text>
+  <text x="632" y="491" font-size="25" font-weight="700">网页与文件</text>
+  <text x="632" y="539" font-size="20" class="muted">按需读取 · 提炼重点</text>
+  <rect x="886" y="410" width="250" height="168" rx="20" fill="#ffffff" fill-opacity=".055" stroke="#334155"/>
+  <text x="906" y="448" font-size="18" class="accent">04</text>
+  <text x="906" y="491" font-size="25" font-weight="700">SSH 命令辅助</text>
+  <text x="906" y="539" font-size="20" class="muted">检查 · 编辑 · 插入</text>
+  <text x="64" y="630" font-size="18" class="muted">iPhone + iPad  /  功能示意 · 内容读取需单独开启 · AI 来源由你选择</text>
+</svg>

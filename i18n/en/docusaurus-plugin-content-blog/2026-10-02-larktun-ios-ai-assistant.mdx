@@ -1,0 +1,163 @@
+---
+slug: larktun-ios-ai-assistant
+title: "A Major Larktun iOS Upgrade: Meet Your Private Network AI Assistant"
+description: "The new Larktun iPhone/iPad AI assistant finds devices, opens services, scans networks, diagnoses connections, manages favorites, and reads pages and files. SSH AI Copilot makes mobile terminal work easier."
+authors: [ownding]
+tags: [larktun, ai-assistant, mobile, remote-access, ssh, service-discovery]
+keywords:
+  - Larktun AI assistant
+  - iOS private network AI assistant
+  - iPhone network assistant
+  - iPad SSH AI Copilot
+  - find private devices with natural language
+  - AI service discovery and network diagnostics
+  - summarize private Web pages with AI
+  - OpenAI Anthropic compatible API
+  - Apple Private Cloud Compute
+image: /img/blog/ios-ai-assistant/ios-ai-assistant-en.svg
+---
+
+You are away from your desk and need to open your home NAS, check a development server, or review a log you just received. The network is connected, but you still have to remember the device name, service port, saved favorite, or command to type.
+
+We have been bringing those steps into Larktun: devices, Smart Discovery, SSH, files, and the built-in browser all share one app. Now that entry point takes another step forward.
+
+**The Larktun iOS app now includes an AI assistant. Describe what you want to do, and it can find a device, open a service, check a connection, and bring the right screen to you.**
+
+Starting with your goal makes private network access on iPhone and iPad more convenient.
+
+{/* truncate */}
+
+![Larktun iOS AI assistant overview: devices, services, connection diagnostics, content reading, and SSH command assistance](/img/blog/ios-ai-assistant/ios-ai-assistant-en.svg)
+
+## Find Your Devices and Services with a Sentence
+
+As your network grows, remembering every name, address, and port becomes a chore. On a phone, finding the right entry point can take longer than the task itself.
+
+Try asking:
+
+> How many devices are online?
+>
+> Find my home NAS and open its admin page.
+>
+> Open SSH for my development server.
+
+The Global AI Assistant can query devices, favorites, and discovered services in the current account and network. It uses actual device status, systems, addresses, and service types to find the relevant entry point.
+
+Known Web services can open directly in the built-in browser. SSH and RDP open their connection screens, where you still authenticate and start the connection. If several targets could match, the assistant asks you to choose.
+
+For a home network, homelab, or small team, remembering “the home NAS” or “the office development machine” becomes enough to start finding the resources you already have.
+
+## Discover Services and Check Connections
+
+The assistant can also use the app's service discovery and connection diagnostics to take the conversation further.
+
+After adding a server to your network, ask:
+
+> Scan this device for services and find the Web pages I can open.
+
+It starts a scan, shows the task's progress, and uses the discovered results to find available entry points. Scanning takes time; you can watch its status in the panel or stop a running scan.
+
+When your NAS feels slow, try:
+
+> Check the NAS connection latency and tell me whether it is direct or relayed.
+
+The app probes the target and returns latency, packet loss, and connection path information. The assistant can explain those results, giving you a concrete starting point for troubleshooting.
+
+These checks provide connection clues. Disk load, server processes, and application errors still need investigation through the relevant admin page or SSH session.
+
+## Ask AI About the Page You Are Viewing
+
+Many private services are ultimately Web pages: NAS consoles, monitoring dashboards, internal documentation, development services, and device admin panels.
+
+Larktun already brings them to your phone through a secure connection. The built-in browser now also offers “Ask the assistant,” so you can ask about the current page:
+
+> Summarize the alerts on this page and list what needs attention first.
+
+After enabling “Let the assistant read pages and files,” the assistant can read the page's visible text and answer your question. It knows which tab you mean, saving you from copying the page into another chat app.
+
+This helps with reading and explanation. You still operate page buttons, submit forms, and change settings in the browser. The assistant can also switch between open sessions, reload a tab, or go back to a previous page.
+
+## Continue Working with Received Files
+
+Files received through Taildrop and downloaded by the built-in browser appear together in Received Files. The assistant can search that list, open previews, and answer questions about supported file contents.
+
+> Find the log I received most recently and summarize its errors.
+>
+> Open that PDF and extract its key points.
+
+Text files can be read directly, PDFs provide extracted text, and images use on-device text recognition before the recognized text goes to your selected AI service. Image support here means reading text, such as error messages, instructions, or tables in screenshots. Audio, video, and archives cannot be read directly as content.
+
+To continue on another device, you can ask the assistant to send a received file through Taildrop to an online device in the current account. Successful receipt still depends on the receiving device.
+
+Finding, understanding, and passing along a received file now fit into a shorter workflow.
+
+## Keep Favorites and Sessions Organized
+
+Useful entry points accumulate over time. The assistant can save a device, service, or current session as a favorite, rename favorites and discovered services, and remove favorites you no longer need.
+
+> Save this admin page as a favorite.
+>
+> Rename this favorite to “Home NAS.”
+>
+> Switch back to the SSH session I was using.
+
+Changes to favorites and deletion of received files support undo in the panel. Closing SSH or RDP disconnects the session, and a file already sent cannot be recalled, so those requests need a clear target.
+
+On iPad, the Global Assistant offers a draggable floating entry point and a side panel. You can keep a page or terminal in view while continuing a conversation around the same devices and sessions.
+
+## SSH AI Copilot: Turn a Goal into a Command You Can Review
+
+Once you reach a server, typing is another common obstacle. Quotes, pipes, paths, and arguments can make a simple task awkward on a phone keyboard.
+
+Larktun retains the AI Copilot within each SSH session. Describe the goal first:
+
+> Give me a command to check disk usage.
+>
+> Show me the latest 100 lines of the service log without changing any configuration.
+
+Commands appear as cards that you can review, edit, copy, or insert into the current terminal. Risk indicators help you understand a command before sending it.
+
+By default, Insert puts the command into the terminal input area, and you decide when to press Return. For a faster workflow, you can separately enable the experimental Send and Return feature and choose its confirmation behavior. Review AI-generated commands, especially those involving deletion, overwriting, or production settings.
+
+You can optionally provide visible terminal text and host information for troubleshooting; both are off by default. The Global Assistant helps you reach the right workspace, while SSH AI Copilot helps with the specific work inside it.
+
+## Choose Your AI Service and Enable Each Assistant Separately
+
+The Global AI Assistant and SSH AI Copilot share an AI service and network configuration, with independent switches. Enable either one or both as needed.
+
+Custom APIs support **OpenAI-compatible and Anthropic-compatible interfaces**. Enter your service address, model, and API key. Keys are stored in the system Keychain; a self-hosted service that does not require a key can be configured accordingly.
+
+AI requests can use the system's direct connection or a tailnet proxy route, including access to model services on your own network. Billing and data handling depend on the selected service, so check your configuration before use.
+
+The app also offers **Apple Private Cloud Compute (PCC)**. Availability depends on the operating system, device, and Apple service conditions. Use the availability status in Settings as your guide and select the source there yourself.
+
+Models differ in their ability to operate tools. Settings includes Test Tool Support: configurations with tool calls or structured actions can perform app operations; Advice Only provides guidance and page shortcuts.
+
+## Know Where Your Data Goes
+
+AI features are off by default. The selected AI service is called after you enable the feature and ask a question. With a custom API, your question, current AI conversation, and information queried to answer it—such as device names, private addresses, systems, online status, and service addresses—are sent to the configured service.
+
+Page and file reading has a separate switch, also off by default. Related text is sent only after you enable it and ask about a page or file. For images, this is the text recognized on your device. Content goes through credential scrubbing before transmission, but you should still check for sensitive information, particularly in production logs and internal documents.
+
+The assistant uses resources in the current account and network, and connections remain subject to existing permissions and network rules. Routine operations you explicitly request can run directly. When a target address is inferred by the model, or a state-changing operation follows reading an external page or file, the app displays confirmation cards according to its rules.
+
+These boundaries keep the data source, operation target, and final decision visible while allowing AI to participate in actual work.
+
+## Start with Your First Question
+
+With an iOS app version that includes these features:
+
+1. Connect to your Larktun network and confirm that the target device is visible.
+2. Open AI settings and select a source. For a custom API, enter the endpoint, model, and any required API key.
+3. Check the actual request destination and network route, then run the connection test and Test Tool Support.
+4. Read the data disclosure and enable Global AI Assistant or SSH AI Copilot as needed.
+5. Start with “How many devices are online?” Then try opening an existing Web service or SSH connection screen.
+6. Enable “Let the assistant read pages and files” separately when you want content summaries.
+
+If the service answers questions but cannot open an entry point, check the tool support result. If the model service is unreachable, check its address and network route. An offline device or missing access permission needs to be resolved before connecting.
+
+Get the app from the [Larktun download page](https://larktun.com/download), or explore the [iOS app overview](/docs/introduction/ios-app-overview). For a portable server-based development environment, continue with [Larktun Remote Development: Linux, Hermes, ChatGPT, and RDP](/blog/larktun-linux-remote-development-hermes-chatgpt-rdp).
+
+Larktun brought your devices and services to your phone. Now its AI assistant lets you describe a goal around those resources, inspect the results, and continue to the next step.
+
+Opening your own network can begin with a sentence.
