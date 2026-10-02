@@ -1,0 +1,187 @@
+---
+title: AI Assistants and Setup
+description: Set up Larktun iOS Global AI Assistant and SSH AI Copilot with Apple Private Cloud Compute or OpenAI/Anthropic-compatible APIs. Test connections and tools, manage content access, and review commands.
+sidebar_position: 1.6
+keywords:
+  - Larktun AI assistant guide
+  - iOS AI configuration
+  - iPad SSH AI Copilot
+  - Apple PCC Private Cloud Compute
+  - custom OpenAI compatible API
+  - Anthropic compatible API
+  - private self-hosted models
+  - AI tool calls
+---
+
+# AI Assistants and Setup
+
+The Larktun iPhone/iPad app provides two AI assistants. The Global Assistant helps find devices, open services, and handle tasks inside the app. SSH AI Copilot provides reviewable, editable command suggestions within a terminal session.
+
+They share one AI service and network configuration, with independent switches that are off by default. Choose Apple Private Cloud Compute (PCC) or a compatible cloud or self-hosted API.
+
+## Capabilities
+
+| Assistant | Main capabilities | Boundaries |
+| --- | --- | --- |
+| Global Assistant | Find devices, favorites, and services; open Web, SSH, and RDP entry points; switch sessions | SSH/RDP open connection screens; you authenticate and start the connection |
+| Global Assistant | Scan services, follow scan tasks, probe latency and connection paths | Uses resources in the current account and network; scan scope confirmation rules apply |
+| Global Assistant | Manage favorites, preview and handle received files, read pages and files on request | Content reading is opt-in; some changes support undo, but sent files cannot be recalled |
+| SSH AI Copilot | Suggest commands, explain terminal text, revise suggestions | Suggestions by default; inserting a command does not press Return |
+
+Automatic operations depend on the selected model's tool capabilities. Advice Only can answer questions and provide page shortcuts but cannot perform Global Assistant operations.
+
+## Open AI Settings
+
+1. Use a Larktun iOS app version that includes the assistants and sign in.
+2. Find SSH AI Copilot on the My page and open its settings. AI Settings in the Global Assistant panel opens the same page.
+3. Under AI source, choose Apple Private Cloud Compute or Custom API.
+4. Complete the corresponding setup below, read the disclosure, and enable Global AI Assistant and SSH AI Copilot separately.
+
+The settings entry retains the SSH AI Copilot name but manages both assistants. Changing the AI service or network configuration cancels in-flight AI requests; switch after the current answer finishes.
+
+## Set Up Apple Private Cloud Compute (PCC)
+
+PCC uses Apple's private cloud service to process questions. You do not enter a Base URL, model, or API key. Questions and relevant context are sent to Apple Private Cloud Compute; processing is not entirely on-device.
+
+### Enable PCC
+
+1. Select Apple Private Cloud Compute under AI source.
+2. Tap Check availability and review device availability and usage status.
+3. When available, enable the assistant you need and review and accept the PCC disclosure.
+4. For the Global Assistant, run Test Tool Support to check whether the source supports app operations.
+5. Ask a simple question, such as “How many devices are online?” or “How can I check disk usage?” inside SSH.
+
+:::important[Use the availability shown in the app]
+
+The current app's PCC integration requires iOS/iPadOS 27 or later and checks device eligibility and system service availability. The operating system version alone does not guarantee access. If the app reports an ineligible device or an unavailable service, check again later or manually choose a custom API.
+
+:::
+
+### Usage Limits and Switching Sources
+
+Apple manages PCC usage limits. The app displays available, nearing the limit, or limit reached states. Reset times and usage options appear when the system provides them. An unavailable usage status does not mean unlimited usage or an exhausted quota.
+
+When the limit is reached, wait for recovery or manually switch to a custom API and retry. Review the new request destination, data handling, and costs first. The app does not automatically resend your question to a different source when PCC becomes unavailable.
+
+## Set Up a Custom API
+
+Use a custom API for your model service, compatible gateway, or a model on your private network. The service must support the selected API protocol. A regular chat website URL is not an API endpoint.
+
+### 1. Select the Protocol and Enter the Address
+
+Choose Custom API under AI source and fill in Provider:
+
+| Field | What to enter |
+| --- | --- |
+| Type | `OpenAI-Compatible` or `Anthropic-Compatible`, matching your service |
+| Base URL | The service's API base address, including its required version path such as `/v1` |
+| Model | An actual model identifier supported by the service |
+| API Key | Enter the required key and tap Save API key; leave empty only for services that require no authentication |
+
+The app constructs these request paths:
+
+| Type | Example Base URL | Resulting endpoint |
+| --- | --- | --- |
+| OpenAI-Compatible | `https://api.example.com/v1` | `https://api.example.com/v1/chat/completions` |
+| Anthropic-Compatible | `https://api.example.com/v1` | `https://api.example.com/v1/messages` |
+
+Replace these format examples with your service's actual address. The app does not add `/v1` automatically; gateways may require other prefixes. An already complete matching endpoint does not receive a duplicate suffix.
+
+API keys are stored only in this device's Keychain, isolated by Larktun account and provider. Signing out clears the in-memory copy but retains the isolated key. Use Delete API key to remove it. No authentication header is sent without a key; delete an existing saved key before switching to keyless requests.
+
+### 2. Choose the Request Network
+
+| Route | When to use it |
+| --- | --- |
+| Automatic | Classifies the service host; `100.64.0.0/10`, MagicDNS, and recognized tailnet names use Tailnet Proxy |
+| System Direct | Access the service through the device's system network |
+| Tailnet Proxy | Access the service through the app's dedicated private network proxy |
+
+For private services, first confirm Larktun is connected, the model host is reachable, and the port and permissions are correct. Automatic classification of ordinary LAN addresses or custom domains may differ from your deployment. Check Resolved route and select a route manually when needed.
+
+Prefer HTTPS. HTTP endpoints require an additional risk review; continue only for a trusted private self-hosted service. The private network connection does not remove the API service's authentication requirements.
+
+### 3. Test and Enable
+
+1. Check Data sent to and Resolved route.
+2. Tap Test Connection. It sends a minimal request without terminal content and does not require enabling an assistant first. Review the disclosure and HTTP risk prompts when shown.
+3. After a successful connection, tap Test Tool Support. This sends a fixed probe without device, favorite, service, or terminal content.
+4. Review Native tool calls, Structured actions, or Advice only. The first two can support Global Assistant operations; Advice Only needs a compatible model or service to perform operations.
+5. Enable the independent assistant switches as needed.
+
+Tests call the selected service and may consume its quota. A successful connection test verifies that API request; it does not verify device access, SSH/RDP authentication, or every tool operation.
+
+## Use the Global AI Assistant
+
+Connect to your Larktun network, enable the Global Assistant, and open the assistant entry point in the app. iPad offers a draggable floating button and a side panel.
+
+| Goal | Example request | Expected result |
+| --- | --- | --- |
+| Check devices | “How many devices are online?” | Queries resources and reports status |
+| Open a service | “Open my home NAS admin page” | Opens a known Web address; asks you to choose if several targets match |
+| Prepare SSH | “Open SSH for my development machine” | Opens the connection screen for you to authenticate and connect |
+| Discover services | “Scan this device for services” | Starts a scan and shows progress |
+| Check a connection | “Check NAS latency and whether it is direct or relayed” | Probes and explains latency, loss, and path |
+| Save a favorite | “Save this page as a favorite” | Saves the entry and offers undo |
+| Find files | “What files did I receive recently?” | Lists Taildrop receipts and browser downloads |
+
+The panel shows steps, task status, confirmation cards, and undo actions. Undo is generally available for about half an hour. Closing SSH/RDP disconnects the session, and sent files cannot be recalled.
+
+If the assistant cannot find existing favorites or services, use Link Existing Resources in AI settings to review their association with the current account.
+
+### Read Pages and Files
+
+1. Separately enable Let the assistant read pages and files in AI settings.
+2. Open a page in the built-in browser and use Ask the assistant—for example, “Summarize the alerts on this page.” You can also identify a received file in the conversation.
+3. Review the answer and ask follow-up questions about specific passages or issues.
+4. Turn content access off when no longer needed. Finding and opening resources remain available.
+
+Supported content includes visible page text, text files, extracted PDF text, and image OCR. Image text recognition happens on-device; recognized text is then sent to the selected AI service. This is not general image understanding. Audio, video, and archives cannot be read directly as content.
+
+The Global Assistant can move browser tabs back or forward, reload them, and stop loading. You still click page controls, fill and submit forms, and change settings yourself. Received-file operations do not provide access to arbitrary remote SFTP files.
+
+## Use SSH AI Copilot
+
+1. Establish an SSH connection and open its Copilot panel.
+2. Describe a goal, such as checking disk usage or viewing the latest 100 lines of a service log.
+3. Review the commands and risk indicators. Edit a command directly or ask AI to revise it.
+4. Copy it, or use Insert to place it into the terminal input area. Press Return yourself after review.
+
+Selected terminal text is sent only when you tap Ask AI and can be reviewed or removed in the panel. Automatically including visible terminal text, host name, username, and address is off by default and can be enabled as needed.
+
+### Experimental Send & Return
+
+After enabling Show Send & Return, choose Send directly, High risk only, or Every time confirmation. Under Send directly, tapping the button writes the command and Return immediately without another confirmation.
+
+Ensure the terminal is at a blank shell prompt, rather than a password prompt, `vim`, an interactive program, or partial input. Risk indicators assist review but cannot guarantee safety. Review commands affecting production configuration, deletion, and overwriting individually.
+
+## Data and Permissions
+
+- Asking sends your question and current AI conversation. The Global Assistant also sends queried device names, IP/MagicDNS addresses, systems, status, and favorite and service addresses needed for the answer.
+- Page and file text requires separately enabled content access. You control SSH context. Content is scrubbed for credentials, but review sensitive information before sending it.
+- Custom API billing, logging, and data handling depend on the service provider. PCC follows the Apple disclosure presented in settings.
+- The Global Assistant uses resources in the current account and network and does not grant new access permissions.
+- Explicitly requested routine operations can run directly. Inferred target addresses and state-changing operations after reading external content require confirmation according to the app's rules.
+- Disable assistants or use Clear All AI Sessions in settings. Clearing local conversations does not erase data a service provider may retain or automatically delete API keys.
+
+## Troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| Cannot enable a switch | Complete Base URL and model, review disclosure prompts, or check PCC availability |
+| PCC unavailable | Check OS version, device eligibility, and service status; refresh or manually configure a custom API |
+| PCC limit reached | Check reset time or usage options, wait, or manually switch sources and retry |
+| API returns 401/403 | Check the saved key, model permissions, and service authentication rules |
+| API returns 404 or protocol errors | Match provider type, version path, and final endpoint to the service |
+| Timeout or unavailable tailnet proxy | Check endpoint, Larktun connection, host port, access rules, and resolved route |
+| Chat works but app operations do not | Run Test Tool Support; if Advice Only, select a compatible model or service |
+| Streaming replies fail | Try disabling Streaming Output and check service compatibility |
+| Cannot read a page or file | Check content access, loaded page state, completed download, and supported format |
+| Device or favorite not found | Check current account, network, resource associations, and actual lists; specify the target clearly |
+
+## Continue Reading
+
+- [iOS App Overview](./ios-app-overview)
+- [AI Assistant Upgrade](/blog/larktun-ios-ai-assistant)
+- [Quick Start](../getting-started/quick-start)
+- [Secure SSH](../topics/secure-ssh-without-public-port)

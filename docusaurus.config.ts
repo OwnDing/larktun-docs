@@ -40,6 +40,7 @@ const CORE_SITEMAP_PATHS = [
   '/docs',
   '/docs/introduction',
   '/docs/introduction/what-is-larktun',
+  '/docs/introduction/ai-assistant',
   '/docs/getting-started',
   '/docs/getting-started/quick-start',
   '/docs/getting-started/install-and-configure',
