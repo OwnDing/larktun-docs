@@ -122,3 +122,7 @@ android-tv:
   label: Android TV
   permalink: /android-tv
   description: Remote desktop, big-screen access, and installation guides for Android TVs, TV boxes, and projectors.
+ai-assistant:
+  label: AI assistant
+  permalink: /ai-assistant
+  description: Larktun AI assistants, natural-language operations, SSH command assistance, and private network access.
