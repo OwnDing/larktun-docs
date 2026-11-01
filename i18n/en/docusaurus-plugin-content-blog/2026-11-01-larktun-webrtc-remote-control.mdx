@@ -1,0 +1,144 @@
+---
+slug: larktun-webrtc-remote-control
+title: "Larktun WebRTC Remote Control Is Out of Beta: Access Windows and Mac from iPhone and iPad"
+description: "Larktun WebRTC remote control is now officially available. Lightweight, ad-free Windows and macOS hosts connect with iPhone and iPad over your private network, with multiple devices sharing a desktop and switching control."
+authors: [ownding]
+tags: [larktun, webrtc, remote-access, remote-work, mobile, zero-trust-networking]
+keywords:
+  - Larktun WebRTC remote control
+  - Larktun WebRTC stable release
+  - lightweight ad-free remote desktop
+  - control Windows from iPhone
+  - control Mac from iPad
+  - iOS remote desktop
+  - Windows macOS remote access
+  - multiple devices one remote computer
+  - private network remote desktop
+  - remote access without public port forwarding
+image: /img/blog/webrtc-remote-control/webrtc-remote-control-en.svg
+---
+
+You leave home and realize a file is still on your computer. A task has been running at the office all afternoon, and you want to check its progress. A family member needs help with a setting that would take only a few clicks to fix.
+
+In those moments, you want to pick up your phone or tablet, return to a familiar desktop, and get on with the task.
+
+**Larktun WebRTC remote control has finished Beta testing and is now officially available.** The lightweight, ad-free host currently supports **Windows and macOS**. With the **Larktun app on iPhone or iPad**, you can reach a home or office computer through your own Larktun network.
+
+This release focuses on making remote control something you can use throughout the day.
+
+{/* truncate */}
+
+![Larktun WebRTC remote control: iPhone and iPad connect to Windows and Mac over a private network, with multiple devices sharing a desktop and switching control](/img/blog/webrtc-remote-control/webrtc-remote-control-en.svg)
+
+## A Small, Ad-Free Host for Your Computer
+
+Remote access often means a task that takes only a few minutes: change a setting, check a window, or use an application that runs on your computer. The software you install for that should have a small footprint and stay out of the way.
+
+Larktun WebRTC Host is the component that accepts remote connections on your computer. **Its installer is lightweight, and there are no ads during use**, keeping the focus on the screen, sound, and controls.
+
+Windows has an installation wizard and a host that runs as a service, with startup at boot. Mac has a `.pkg` installer and a menu bar app, **Larktun Host**, for connection settings, permissions, and launch at login. Everyday use does not require an open terminal or a separate screen-capture setup.
+
+Connect the computer to your Larktun network, start the Host, and your phone has a desktop to return to.
+
+## A Quick Task on iPhone, More Room to Work on iPad
+
+Your phone is usually the closest device when something needs attention.
+
+Open **WebRTC Remote** in the Larktun iOS app and connect to the computer. You can see its current desktop and interact using touch, the onscreen keyboard, and shortcuts. Check a render, make a quick document edit, or help someone change a setting.
+
+For longer sessions, move to iPad. A larger display and an external keyboard, mouse, or trackpad make text selection, window navigation, and typing easier. On supported iPads, you can also put the remote desktop on an external display while keeping touch controls on the tablet.
+
+**Applications and work stay on the remote computer.** You see the desktop it is currently using, including open windows, running software, and tasks already in progress.
+
+The app's built-in networking does not occupy the system VPN permission. Explore that design and the other mobile features in the [iOS app overview](/docs/introduction/ios-app-overview).
+
+## Multiple Devices, One Computer
+
+**One computer can accept remote connections from multiple devices at the same time.**
+
+If your iPad is already connected to an office computer, you can connect your iPhone too. During a demonstration, another authorized device can watch the same desktop.
+
+Control follows a clear set of rules:
+
+- Multiple devices can watch the same desktop simultaneously.
+- One device sends keyboard and mouse input at a time; the others show a view-only status.
+- A newly joining device takes control, while the previous controller keeps watching.
+- A viewer can select **Take Control** to take over.
+
+Switching from phone to tablet does not require manually disconnecting the first device. During a shared troubleshooting session, everyone can see which device currently has control.
+
+Connected devices share the computer's same desktop. Window changes, display selection, and operation results are visible together, making this useful for device switching, joint troubleshooting, and demonstrations.
+
+## Sound, Clipboard, and the Details That Make It Useful
+
+A useful remote desktop needs more than a picture.
+
+**System audio.** Enable audio capture to hear the computer's playback on your client, whether you are reviewing a video or checking an application sound.
+
+**Text clipboard.** Synchronize text between your phone or tablet and the computer, so copying an address or pasting a command takes less typing.
+
+**Display switching.** If the computer has multiple monitors, choose the one you want to see. One display is shown at a time, and input follows the selected screen.
+
+**Quality settings.** Adjust quality and frame rate for the connection you have. Prioritize responsive interaction on mobile data and choose a clearer picture when bandwidth allows. Native hosts use H.264 hardware encoding paths, and iOS uses hardware decoding for efficient desktop streaming.
+
+Actual responsiveness depends on the computer, upload bandwidth, latency, and connection path. Try your usual network conditions before relying on remote access away from home.
+
+## Remote Control over Your Own Private Network
+
+Remote control carries desktop content and allows operations on the computer, so both the connection path and access scope matter.
+
+Larktun runs WebRTC remote control over its private network. Your phone reaches the target through that network, and the Host establishes the remote session. Screen, audio, and control messages travel through this network path.
+
+With this setup, **you do not need to forward the computer's remote-control ports to the public internet**, obtain a public IP address, or configure DDNS. Larktun network permissions and ACLs can restrict which devices reach the target, and the Host also supports an access token.
+
+A direct connection is preferred when network conditions permit; NAT or network policies may require a relay. Media and control channels retain WebRTC encryption, and the underlying Larktun link also provides encryption. Privacy relies on encryption together with access control.
+
+Set an access token on the Host and limit listening addresses and firewall rules to the private networks you need. Although the interface permits an empty token, configure one for everyday use. For shared sessions, grant access only to devices you trust to view the desktop and take control.
+
+## Everyday Reasons to Connect
+
+**Finish something after leaving home.** Open a file left on the computer or confirm a prompt in a desktop application, straight from your iPhone.
+
+**Check a long-running task.** See the progress or errors from a render, export, build, or data-processing job, then decide whether it needs attention.
+
+**Travel light and keep using your setup.** Take an iPad and keyboard, connect to your office Windows PC or home Mac, and use the applications and environment already configured there.
+
+**Troubleshoot together.** Connect two devices to the same desktop, with one operating and the other watching. Switch control when needed and spend less time describing which window is open.
+
+The computer must be online, the Host must be running, and network access must be permitted. Check power and sleep settings before planning extended unattended access.
+
+## Make Your First Connection
+
+1. **Download and join your network.** Get the desktop client and iOS app from the [Larktun download page](https://larktun.com/download). Connect the computer and phone to your Larktun network, and confirm the device is online and accessible.
+2. **Install the WebRTC Host.** Run the Windows Host installer or install Larktun Host on Mac. Set an access token and start the service.
+3. **Grant system permissions.** On Mac, allow Screen Recording for video capture and Accessibility for input. Follow the Host's prompts to grant permissions and restart it.
+4. **Connect in the app.** Open WebRTC Remote and enter the computer's Larktun address, Host port, and matching token. The default port is `8771`; use the actual value if you changed it.
+5. **Save the connection.** Add it to Favorites for convenient access later. The token is stored in the iOS system Keychain.
+
+Make the first connection while you are near the computer. Check video, audio, and input, then try again using your phone's mobile data so everything is ready when you leave.
+
+## A Few Common Questions
+
+### Can I Control Both Windows and Mac?
+
+Yes. The current official release provides Windows and macOS hosts, with iPhone and iPad connecting through the Larktun app. **Support across all platforms is on the roadmap**; WebRTC availability on other platforms will be announced in future releases.
+
+### Can I Connect When the Computer Is Locked?
+
+The Windows service-based Host supports the lock screen, sign-in screen, and UAC scenarios. On Mac, you can remotely unlock a screen after the user has logged in, but the Host cannot capture the initial login screen after a restart before the first login. Verify the behavior on your target computer before relying on unattended access.
+
+### Why Use WebRTC If I Already Have RDP?
+
+WebRTC connects to the computer's current desktop captured by the Host. It suits continuing work in existing local windows, sharing the same desktop with another device, and controlling a Mac. The Larktun app also retains RDP, SSH, and its built-in browser, so you can choose the entry point that fits the task.
+
+### What If I Can Connect but Cannot See or Control the Desktop?
+
+Confirm the Host is running, the address and token match, and network permissions allow access. On Mac, check Screen Recording and Accessibility separately. With multiple devices connected, check whether you are viewing only and select Take Control when you need to operate. For general connectivity issues, see [common troubleshooting](/docs/troubleshooting/common-issues).
+
+## The Official Release Is Ready
+
+Moving from Beta to the official release brings together a lightweight host, mobile controls, multiple-device connections, and private network access. Your Windows PC or Mac stays where it is, while iPhone and iPad bring you back to your familiar workspace.
+
+Get the clients and WebRTC Host from the [Larktun download page](https://larktun.com/download). If you have not set up your network yet, start with the [quick start guide](/docs/getting-started/quick-start).
+
+The next time you need your computer, start with the phone in your hand.
