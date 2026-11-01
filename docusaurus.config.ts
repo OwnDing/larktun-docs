@@ -43,6 +43,7 @@ const CORE_SITEMAP_PATHS = [
   '/docs/introduction/ai-assistant',
   '/docs/getting-started',
   '/docs/getting-started/quick-start',
+  '/docs/getting-started/webrtc-remote-control',
   '/docs/getting-started/install-and-configure',
   '/docs/getting-started/publish-your-first-service',
   '/docs/getting-started/approve-subnet-routes',
