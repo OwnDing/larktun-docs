@@ -126,3 +126,7 @@ ai-assistant:
   label: AI 助手
   permalink: /ai-assistant
   description: 云雀通 AI 助手、自然语言操作、SSH 命令辅助与私有网络智能访问实践。
+webrtc:
+  label: WebRTC
+  permalink: /webrtc
+  description: 基于云雀通私有网络的 WebRTC 远程控制、桌面串流与多设备协作。

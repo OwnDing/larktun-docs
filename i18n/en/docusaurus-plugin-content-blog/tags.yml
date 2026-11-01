@@ -126,3 +126,7 @@ ai-assistant:
   label: AI assistant
   permalink: /ai-assistant
   description: Larktun AI assistants, natural-language operations, SSH command assistance, and private network access.
+webrtc:
+  label: WebRTC
+  permalink: /webrtc
+  description: WebRTC remote control, desktop streaming, and multi-device collaboration over the Larktun private network.
