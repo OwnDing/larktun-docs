@@ -1,11 +1,13 @@
 ---
 title: WebRTC Remote Control Guide
-description: Install the Larktun iPhone/iPad app, Windows/macOS WebRTC Host, and Larktun networking client. Connect over your private network or use a computer's LAN IP through an approved subnet route.
+description: Install the Larktun app on iPhone/iPad or an Android phone/tablet, Windows/macOS WebRTC Host, and Larktun networking client. Connect over your private network or use a computer's LAN IP through an approved subnet route.
 keywords:
   - Larktun WebRTC remote control guide
   - Larktun WebRTC Host download
   - control Windows from iPhone
   - control Mac from iPad
+  - control a computer from an Android phone
+  - Android tablet WebRTC remote control
   - WebRTC subnet remote access
   - remote desktop by LAN IP
   - Windows macOS remote host setup
@@ -14,7 +16,7 @@ sidebar_position: 2.5
 
 # WebRTC Remote Control Guide
 
-Larktun WebRTC remote control lets you use an iPhone or iPad to view and operate the current desktop of a Windows PC or Mac at home or in the office.
+Larktun WebRTC remote control lets you use an iPhone, iPad, Android phone, or Android tablet to view and operate the current desktop of a Windows PC or Mac at home or in the office.
 
 **Set up Larktun networking first, and make sure the app can reach the target computer through that network.** Installing the WebRTC Host provides the remote-control service; Larktun provides the network path between devices.
 
@@ -29,11 +31,11 @@ Open the [Larktun website](https://larktun.com) and go to the [download page](ht
 
 | Component | Where to install it | Purpose |
 | --- | --- | --- |
-| Larktun iPhone / iPad app | The iPhone or iPad initiating the connection | Joins the Larktun network inside the app and provides WebRTC remote control |
+| Larktun app (iPhone / iPad / Android) | The iPhone, iPad, or Android phone or tablet initiating the connection | Joins the Larktun network inside the app and provides WebRTC remote control |
 | Larktun networking client | The target Windows PC / Mac, or a subnet router | Connects the computer or subnet to the Larktun network |
 | WebRTC Host (Larktun Host) | Every Windows PC / Mac you want to control | Streams the desktop and sound, and receives remote input |
 
-On iPhone/iPad, follow the website's App Store link to install the Larktun app. On the computer, download both the **Larktun client** and **WebRTC Host** for the operating system you use.
+On iPhone/iPad, follow the website's App Store link to install the Larktun app. On Android phones and tablets, download the Android APK from the website; phones and tablets use the same APK, and Android needs version 0.2.0 or later. On the computer, download both the **Larktun client** and **WebRTC Host** for the operating system you use.
 
 :::tip[What changes in subnet mode?]
 
@@ -47,7 +49,7 @@ For subnet access, a router runs Larktun and forwards traffic into the LAN. The 
 For a first connection, start with direct access:
 
 1. Install the Larktun networking client on Windows or Mac, sign in to your Larktun account, and connect.
-2. Open the iPhone/iPad app, sign in to the same account, and join the same network.
+2. Open the Larktun app on your iPhone, iPad, or Android device, sign in to the same account, and join the same network.
 3. Confirm the computer is online and note its Larktun IP, such as `100.64.0.10`.
 4. If you use ACLs, confirm the current account or device is allowed to access the target.
 
@@ -65,7 +67,7 @@ For subnet access, install the Host as described below, then follow the [subnet 
 4. Choose whether to capture system audio, retain the required firewall rules, and finish installation.
 5. Confirm the `LarktunWebRTCHost` service is running. The installed Host runs as a Windows service and supports startup at boot.
 
-You choose the access token and enter the same token later on iPhone/iPad. Use a token that is difficult to guess and configure token authentication for everyday use.
+You choose the access token and enter the same token later in the app. Use a token that is difficult to guess and configure token authentication for everyday use.
 
 ### macOS
 
@@ -89,11 +91,11 @@ Replace the example with an address belonging to the target computer. Do not use
 
 These settings do not require public router port forwarding. Retain the required local firewall rules and restrict access to the private networks you need.
 
-## 4. Connect from iPhone / iPad
+## 4. Connect from a Phone or Tablet
 
 Once the app has joined the network and the Host is running:
 
-1. Open **WebRTC Remote** in the app, or use the target device's remote-control shortcut.
+1. Open **WebRTC Remote** in the app, or use the target device's remote-control shortcut. On Android, tap **WebRTC** in a device's details or long-press menu, or choose **WebRTC Remote** from the "+" menu; starting from a device fills in its address.
 2. Enter the connection details:
 
 | Field | Direct-access example | What to enter |
@@ -106,7 +108,7 @@ Once the app has joined the network and the Host is running:
 3. Optionally enable **Save to Favorites**, then select **Connect**.
 4. When the desktop appears, test a click, text input, and audio as needed.
 
-Favorite connection tokens are stored in the iOS system Keychain. Reopen the favorite for subsequent connections.
+On iOS, favorite connection tokens are stored in the system Keychain; on Android, they are encrypted with a key held in the Android Keystore and kept on the device. Reopen the favorite for subsequent connections.
 
 :::note[Enter the address and port separately]
 
@@ -128,7 +130,7 @@ This example uses:
 | Office LAN | `192.168.6.0/24` |
 | Subnet router | An online Larktun-connected device that can reach this LAN |
 | Target computer | `192.168.6.10`, with WebRTC Host installed |
-| Client | An iPhone / iPad connected to the Larktun network |
+| Client | An iPhone, iPad, or Android phone or tablet connected to the Larktun network |
 
 Complete these steps first:
 
@@ -138,7 +140,7 @@ Complete these steps first:
 4. Confirm the router itself can reach the target computer and that forwarding works.
 5. Confirm the mobile app has a usable path to the subnet.
 
-See [Approve Subnet Routes](./approve-subnet-routes) for route advertisement, approval, ACLs, and forwarding. The mobile app uses its own networking; do not run the desktop CLI commands from that guide on iPhone/iPad.
+See [Approve Subnet Routes](./approve-subnet-routes) for route advertisement, approval, ACLs, and forwarding. The mobile app uses its own networking; do not run the desktop CLI commands from that guide on iPhone, iPad, or Android.
 
 ### Check the Host on the Target Computer
 
@@ -174,12 +176,13 @@ If the target's IP changes, update the connection or favorite. A DHCP reservatio
 
 ## 6. Everyday Controls
 
-- **Touch and keyboard**: operate the desktop with touch, the onscreen keyboard, and shortcuts. On iPad, you can also use an external keyboard, mouse, or trackpad.
+- **Touch and keyboard**: operate the desktop with touch, the onscreen keyboard, and shortcuts. On iPad, you can also use an external keyboard, mouse, or trackpad. On Android, switch between touch and mouse modes, pinch to zoom, and use the bar above the keyboard for Ctrl, Alt, Shift, Win/⌘, and Ctrl+Alt+Del.
 - **Text clipboard**: copy and paste text to move addresses or commands between the app and computer.
 - **Quality**: adjust picture quality and frame rate to the connection. On mobile data, try reducing quality before checking responsiveness again.
 - **Display switching**: choose a monitor from the menu when the computer has multiple displays. One display is shown at a time.
-- **System audio**: enable Host audio capture when needed, and check the iPhone/iPad volume and output device.
+- **System audio**: enable Host audio capture when needed, and check the phone or tablet volume and output device.
 - **Multiple devices**: several devices can connect to one computer. One controls while the others watch. A newly joining device gains control; viewers can select **Take Control** to take over.
+- **Leaving the session page**: on Android, going back to the home page keeps the session connected, and the open-sessions pill at the top takes you back to the picture. If the app stays in the system background for more than 10 minutes, the session ends automatically.
 
 All connected devices see the same desktop. Share network access and tokens only with devices you trust to view and control it.
 
@@ -202,11 +205,11 @@ On Mac, you can attempt remote unlocking after the user has logged in and subseq
 
 ## 8. Verify Your First Setup
 
-1. Confirm the iPhone/iPad app is signed in and connected to Larktun.
+1. Confirm the Larktun app on your phone or tablet is signed in and connected to Larktun.
 2. Confirm the Windows/Mac WebRTC Host is installed, running, and configured with an access token.
 3. For direct access, confirm the computer's Larktun client is online. For subnet access, confirm the router is online, the route is approved, and access is permitted.
 4. Connect using the correct target IP, port, and token. View the desktop and actually test a click and text input.
 5. Test audio, clipboard, and display switching as needed.
 6. After setting up near the computer, reconnect using your phone's mobile data to verify access away from the LAN.
 
-For other connectivity issues, see [Common Troubleshooting](../troubleshooting/common-issues). For the full set of mobile features, see the [iOS App Overview](../introduction/ios-app-overview).
+For other connectivity issues, see [Common Troubleshooting](../troubleshooting/common-issues). For the full set of mobile features, see the [iOS App Overview](../introduction/ios-app-overview); for Android WebRTC, tablet layouts, and the phone UI, see [Larktun for Android](/blog/larktun-android-webrtc-tablet-phone-ui).
