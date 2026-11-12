@@ -1,0 +1,142 @@
+---
+slug: larktun-android-webrtc-tablet-phone-ui
+title: "Larktun for Android: WebRTC Remote Control, Android Tablet Layouts, and a Redesigned Phone UI"
+description: "The Larktun Android app adds WebRTC remote control, so Android phones and tablets can control Windows and Mac computers. One APK now adapts to Android tablets with a sidebar, device panel, and side-by-side SSH, and the phone UI is redesigned with sessions that keep running in the background. No system VPN permission required."
+authors: [ownding]
+tags: [larktun, webrtc, mobile, remote-access, remote-work, ssh, rdp]
+keywords:
+  - Larktun Android app
+  - control PC from Android
+  - Android WebRTC remote control
+  - control Windows from Android phone
+  - control Mac from Android tablet
+  - Android tablet remote desktop
+  - Android tablet SSH client
+  - Android SSH background session
+  - Android private network without VPN permission
+  - Larktun Android tablet WebRTC
+image: /img/blog/android-webrtc-tablet/android-webrtc-tablet-en.webp
+---
+
+Earlier this month, Larktun WebRTC remote control became officially available on iPhone and iPad. Now it is Android's turn.
+
+This Android update does three things: **WebRTC remote control comes to Android phones and tablets, the same APK now adapts properly to Android tablets, and the phone interface has been reworked from the home page to the connection forms.** As before, networking happens inside the app, without taking the system VPN slot.
+
+If you have an Android phone, an Android tablet, and a computer at home or in the office, this update brings them a little closer together.
+
+{/* truncate */}
+
+![Larktun Android app 0.2.1: the Android tablet sidebar and device panel, and the open-sessions pill on the phone home page (demo account screenshots)](/img/blog/android-webrtc-tablet/android-webrtc-tablet-en.webp)
+
+## WebRTC Remote Control Comes to Android
+
+WebRTC remote control takes you straight back to the computer's current desktop: the windows you left open, the software that is still running, and the task you were in the middle of. Until now it was available on iPhone and iPad. Android phones and tablets can now connect to the **Larktun Host on Windows and macOS** as well.
+
+There are three ways in: tap **WebRTC** in a device's details or in its long-press menu, open **WebRTC Remote** from the "+" menu, or start from a favorite. When you start from a device, its address is filled in for you. The default port is `8771`; enter the access token set on the host if it uses one. Turn on "Save to favorites" and the token is stored encrypted on the device.
+
+![The Larktun Android device details and the WebRTC remote control form: start a session from a device, then enter the port and access token (demo account screenshots)](/img/blog/android-webrtc-tablet/phone-webrtc-en.webp)
+
+Once connected, the everyday features of the iOS app are all there on Android:
+
+- **Touch and mouse modes**: touch mode for tapping and dragging, mouse mode to move the pointer like a trackpad. Pinch to zoom into part of the screen.
+- **On-screen keyboard and shortcut bar**: type text directly; Ctrl, Alt, Shift, Win/⌘, and Ctrl+Alt+Del sit in the bar above the keyboard.
+- **Sound, quality, and frame rate**: hear the computer's audio on your phone, and lower quality and frame rate on a weak connection to keep control responsive.
+- **Text clipboard**: paste what you copied on your phone into the computer, and sync the computer's clipboard back.
+- **Multiple displays**: pick which screen to view when the computer has more than one.
+- **Multiple devices**: several devices can connect to one computer at the same time. One device controls it while the others are view-only, and any of them can tap **Take control**.
+- **Connection quality**: see latency and link status as you work.
+
+Video is decoded with the system's hardware H.264 decoder, and audio uses Opus.
+
+**Leaving the remote control page does not end the session.** Go back to the home page to do something else; the open-sessions pill at the top shows the running session, and one tap takes you back to the picture. If the app stays in the system background for more than 10 minutes, the session ends automatically so it does not tie up the computer after you forget about it.
+
+Installing the host and granting system permissions works the same as for iOS; see the [WebRTC remote control guide](/docs/getting-started/webrtc-remote-control).
+
+## Android Tablets: The Same APK, a Different Way to Work
+
+Installed on a tablet, the phone app used to look stretched, with half the screen empty. Now **the same APK switches to a tablet layout based on the current window size**. There is no separate "tablet version" to download.
+
+In landscape full screen, a text sidebar sits on the left: network status and switch at the top, then Devices, Favorites, Smart Discovery, Received Files, and the four connection tools (SSH, RDP, WebRTC, and the browser). When sessions are running, the sidebar lists them under "Open sessions". In a narrower window the sidebar becomes an icon rail, and in a small split-screen window the app returns to the phone layout. Rotating the screen, splitting it, or resizing a free-form window does not drop the connections you have open.
+
+![The Larktun Android tablet devices page: a navigation sidebar on the left, a device grid in the middle, and a device detail panel with quick actions, network addresses, and device info on the right (demo account screenshot)](/img/blog/android-webrtc-tablet/tablet-devices-en.webp)
+
+The devices page becomes a grid with a detail panel. Select a device and the panel on the right shows its quick actions (SSH, RDP, WebRTC, Open web, Ping, Send file), network addresses you can copy with one tap, system information, and the subnets it routes if it is a subnet router.
+
+The SSH workspace has also been laid out for large screens: **the terminal and the SFTP file panel sit side by side**, so you can run commands while uploading and downloading files without switching back and forth.
+
+![The Larktun Android tablet SSH workspace: the terminal and the SFTP file panel side by side, with connection quality in the toolbar (demo account screenshot)](/img/blog/android-webrtc-tablet/tablet-ssh-en.webp)
+
+Add an external keyboard and mouse, and the tablet gets closer to a light work machine:
+
+- **SSH**: type straight into the terminal with an external keyboard; key combinations and arrow keys work as usual.
+- **RDP**: left, right, and middle mouse buttons and the scroll wheel are supported. The desktop keeps a landscape resolution; with the tablet held upright, the picture is letterboxed instead of being reshaped. To change the resolution during a session, use "Display settings".
+- **Built-in browser**: horizontal tabs, with shortcuts such as `Ctrl+T`, `Ctrl+W`, and `Ctrl+Tab`.
+- **AI assistant**: opens as a side panel in wide windows instead of covering the page you are using.
+
+## The Phone UI, Reworked from Home Page to Connection Forms
+
+With the tablet layout in place, we went back over the phone app as a whole. The goal was simple: **one app that looks like one design on both phones and tablets.**
+
+![The new Larktun Android phone UI: the devices home page with the open-sessions pill, the favorites list, and Smart Discovery (demo account screenshots)](/img/blog/android-webrtc-tablet/phone-ui-en.webp)
+
+**Compact device cards.** One row per device: icon, name, IP and OS, and online status. Subnet routers that forward a local network get a "Subnet" badge, and their details list the routes they forward.
+
+**Device details on one page.** Open a device and the quick actions are at the top: SSH, RDP, WebRTC, Open web, Ping, and Send file, with addresses you can copy in one tap. Long-press a device card to get the same actions.
+
+**One dark style for connection forms.** The SSH, RDP, and WebRTC forms now share one dark style and the same fields, and a new connection from the "+" menu no longer shows a stray port line.
+
+**Sessions can stay in the background.** The phone home page has a new open-sessions pill at the top: one icon for each kind of running connection, plus the total. With one session, a tap takes you straight back; with several, a list opens, and each row can be disconnected on its own. Pressing back in an SSH session returns to the home page and keeps the terminal and its scrollback; to end the connection, choose "Disconnect" from the menu in the top-right corner.
+
+**Steadier RDP on phones.** The app switches to landscape when connecting, sets up the desktop at a landscape resolution, and no longer pops up the soft keyboard over half the desktop. The remote resolution is set when you connect and does not change on its own when the window changes, which prevented some Linux remote desktops (xrdp) from disconnecting.
+
+## Still No System VPN Permission
+
+This update does not change the foundation of the Larktun Android app: **networking happens inside the app**, and only the Larktun app uses your Larktun network.
+
+That means it does not take the system's single VPN slot or compete with a company VPN or other proxy tools. As long as your devices are online and the app can reach the target, WebRTC, SSH, RDP, Smart Discovery, and the built-in browser all work. To learn more about this design, read [in-app networking without VPN permission](/blog/larktun-tsnet-app-without-vpn-permission).
+
+Remote control, terminal, and desktop traffic all travel over your own Larktun network, **so there is no need to forward a remote control, SSH, or RDP port to the internet**. Which devices can reach which computer is still governed by Larktun network permissions and ACLs.
+
+## Everyday Ways to Use It
+
+**Check your computer on the commute.** Open WebRTC on your Android phone on the train, see whether the export on your office computer has finished, and click "OK" while you are there.
+
+**Code remotely on a tablet with a keyboard.** Run commands in the SSH terminal on the left and edit configs or move logs in the file panel on the right. When you need a graphical app, switch to RDP or WebRTC on the same machine.
+
+**Move between several sessions.** Keep an SSH session to your NAS open while you control a Windows computer; both are still there when you return home, and the pill at the top tells you how many connections are open.
+
+## How to Get the Update
+
+- **Version 0.2.0 or later installed**: the app will prompt you to update to 0.2.1. You can also check for updates manually under "Settings → App information".
+- **New users or older versions**: download the Android app from the [Larktun download page](https://larktun.com/download). Phones and tablets use the same APK.
+- **To use WebRTC remote control**: install Larktun Host for Windows or macOS on the computer, and connect it and your Android device to the same Larktun network.
+
+If you have not set up your own network yet, start with the [quick start](/docs/getting-started/quick-start). For earlier Android features such as Smart Discovery and the built-in browser, see the [previous Android app update](/blog/larktun-android-app-smart-discovery-webview-free).
+
+## A Few Common Questions
+
+### Do I Need a Separate Download for Android Tablets?
+
+No. Phones and tablets use the same APK, and the app picks a layout from the current window size: a sidebar layout in landscape full screen, more compact layouts in narrow windows and split screen.
+
+### Which Computers Can Android WebRTC Control?
+
+Computers running Larktun Host on Windows and macOS. Android phones, Android tablets, iPhone, and iPad can all act as controllers, and several devices can connect to the same computer at once.
+
+### Does Leaving the Remote Control Page Disconnect Me?
+
+Going back to the home page inside the app does not disconnect; the open-sessions pill takes you back to the picture at any time. If the app stays in the system background for more than 10 minutes, the session ends automatically.
+
+### Do I Need to Enable a System VPN or Root the Device?
+
+Neither. The Larktun Android app networks inside the app, does not request system VPN permission, and does not need root.
+
+### Can I Change the RDP Resolution During a Session?
+
+Yes, choose a new resolution in the RDP session's "Display settings". This release fixes disconnects after changing the resolution on Linux (xrdp) hosts, and the app never changes the remote resolution just because you rotated the screen.
+
+## Available Now
+
+WebRTC remote control, Android tablet layouts, and the redesigned phone UI are all in the latest Larktun Android app. Your Android phone handles the quick tasks on the go, your Android tablet lets you sit down and keep working, and your computer stays where it is.
+
+Get the Android app from the [Larktun download page](https://larktun.com/download), and the next time you need your computer, reach for the Android device in your hand.

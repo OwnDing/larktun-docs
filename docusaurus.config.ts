@@ -65,6 +65,7 @@ const CORE_SITEMAP_PATHS = [
   '/blog/larktun-ipad-ios-app-without-vpn',
   '/blog/larktun-ios-third-party-login',
   '/blog/larktun-android-tv-remote-desktop',
+  '/blog/larktun-android-webrtc-tablet-phone-ui',
   '/showcase',
 ];
 
