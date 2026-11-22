@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" xml:lang="en-US" role="img" aria-labelledby="title desc">
+  <title id="title">Mobile Networking Boundary for RustDesk: App-only tsnet vs System VPN</title>
+  <desc id="desc">Compares Larktun NoVPN app-only networking with system-wide VPN via the official Tailscale app when using RustDesk on iOS or Android.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="sh" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+    <style>
+      .t { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+      .m { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .muted { fill: #475569; }
+      .w { fill: #ffffff; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="620" rx="28" fill="url(#bg)"/>
+  <text x="600" y="52" text-anchor="middle" class="t" font-size="27" font-weight="800">Mobile Guide: App-Only Network vs System VPN for RustDesk</text>
+  <text x="600" y="82" text-anchor="middle" class="t muted" font-size="14.5">Desktop Larktun creates a system virtual adapter for RustDesk; mobile requires knowing this boundary</text>
+
+  <!-- Left Panel -->
+  <g filter="url(#sh)">
+    <rect x="46" y="112" width="534" height="456" rx="22" fill="#ffffff" stroke="#fbbf24" stroke-width="2"/>
+    <rect x="70" y="136" width="268" height="28" rx="14" fill="#fef3c7"/>
+    <text x="204" y="155" text-anchor="middle" class="t" font-size="12.5" font-weight="750" style="fill:#b45309">Option 1 · Larktun Mobile App (NoVPN)</text>
+    <text x="70" y="194" class="t" font-size="19" font-weight="800">Private Network Inside Larktun Only</text>
+
+    <rect x="70" y="216" width="486" height="122" rx="14" fill="#ecfdf5" stroke="#34d399" stroke-width="1.6"/>
+    <text x="90" y="244" class="t" font-size="14" font-weight="750" style="fill:#047857">Inside Larktun App (tsnet) → Reaches 100.x.x.x ✓</text>
+    <rect x="90" y="260" width="142" height="32" rx="8" fill="#ffffff" stroke="#a7f3d0"/>
+    <text x="161" y="281" text-anchor="middle" class="t" font-size="12" font-weight="700">Built-in WebRTC</text>
+    <rect x="242" y="260" width="124" height="32" rx="8" fill="#ffffff" stroke="#a7f3d0"/>
+    <text x="304" y="281" text-anchor="middle" class="t" font-size="12" font-weight="700">Built-in RDP</text>
+    <rect x="376" y="260" width="160" height="32" rx="8" fill="#ffffff" stroke="#a7f3d0"/>
+    <text x="456" y="281" text-anchor="middle" class="t" font-size="12" font-weight="700">SSH / SFTP / Web</text>
+    <text x="90" y="322" class="t" font-size="12.5" style="fill:#065f46">No system VPN slot used; coexists with corporate VPN</text>
+
+    <rect x="70" y="356" width="486" height="92" rx="14" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.6"/>
+    <text x="90" y="384" class="t" font-size="14" font-weight="750" style="fill:#b91c1c">Separate RustDesk Mobile App → Cannot reach 100.x.x.x ✗</text>
+    <text x="90" y="410" class="t" font-size="12.5" style="fill:#7f1d1d">Because Larktun NoVPN does not register a system VPN,</text>
+    <text x="90" y="431" class="t" font-size="12.5" style="fill:#7f1d1d">other mobile apps cannot route traffic to Larktun IPs.</text>
+
+    <rect x="70" y="468" width="486" height="76" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="90" y="494" class="t" font-size="13.5" font-weight="750">Recommendation:</text>
+    <text x="90" y="519" class="t muted" font-size="12.5">For mobile remote control without VPN, use Larktun's built-in WebRTC or RDP.</text>
+  </g>
+
+  <!-- Right Panel -->
+  <g filter="url(#sh)">
+    <rect x="620" y="112" width="534" height="456" rx="22" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+    <rect x="644" y="136" width="276" height="28" rx="14" fill="#e0f2fe"/>
+    <text x="782" y="155" text-anchor="middle" class="t" font-size="12.5" font-weight="750" style="fill:#0369a1">Option 2 · Official Tailscale App on Larktun</text>
+    <text x="644" y="194" class="t" font-size="19" font-weight="800">System VPN Enables Mobile RustDesk</text>
+
+    <rect x="644" y="216" width="486" height="122" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.6"/>
+    <text x="664" y="244" class="t" font-size="14" font-weight="750" style="fill:#1d4ed8">System-Wide VPN Tunnel (hs.larktun.com)</text>
+    <text x="664" y="272" class="t muted" font-size="12.5">1. Generate an Auth Key in Larktun Console → Nodes</text>
+    <text x="664" y="296" class="t muted" font-size="12.5">2. Sign in to the official Tailscale mobile app with</text>
+    <text x="678" y="318" class="m" font-size="12.5" font-weight="700" style="fill:#1d4ed8">https://hs.larktun.com</text>
+    <text x="850" y="318" class="t muted" font-size="12.5">and allow VPN config</text>
+
+    <rect x="644" y="356" width="486" height="92" rx="14" fill="#ecfdf5" stroke="#34d399" stroke-width="1.6"/>
+    <text x="664" y="384" class="t" font-size="14" font-weight="750" style="fill:#047857">Mobile RustDesk App → Connects to 100.64.0.10 ✓</text>
+    <text x="664" y="410" class="t" font-size="12.5" style="fill:#065f46">All device traffic to 100.x.x.x and approved subnets routes</text>
+    <text x="664" y="431" class="t" font-size="12.5" style="fill:#065f46">through Larktun, so RustDesk connects directly by IP.</text>
+
+    <rect x="644" y="468" width="486" height="76" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="664" y="494" class="t" font-size="13.5" font-weight="750">Best For:</text>
+    <text x="664" y="519" class="t muted" font-size="12">When you need to run RustDesk or Microsoft Windows App on mobile.</text>
+  </g>
+</svg>

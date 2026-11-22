@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" xml:lang="en-US" role="img" aria-labelledby="title desc">
+  <title id="title">3-Step Checklist to Enable Microsoft RDP on Target Windows PC</title>
+  <desc id="desc">Visual checklist showing how to turn on Remote Desktop in Windows Settings, verify credentials without PIN issues, and configure firewall and sleep settings.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eff6ff"/>
+    </linearGradient>
+    <filter id="sh" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <style>
+      .t { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+      .m { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .muted { fill: #475569; }
+      .card { fill: #ffffff; stroke: #dbe5f1; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="680" rx="28" fill="url(#bg)"/>
+  <text x="600" y="54" text-anchor="middle" class="t" font-size="29" font-weight="800">3-Step Windows Host Preparation for Microsoft RDP</text>
+  <text x="600" y="86" text-anchor="middle" class="t muted" font-size="15.5">Configure these three items on the target Windows 10 / 11 PC before connecting (UI illustration)</text>
+
+  <!-- Step 1 -->
+  <g filter="url(#sh)">
+    <rect x="42" y="114" width="352" height="474" rx="22" class="card"/>
+    <circle cx="80" cy="154" r="18" fill="#2563eb"/>
+    <text x="80" y="160" text-anchor="middle" class="t" font-size="16" font-weight="800" style="fill:#ffffff">1</text>
+    <text x="110" y="161" class="t" font-size="19" font-weight="750">Enable Remote Desktop</text>
+
+    <rect x="64" y="186" width="308" height="232" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+    <rect x="64" y="186" width="308" height="34" rx="14" fill="#e2e8f0"/>
+    <rect x="64" y="206" width="308" height="14" fill="#e2e8f0"/>
+    <text x="80" y="208" class="t" font-size="12" font-weight="700">Settings &gt; System &gt; Remote Desktop</text>
+
+    <rect x="78" y="234" width="280" height="62" rx="10" fill="#ffffff" stroke="#93c5fd" stroke-width="1.8"/>
+    <text x="92" y="259" class="t" font-size="14" font-weight="700">Remote Desktop</text>
+    <text x="92" y="280" class="t muted" font-size="11.5">Connect from other devices</text>
+    <rect x="294" y="252" width="48" height="24" rx="12" fill="#2563eb"/>
+    <circle cx="330" cy="264" r="9" fill="#ffffff"/>
+
+    <rect x="78" y="308" width="280" height="44" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
+    <rect x="92" y="322" width="16" height="16" rx="4" fill="#2563eb"/>
+    <path d="M96 330 L99 333 L105 326" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <text x="116" y="335" class="t" font-size="12" font-weight="600">Require Network Level Auth (NLA)</text>
+
+    <rect x="78" y="362" width="280" height="42" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text x="92" y="388" class="t" font-size="12.5">Remote Desktop port:</text>
+    <text x="228" y="388" class="m" font-size="13.5" font-weight="700" style="fill:#1d4ed8">3389 (Default)</text>
+
+    <rect x="64" y="434" width="308" height="134" rx="12" fill="#fffbeb" stroke="#fde68a"/>
+    <text x="80" y="460" class="t" font-size="14" font-weight="750" style="fill:#b45309">Check Windows Edition First</text>
+    <text x="80" y="485" class="t" font-size="12.5" style="fill:#78350f">• Pro / Enterprise / Education / Server: OK</text>
+    <text x="80" y="509" class="t" font-size="12.5" style="fill:#78350f">• Windows Home: No built-in RDP host</text>
+    <text x="80" y="533" class="t" font-size="12" style="fill:#92400e">For Windows Home, use WebRTC or RustDesk</text>
+    <text x="80" y="553" class="t" font-size="12" style="fill:#92400e">Classic dialog: press Win+R, run sysdm.cpl</text>
+  </g>
+
+  <!-- Step 2 -->
+  <g filter="url(#sh)">
+    <rect x="424" y="114" width="352" height="474" rx="22" class="card"/>
+    <circle cx="462" cy="154" r="18" fill="#0d9488"/>
+    <text x="462" y="160" text-anchor="middle" class="t" font-size="16" font-weight="800" style="fill:#ffffff">2</text>
+    <text x="492" y="161" class="t" font-size="19" font-weight="750">Verify Account &amp; Password</text>
+
+    <rect x="446" y="186" width="308" height="118" rx="14" fill="#0f172a"/>
+    <circle cx="466" cy="204" r="4.5" fill="#fb7185"/>
+    <circle cx="480" cy="204" r="4.5" fill="#fbbf24"/>
+    <circle cx="494" cy="204" r="4.5" fill="#34d399"/>
+    <text x="512" y="208" class="t" font-size="11.5" style="fill:#94a3b8">PowerShell: check exact username</text>
+    <text x="462" y="238" class="m" font-size="13.5" style="fill:#38bdf8">PS C:\&gt; whoami</text>
+    <text x="462" y="262" class="m" font-size="13.5" style="fill:#e2e8f0">office-pc\alex</text>
+    <text x="462" y="286" class="t" font-size="12" style="fill:#94a3b8">Use the account name after the backslash</text>
+
+    <rect x="446" y="320" width="308" height="134" rx="14" fill="#fef2f2" stroke="#fecaca"/>
+    <text x="462" y="346" class="t" font-size="14" font-weight="750" style="fill:#b91c1c">Common Pitfall: Microsoft Account &amp; PIN</text>
+    <text x="462" y="371" class="t" font-size="12.5" style="fill:#7f1d1d">1. Use account password, NOT Windows PIN</text>
+    <text x="462" y="395" class="t" font-size="12.5" style="fill:#7f1d1d">2. Try MicrosoftAccount\you@outlook.com</text>
+    <text x="462" y="419" class="t" font-size="12.5" style="fill:#7f1d1d">3. Accounts &gt; Sign-in options: turn off</text>
+    <text x="476" y="439" class="t" font-size="12.5" style="fill:#7f1d1d">Windows Hello-only &amp; sign in once by pw</text>
+
+    <rect x="446" y="468" width="308" height="100" rx="12" fill="#f0fdfa" stroke="#99f6e4"/>
+    <text x="462" y="494" class="t" font-size="14" font-weight="750" style="fill:#0f766e">Other Account Checks</text>
+    <text x="462" y="519" class="t" font-size="12.5" style="fill:#115e59">• Blank passwords are blocked by default</text>
+    <text x="462" y="543" class="t" font-size="12.5" style="fill:#115e59">• Add non-admins to Remote Desktop Users</text>
+  </g>
+
+  <!-- Step 3 -->
+  <g filter="url(#sh)">
+    <rect x="806" y="114" width="352" height="474" rx="22" class="card"/>
+    <circle cx="844" cy="154" r="18" fill="#4f46e5"/>
+    <text x="844" y="160" text-anchor="middle" class="t" font-size="16" font-weight="800" style="fill:#ffffff">3</text>
+    <text x="874" y="161" class="t" font-size="19" font-weight="750">Firewall &amp; Power Sleep</text>
+
+    <rect x="828" y="186" width="308" height="168" rx="14" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="844" y="214" class="t" font-size="14.5" font-weight="750">Windows Firewall (TCP 3389)</text>
+    <text x="844" y="239" class="t muted" font-size="12.5">Enabling RDP normally allows inbound rule:</text>
+    <rect x="842" y="252" width="280" height="34" rx="8" fill="#e0e7ff"/>
+    <text x="854" y="274" class="t" font-size="12" font-weight="700" style="fill:#3730a3">Remote Desktop - User Mode (TCP-In)</text>
+    <text x="844" y="308" class="t muted" font-size="12">If blocked, ensure TCP 3389 is allowed on the</text>
+    <text x="844" y="328" class="t muted" font-size="12">firewall profile used by the Larktun adapter</text>
+
+    <rect x="828" y="370" width="308" height="110" rx="14" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="844" y="398" class="t" font-size="14.5" font-weight="750">Prevent Unattended Sleep</text>
+    <text x="844" y="423" class="t muted" font-size="12.5">Settings &gt; System &gt; Power &amp; battery</text>
+    <text x="844" y="447" class="t" font-size="12.5" font-weight="700" style="fill:#1d4ed8">Plugged-in sleep: set to "Never"</text>
+    <text x="844" y="467" class="t muted" font-size="12">Also enable Larktun Launch at Startup</text>
+
+    <rect x="828" y="494" width="308" height="74" rx="12" fill="#ecfdf5" stroke="#a7f3d0"/>
+    <text x="844" y="520" class="t" font-size="13.5" font-weight="750" style="fill:#047857">Never Forward Port 3389 Publicly</text>
+    <text x="844" y="544" class="t" font-size="12" style="fill:#065f46">Keep RDP strictly inside your Larktun network</text>
+  </g>
+
+  <text x="600" y="636" text-anchor="middle" class="t muted" font-size="14">Next, verify the PC is Online in the Larktun client and copy its 100.x.x.x private IP (or note its LAN IP for subnet routing).</text>
+</svg>

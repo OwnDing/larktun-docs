@@ -44,6 +44,8 @@ const CORE_SITEMAP_PATHS = [
   '/docs/getting-started',
   '/docs/getting-started/quick-start',
   '/docs/getting-started/webrtc-remote-control',
+  '/docs/getting-started/rdp-remote-desktop',
+  '/docs/getting-started/rustdesk-ip-remote',
   '/docs/getting-started/install-and-configure',
   '/docs/getting-started/publish-your-first-service',
   '/docs/getting-started/approve-subnet-routes',

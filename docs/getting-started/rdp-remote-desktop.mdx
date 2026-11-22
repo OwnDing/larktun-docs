@@ -1,0 +1,288 @@
+---
+title: 使用微软 RDP 远程桌面操作说明
+description: 详细图文教程：在 Windows 被控电脑开启微软自带远程桌面（RDP 3389），完成云雀通直接组网或子网路由后，通过 Windows 自带 mstsc、macOS Windows App 或云雀通 iOS/Android App 内置 RDP 安全远程连接。
+keywords:
+  - 云雀通 RDP 远程桌面
+  - Larktun 微软远程桌面
+  - mstsc 远程桌面教程
+  - Windows 11 开启远程桌面
+  - macOS Windows App RDP
+  - iPhone iPad 远程 Windows
+  - Android 远程桌面 RDP
+  - 不开放 3389 端口远程桌面
+  - 云雀通子网 RDP
+image: /img/docs/remote/rdp-architecture.svg
+sidebar_position: 2.6
+---
+
+# 使用微软 RDP 远程桌面操作说明
+
+微软远程桌面协议（**RDP**，默认 TCP `3389`）是 Windows 系统原生内置的远程桌面能力。相比把 `3389` 端口直接映射到公网（容易遭遇持续扫描与密码爆破），配合 **云雀通（Larktun）** 私有加密网络使用时：
+
+- **无需公网 IP，也无需在路由器上映射 `3389` 端口**，所有远程桌面流量走云雀通加密通道。
+- **电脑端直接用官方工具**：Windows 之间直接用系统自带的 **远程桌面连接（`mstsc`）**，macOS 用微软官方免费的 **Windows App**（原 Microsoft Remote Desktop）。
+- **手机与平板免装第三方软件**：iPhone、iPad、Android 手机/平板与 Android TV 直接使用 **云雀通 App 内置的 RDP 客户端**（基于 IronRDP 与 App 内 `tsnet`），**不占用系统 VPN 权限**，支持 H.264（AVC444）硬件解码、远端声音、剪贴板、收藏与 iPad 外接显示器。
+- **支持直接组网与子网路由两种模式**：既可以给每台电脑安装云雀通客户端通过 `100.x.x.x` 连接，也可以通过已批准的子网路由，直接用内网局域网 IP（如 `192.168.6.10`）连接办公室内网里的 Windows 主机。
+
+![云雀通 + 微软 RDP 远程桌面连接架构](/img/docs/remote/rdp-architecture.svg)
+
+:::tip[先确认被控电脑的 Windows 版本]
+Windows 10 / 11 的 **专业版（Pro）、企业版（Enterprise）、教育版（Education）、工作站专业版** 以及 **Windows Server** 均原生自带远程桌面服务端。
+
+**Windows 家庭版（Home）** 默认只自带 `mstsc` 控制端，**不包含微软远程桌面服务端**（设置里没有开启远程桌面的开关）。如果被控电脑是 Windows 家庭版，或者是 macOS 电脑，建议改用 [WebRTC 远程控制](./webrtc-remote-control) 或 [使用 RustDesk 进行 IP 远程](./rustdesk-ip-remote)。
+:::
+
+## 1. 先分清不同设备的软件准备
+
+根据你的控制端与被控端设备，对照下表准备程序（云雀通各平台程序可在 [Larktun 下载页](https://larktun.com/download) 获取）：
+
+| 角色 | 操作系统 | 需要准备的程序 | 说明 |
+| --- | --- | --- | --- |
+| 被控端（直接组网） | Windows 专业版 / 企业版 / Server | **Larktun 桌面客户端** + 开启系统自带远程桌面 | 登录云雀通后获得 `100.x.x.x` 私有 IP |
+| 被控端（子网模式） | 办公室内网 Windows 主机 | 仅需开启系统自带远程桌面（可不装 Larktun） | 由同局域网的一台云雀通子网路由节点转发流量 |
+| 控制端（Windows） | Windows 10 / 11（含家庭版） | **Larktun 桌面客户端** + 系统自带 `mstsc` | 无需额外下载远程软件 |
+| 控制端（macOS） | macOS | **Larktun 桌面客户端** + 微软 **Windows App** | Windows App 可在 Mac App Store 免费下载 |
+| 控制端（手机 / 平板 / TV） | iPhone / iPad / Android / Android TV | **云雀通 App** | App 内置完整 RDP 客户端，无需系统 VPN，无需另装其他软件 |
+
+:::note[Linux 桌面主机也可以用同一套流程]
+如果你需要远程访问 Linux 图形桌面（如 Ubuntu / Debian / Oracle Linux），只需在 Linux 上安装桌面环境与 `xrdp` 服务（同样监听 `3389` 端口），客户端连接方式与本文完全一致。Linux 远程开发实践可参考 [Larktun 远程开发：Linux、Hermes、ChatGPT 与 RDP](/blog/larktun-linux-remote-development-hermes-chatgpt-rdp)。
+:::
+
+## 2. 在被控端 Windows 上开启微软远程桌面
+
+请先在**需要被远程控制的 Windows 电脑**上完成以下三步检查。建议首次配置时先在电脑旁完成测试，确认能正常连上后再外出使用。
+
+![被控端 Windows 开启微软 RDP 三步检查清单](/img/docs/remote/windows-enable-rdp-guide.svg)
+
+### 2.1 打开系统「远程桌面」开关
+
+- **Windows 11**：打开 **设置 → 系统 → 远程桌面**，打开 **远程桌面** 开关，在弹窗中点击 **确认**。
+- **Windows 10**：打开 **设置 → 系统 → 远程桌面**，打开 **启用远程桌面** 并确认。
+- **传统系统属性入口（通用）**：按 `Win + R`，输入 `sysdm.cpl` 回车，切换到 **远程** 选项卡，选择 **允许远程连接到此计算机**，并保持勾选 **仅允许运行使用网络级别身份验证的远程桌面的计算机连接（建议）**。
+
+展开「远程桌面」下方详情可以确认当前监听端口，默认为 **`3389`**。记下这个端口号，后续连接时会用到。
+
+### 2.2 确认 Windows 登录用户名与密码（避坑必看）
+
+**90% 的“连得上但提示凭据不工作 / 密码错误”问题，都出在用户名格式、空密码或 Windows Hello PIN 上。** 请按下面逐项核对：
+
+1. **查出准确用户名**：按 `Win + X` 打开 **终端（PowerShell）** 或命令提示符，执行：
+
+   ```powershell
+   whoami
+   ```
+
+   如果输出类似 `office-pc\alex`，那么本地用户名就是斜杠后面的 `alex`。
+2. **确保账户设置了密码**：Windows 默认安全策略禁止空密码账户通过 RDP 登录。如果没有密码，请先在 **设置 → 账户 → 登录选项 → 密码** 中设置一个强密码。
+3. **使用 Microsoft 微软账号登录 Windows 时的关键处理**：
+   - RDP 登录**必须使用微软账户密码**，**不能**填你平时开机解锁用的 4~6 位 Windows Hello PIN 码。
+   - 打开 **设置 → 账户 → 登录选项**，暂时关闭 **为了提高安全性，仅允许对此设备上的 Microsoft 账户使用 Windows Hello 登录（推荐）**。
+   - 锁定屏幕（`Win + L`），点击「登录选项」里的钥匙图标，**用微软账户密码在本机手动登录一次**，让 Windows 在本地缓存该密码凭据。
+   - 后续在 RDP 客户端填写用户名时，优先尝试完整格式：`MicrosoftAccount\你的邮箱@example.com`（或本机 `whoami` 返回的用户名）。
+4. **普通用户权限**：管理员账户默认拥有远程桌面权限；如果你打算用非管理员账户登录，请在 **设置 → 系统 → 远程桌面 → 远程桌面用户** 中把该用户添加进去。
+
+### 2.3 检查 Windows 防火墙与电源防休眠
+
+1. **放行 Windows 防火墙（TCP `3389`）**：
+   系统打开「远程桌面」时通常会自动启用入站规则 `远程桌面 - 用户模式 (TCP-In)`。但如果你的云雀通虚拟网卡在 Windows 中被识别为「公用网络」，防火墙可能会拦截 `3389`。你可以以管理员身份打开 PowerShell，运行下面命令确认或放行规则：
+
+   ```powershell
+   # 检查远程桌面服务是否正在监听 3389
+   Get-NetTCPConnection -LocalPort 3389 -State Listen
+
+   # 确保系统自带的远程桌面防火墙规则组已启用
+   Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+   ```
+
+   如果系统是中文界面且上述英文规则组名未匹配，也可以直接按端口添加一条仅允许云雀通网段（`100.64.0.0/10`）访问 `3389` 的精细入站规则：
+
+   ```powershell
+   New-NetFirewallRule -DisplayName "Larktun RDP (TCP 3389)" -Direction Inbound -Protocol TCP -LocalPort 3389 -RemoteAddress 100.64.0.0/10 -Action Allow
+   ```
+
+   :::warning[不要在路由器上开放公网 3389]
+   上述规则仅作用于本机防火墙（且可限定仅放行 `100.64.0.0/10` 云雀通私有地址段）。**切勿在家庭或公司路由器上将 `3389` 端口映射到公网。**
+   :::
+
+2. **关闭接通电源自动睡眠**：
+   电脑进入睡眠或休眠后，网络会断开，远程桌面将无法连接。请进入 **设置 → 系统 → 电源和电池 → 屏幕和睡眠**，将 **接通电源时使设备进入睡眠** 设为 **从不**（屏幕仍可设为几分钟后自动关闭以省电）。
+
+## 3. 完成云雀通组网并获取目标 IP
+
+### 3.1 直接组网模式（推荐首次使用）
+
+1. 在**被控 Windows 电脑**上安装并登录 **Larktun 桌面客户端（Larktun IPN）**，并在客户端 **设置** 中勾选 **开机自启动** 和关闭时 **最小化托盘**。详细安装登录流程见 [电脑客户端操作](./desktop-client-operations)。
+2. 确认客户端顶部显示 **已连接**，记下这台被控电脑的云雀通私有 IP（例如 `100.64.0.10`）。
+3. 在控制端电脑打开 Larktun 客户端，在「我的设备」中找到目标电脑，点击右侧菜单可执行 **复制 IP 地址** 或先点击 **Ping** 验证连通性与延迟：
+
+![在云雀通电脑客户端复制目标设备 IP 或执行 Ping 测试](/img/desktop-client/fig3-6-device-actions.webp)
+
+同账号下的设备登录云雀通后默认即可互通，无需额外配置访问规则（仅当你手动自定义收紧过 ACL 策略时，再确认未拦截 `3389` 端口即可）。
+
+### 3.2 子网路由模式（无需在每台内网 Windows 安装云雀通）
+
+如果办公室局域网（例如 `192.168.6.0/24`）里有多台需要远程的 Windows 电脑，且你已经有一台在线的路由器、Linux 主机或电脑接入云雀通：
+
+1. 按 [批准子网路由](./approve-subnet-routes) 在路由节点宣告 `192.168.6.0/24`，并在控制台 **路由（Routers）** 页面打开批准开关。
+2. 如果使用 **Windows / macOS / Linux 电脑** 作为控制端，需确认本机客户端已接受子网路由（CLI 客户端可执行 `sudo larktun set --accept-routes`）；手机与平板上的云雀通 App 会自动获取已授权子网路径。
+3. 目标 Windows 电脑只需开启微软远程桌面并允许局域网 `3389` 访问，无需单独安装 Larktun 客户端。后续连接时，主机地址直接填写其**局域网 IP**（如 `192.168.6.10`），而不是路由节点的 IP。
+
+![在云雀通控制台路由页面批准内网子网路由](/img/docs/quickstart/routes/routers.webp)
+
+## 4. 使用电脑远程连接（Windows / macOS）
+
+确认控制端电脑已登录 Larktun 客户端、顶部显示 **已连接** 且能 Ping 通目标 IP 后，即可使用微软官方客户端发起连接。
+
+![Windows mstsc 与 macOS Windows App 填入云雀通 IP 连接示意](/img/docs/remote/rdp-desktop-clients.svg)
+
+### 4.1 Windows 电脑：使用自带远程桌面连接（`mstsc`）
+
+1. 按 `Win + R` 打开运行框，输入 `mstsc` 并按回车，打开 **远程桌面连接**。
+2. 点击左下角 **显示选项** 展开完整配置：
+   - **计算机(C)**：输入目标电脑的云雀通私有 IP，例如 `100.64.0.10`（子网模式输入局域网 IP 如 `192.168.6.10`；若修改过默认端口，写成 `100.64.0.10:自定义端口`）。
+   - **用户名(U)**：填写目标 Windows 的登录用户名（本地账号如 `alex`，微软账号如 `MicrosoftAccount\name@outlook.com`）。
+   - 勾选 **允许我保存凭据**（仅在个人可信电脑上勾选），以后双击即可直连。
+3. 可按需调整其他选项卡：
+   - **显示**：调整远程桌面分辨率、勾选「将所有监视器用于远程会话」支持多屏办公。
+   - **本地资源**：默认勾选「剪贴板」支持跨机复制粘贴；点击「详细信息 → 驱动器」可以把本机盘符映射进远程电脑，方便直接拷贝文件。
+   - **常规 → 另存为**：可将当前配置保存为桌面 `.rdp` 快捷方式文件。
+4. 点击 **连接**，输入目标 Windows 密码。
+5. 首次连接会弹出 **「无法验证此远程计算机的身份」** 证书提示（因为目标 Windows 默认使用自签名 RDP 证书）。核对提示里的 IP 确实是你的目标设备后，勾选 **不再询问我是否连接到此计算机** 并点击 **是**，即可进入远程桌面。
+
+### 4.2 macOS 电脑：使用微软 Windows App
+
+微软已将 macOS 平台的官方 RDP 客户端 `Microsoft Remote Desktop` 正式更名为 **Windows App**：
+
+1. 打开 Mac App Store，搜索并免费安装由 Microsoft Corporation 发布的 **Windows App**。
+2. 确认 Mac 上的 **Larktun 桌面客户端** 已连接并处于在线状态。
+3. 打开 **Windows App**，点击右上角 **+**，选择 **Add PC**（添加电脑）：
+   - **PC name**：填写目标电脑的云雀通 IP（如 `100.64.0.10`）或子网局域网 IP（如 `192.168.6.10`）；非 `3389` 端口写成 `IP:端口`。
+   - **User account**：选择 **Add User Account**，填入目标 Windows 用户名和密码（也可以选 `Ask when required` 每次连接时再输）。
+   - **Friendly name**：可选备注名，如「办公室主机」。
+   - **Display**：建议开启 **Optimize for Retina displays**（或「Update the session resolution on resize」），让 Mac 高分屏文字更清晰。
+   - **Folders**：如需与 Windows 互传文件，可添加 Mac 本地文件夹进行挂载。
+4. 点击 **Add** 保存，然后双击刚添加的卡片。首次出现证书确认框时核对 IP 并点击 **Continue** 即可进入桌面。
+
+## 5. 使用手机、平板或电视远程连接（云雀通 App 内置 RDP）
+
+在 **iPhone、iPad、Android 手机/平板和 Android TV** 上，你**不需要单独下载微软客户端，也不需要占用系统 VPN 权限**。云雀通 App 内置了完整的 RDP 引擎，登录云雀通网络后即可直接远程。
+
+### 5.1 从设备列表或快捷入口进入 RDP
+
+- **iPad**：打开云雀通 App 确认左上角显示 **已连接**。在 **设备** 网格中点击目标 Windows 电脑，在右侧详情栏的 **快捷操作** 中点击 **RDP 客户端**；或者点击左侧导航栏的 **RDP 客户端 +** 手动填写任意云雀通 IP 或子网局域网 IP。
+
+![iPad 版云雀通 App 设备页与右侧 RDP 客户端快捷入口](/img/docs/remote/ios-ipad-devices-rdp-zh.webp)
+
+- **iPhone**：在 **设备** 页面点击目标电脑进入 RDP；也可以直接点击顶部横向快捷栏里的 **RDP 客户端** 新建手动连接（适合子网局域网 IP），或通过 **智能发现** 自动扫描网络中开放 `3389` 端口的设备。
+
+<p style={{textAlign: 'center'}}>
+  <img
+    src="/img/docs/remote/ios-iphone-devices-rdp-zh.webp"
+    alt="iPhone 版云雀通 App 设备页与顶部 RDP 客户端入口"
+    width="360"
+    loading="lazy"
+  />
+</p>
+
+- **Android 手机 / 平板 / Android TV**：
+  - 平板横屏全屏时，选中设备即可在右侧详情面板点击 **RDP**，也可在左侧栏 **建立连接 → RDP** 新建连接。
+  - 手机端在设备详情或长按设备卡片弹出的快捷宫格中点击 **RDP**，或点击右上角 **+** 手动新建。Android TV 端配合蓝牙鼠标操作流程见 [在 TV 电视上安装云雀通](./tv-install-larktun)。
+
+![Android 平板版云雀通 App 设备页与右侧 RDP 快捷操作](/img/blog/android-webrtc-tablet/tablet-devices.webp)
+
+### 5.2 填写 RDP 连接配置与高级设置
+
+打开 RDP 连接页面后，按下方示意图填写参数（从设备详情进入时，「主机」会自动预填为该设备的云雀通 IP）：
+
+![云雀通 App 内置 RDP 连接表单与高级设置说明](/img/docs/remote/rdp-app-form-guide.svg)
+
+| 字段 | 填写示例 / 默认值 | 说明 |
+| --- | --- | --- |
+| **主机** | `100.64.0.10` 或 `192.168.6.10` | 目标电脑的云雀通 IP、MagicDNS 名称，或已批准子网中的局域网 IP；不要把 `:3389` 拼进主机栏 |
+| **端口** | `3389` | 目标 Windows 远程桌面端口 |
+| **用户名** | `alex` 或 `MicrosoftAccount\邮箱` | 目标 Windows 的登录用户名，不是云雀通账号 |
+| **密码** | 目标 Windows 账户密码 | 点击右侧「显示 / 隐藏」可核对输入；**不能填开机 PIN 码** |
+| **域（可选）** | 留空 | 企业 Active Directory 域环境时填写域名；家用/工作组电脑保持留空 |
+| **记住此设备账号**（Android） / **收藏 ★** | 按需开启 | 凭据在 iOS 保存于系统 Keychain，在 Android 使用 Android Keystore 加密存储；点击顶部星标 **★** 可加入收藏 |
+
+展开 **高级设置**（Android 上为 **显示设置**），可以精细调整画质和网络表现：
+
+| 高级选项 | 默认值 | 建议与说明 |
+| --- | --- | --- |
+| **宽度 / 高度** | 自动适配屏幕（横屏） | 留空自动适配设备屏幕；需要固定清晰度可手填如 `1920` × `1080` 或 `1440` × `900` |
+| **色深** | `32` | Windows 保持 `32`；连接部分 Linux `xrdp` 传统模式若遇兼容问题可尝试 `16` |
+| **网络级别认证 NLA** | 开启 | 建议保持开启，与 Windows 默认 NLA 安全要求一致 |
+| **远端声音** | 开启 | 通过 RDP `rdpsnd` 通道同步播放远端电脑声音，连上后可在悬浮菜单中随时一键静音 |
+| **H.264 视频编码（AVC444）** | 开启 | 硬件解码（iOS VideoToolbox / Android MediaCodec），画质与带宽效率最优；远端不支持时自动回落 |
+| **画质 / 带宽** | `自适应` | **自适应**：拥塞时自动降帧、恢复后提帧；**画质优先**：完整壁纸/平滑字体且不限帧率；**速度优先**：关闭视觉特效并限制约 20 fps，4G/5G 弱网更流畅 |
+| **图形模式** | `EGFX（推荐）` | 默认 `EGFX` 配合 H.264；若切换到 `传统位图` / `传统模式（RemoteFX）` 或遇老旧 Windows 自动回落，可参考 [启用 RemoteFX 画质优化](../topics/optimize-ios-rdp-remotefx) |
+
+填写完成后点击 **连接**，等待几秒即可进入 Windows 全屏远程桌面。
+
+![iPad 版云雀通 App 全屏 RDP 远程桌面与右侧悬浮控制球](/img/docs/remote/ios-ipad-rdp-desktop-zh.webp)
+
+### 5.3 连接后的常用操作与效率技巧
+
+- **悬浮控制球**：桌面边缘的圆形控制球可自由拖动，点击展开后支持：
+  - **触摸模式 / 鼠标模式切换**：触摸模式点哪点哪，鼠标模式像笔记本触控板一样精准控制光标（双指点按右键、双指滑动滚动）。
+  - **屏幕键盘与快捷键栏**：内置 `Ctrl`、`Alt`、`Shift`、`Win`、`Esc`、`Tab`、方向键、粘贴及 `Ctrl+Alt+Del` 组合键。
+  - **放大 / 自适应显示**：适合在手机小屏上查看密集文字和任务栏按钮。
+  - **连接质量监控**：开启后在右上角显示实时延迟与直连 / DERP 中继状态（子网 IP 连接会显示经由路由节点的链路状态）。
+  - **声音静音与会话显示设置**：可随时静音、查看连接信息或在会话内手动调整分辨率。
+- **一键收藏带实时缩略图**：在连接表单或已连接的桌面中点击星标 **★**，会将该 RDP 目标加入 **收藏**，并自动截取当前桌面缩略图，下次一点直达。
+
+![iPad 版云雀通 App 收藏页：带桌面缩略图一键进入 RDP 远程桌面](/img/docs/remote/ios-ipad-favorites-rdp-zh.webp)
+
+- **iPad 外接显示器模式**：给 iPad 接上显示器后，点击顶部的外接屏按钮，可把 Windows 远程桌面全屏扩展到大显示器上，iPad 本体自动变成大面积触控板与快捷键控制面板（带左键、右键、拖拽锁定与方向键）：
+
+![iPad 外接显示器模式：iPad 变为触控板与快捷键面板操控大屏 RDP 桌面](/img/docs/remote/ios-ipad-external-trackpad-zh.webp)
+
+- **多会话与后台保持**：
+  - iPad 支持多标签同时打开 RDP、SSH 和内网网页，且支持把 RDP 标签撕离成独立窗口。
+  - Android 手机/平板点击悬浮菜单的「返回首页」时，RDP 会话会在 App 内部保持运行，首页顶部会话胶囊可随时切回原画面；需要彻底结束时点击 **断开**。
+
+:::tip[想在手机上用微软官方 Windows App 连接怎么办？]
+云雀通移动端 App 采用 **App 内组网（NoVPN）**，私有网络路由只对云雀通 App 内部开放，因此直接在云雀通 App 内置的 RDP 入口连接是最省心的方案。
+
+如果你因为特殊工作流需要在 iPhone/iPad 上使用微软官方的 **Windows App Mobile** 连接云雀通设备，请改用官方 Tailscale App 接入云雀通建立系统级 VPN 隧道（步骤见 [在 iPhone 和 iPad 上使用 Tailscale 登入云雀通](./ios-tailscale-login-larktun)），然后就能在微软移动端 App 中填写 `100.x.x.x` 连接。
+:::
+
+## 6. 微软 RDP、WebRTC 远控与 RustDesk 怎么选？
+
+云雀通可以配合多种远程方式使用，按场景选择最顺手的方案：
+
+| 对比维度 | 微软自带 RDP（本文） | 云雀通 WebRTC 远控 | RustDesk IP 远程 |
+| --- | --- | --- | --- |
+| **被控端系统支持** | Windows 专业版/企业版/Server、Linux（xrdp） | Windows（含家庭版）、macOS | Windows（含家庭版）、macOS、Linux |
+| **被控端额外安装** | Windows 原生自带，无需额外远控软件 | 需安装轻量 Larktun Host | 需安装 RustDesk 并开 IP 直接访问 |
+| **本机屏幕行为** | 独占会话，连入时自动锁定被控电脑本机屏幕 | 共享当前桌面现场，不锁本地屏幕 | 共享当前桌面现场，支持远程协助 |
+| **默认端口（私有网内）** | TCP `3389` | TCP `8771`（子网含 `3478`） | TCP `21118` |
+| **手机 / 平板体验** | 云雀通 App 原生内置，免系统 VPN | 云雀通 App 原生内置，免系统 VPN | 手机需官方 Tailscale App 系统 VPN |
+| **典型适用场景** | 远程办公、开发运维、自动匹配客户端分辨率、高清晰度文字 | 远程 Windows 家庭版 / Mac、多人共同查看当前现场 | 跨平台电脑互控、Windows 家庭版、保留现场协作 |
+
+## 7. 常见问题排查
+
+| 现象 | 原因与排查方法 |
+| --- | --- |
+| 找不到 Windows「远程桌面」开启开关 | 系统可能是 **Windows 家庭版（Home）**，它不包含 RDP 服务端；请升级专业版，或改用 [WebRTC 远控](./webrtc-remote-control) / [RustDesk IP 远程](./rustdesk-ip-remote) |
+| 能连上但反复提示「你的凭据不工作 / 密码错误」 | ① 不要输入开机 PIN 码，必须用账户密码；② 微软账号请尝试 `MicrosoftAccount\你的邮箱`，并关闭「仅允许 Windows Hello 登录」后在本机用密码登录一次；③ 用 `whoami` 核对本地用户名；④ 检查账户是否为空密码 |
+| 连接超时、无法连接到远程计算机 | ① 先在云雀通客户端对目标 IP 执行 **Ping**，确认两端都在线；② 检查目标电脑 Windows 防火墙是否拦截了 `3389`（特别是公用网络配置文件）；③ 如曾手动收紧自定义 ACL，检查是否放行 TCP `3389`；④ 确认目标电脑未进入睡眠 |
+| 子网里的 Windows 电脑连不上 | ① 确认控制台 **路由** 页面已批准对应网段；② 电脑控制端确认已开启接受路由（`--accept-routes`）；③ 确认路由节点本身能访问该电脑的 `3389` 端口且 Linux 节点已开 `ip_forward`；④ 如自定义过 ACL，检查是否允许访问该子网 |
+| 连入 RDP 后被控电脑本机显示器锁屏了 | 这是微软单会话 RDP 的正常设计（保护远程办公隐私）。如果希望双方同时看到桌面一起操作，请改用 [WebRTC 远控](./webrtc-remote-control) 或 [RustDesk IP 远程](./rustdesk-ip-remote) |
+| 画面在弱网下发糊或卡顿 | 在云雀通 App 的高级设置中将「画质 / 带宽」切到 **速度优先**；如果 H.264 不可用回落到了传统模式，按 [启用 RemoteFX 画质优化](../topics/optimize-ios-rdp-remotefx) 开启组策略；跨地区延迟偏高可在控制台 **Derper** 选择更近中继 |
+| 手机 App 提示连接正常，但 Windows 里没有声音 | 确认连接配置中已开启 **远端声音** 且悬浮面板未静音；检查被控 Windows 的 `Windows Audio` 服务正常运行、音量未被静音 |
+| 外出几天后突然连不上家里的电脑 | 检查目标电脑是否触发了自动睡眠、停电重启后 Larktun 桌面客户端是否开启了「开机自启动」；子网模式还需确认子网路由节点在线 |
+
+## 8. 首次配置验收清单
+
+1. 目标 Windows 电脑已开启 **远程桌面**（默认 `3389`），账户设置了非空密码，且电源设为接通电源「从不睡眠」。
+2. 直接组网确认目标电脑 Larktun 在线并记录 `100.x.x.x`；子网模式确认对应网段路由已在控制台批准并可达。
+3. 先用同一局域网下的电脑或手机完成一次连接，测试键鼠输入、中文输入、剪贴板粘贴与远端声音。
+4. **把手机切到 4G/5G 移动数据**（或用外部 Wi-Fi 的笔记本）再次连接一次，验证真正的跨公网远程办公链路完全通畅。
+
+## 下一步
+
+- 家里是 Windows 家庭版或 Mac，想直接共享当前桌面？阅读 [WebRTC 远程控制操作说明](./webrtc-remote-control) 或 [使用 RustDesk 进行 IP 远程操作说明](./rustdesk-ip-remote)
+- 想在弱网或回落模式下进一步提升 RDP 清晰度？阅读 [iOS 远程桌面画质优化：启用 RemoteFX](../topics/optimize-ios-rdp-remotefx)
+- 需要通过一台设备带起整个办公室内网？阅读 [批准子网路由](./approve-subnet-routes)
+- 遇到链路延迟或连通性问题？查看 [常见问题处理](../troubleshooting/common-issues)
