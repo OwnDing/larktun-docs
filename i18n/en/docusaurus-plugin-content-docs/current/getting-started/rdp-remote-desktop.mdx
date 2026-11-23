@@ -1,0 +1,285 @@
+---
+title: Microsoft RDP Remote Desktop Guide
+description: Step-by-step illustrated guide to enabling Windows built-in Remote Desktop (RDP 3389), joining your Larktun direct mesh or subnet route, and connecting from Windows mstsc, macOS Windows App, or the built-in RDP client in Larktun iOS and Android apps.
+keywords:
+  - Larktun Microsoft RDP guide
+  - Windows Remote Desktop over Larktun
+  - mstsc private IP tutorial
+  - macOS Windows App RDP
+  - iPhone iPad RDP Windows
+  - Android RDP client without VPN
+  - secure RDP without port 3389 forwarding
+  - Larktun subnet RDP
+image: /img/docs/remote/rdp-architecture-en.svg
+sidebar_position: 2.6
+---
+
+# Microsoft RDP Remote Desktop Guide
+
+Microsoft Remote Desktop Protocol (**RDP**, default TCP `3389`) is built directly into Windows. Instead of exposing port `3389` to the public internet — where it faces constant scanning and brute-force attacks — pairing RDP with **Larktun** gives you a private, encrypted path between your devices:
+
+- **No public IP or router port forwarding**: all RDP traffic travels through your encrypted Larktun network.
+- **Native desktop clients**: connect from Windows with built-in **Remote Desktop Connection (`mstsc`)**, or from macOS with Microsoft's free **Windows App** (formerly Microsoft Remote Desktop).
+- **All-in-one mobile experience**: on iPhone, iPad, Android phones/tablets, and Android TV, use the **built-in RDP client inside the Larktun app** (powered by IronRDP over app-only `tsnet`). It requires **no system VPN permission** and supports H.264 (AVC444) hardware decoding, remote audio, clipboard sync, favorites, and iPad external displays.
+- **Direct mesh or subnet routing**: install Larktun directly on the Windows host (`100.x.x.x`), or reach office LAN hosts by their local IP (`192.168.6.10`) through an approved Larktun subnet router without installing a client on every target PC.
+
+![Microsoft RDP over Larktun Architecture](/img/docs/remote/rdp-architecture-en.svg)
+
+:::tip[Check your Windows edition first]
+Windows 10 / 11 **Pro, Enterprise, Education, Pro for Workstations**, and **Windows Server** all include the Microsoft RDP server natively.
+
+**Windows Home editions** include the `mstsc` client to connect out, but **do not include the built-in RDP host**. If the target PC runs Windows Home (or macOS), use [WebRTC Remote Control](./webrtc-remote-control) or the [RustDesk Direct IP Remote Guide](./rustdesk-ip-remote) instead.
+:::
+
+## 1. Software Needed on Each Device
+
+Download Larktun clients from the [Larktun download page](https://larktun.com/download):
+
+| Role | Operating System | Required Software | Notes |
+| --- | --- | --- | --- |
+| Target host (direct mesh) | Windows Pro / Enterprise / Server | **Larktun Desktop Client** + Windows Remote Desktop enabled | Receives a private `100.x.x.x` address |
+| Target host (subnet mode) | Office LAN Windows PC | Windows Remote Desktop enabled (Larktun client optional) | Traffic is forwarded by an online Larktun subnet router on the same LAN |
+| Controller (Windows) | Windows 10 / 11 (Home included) | **Larktun Desktop Client** + built-in `mstsc` | No extra RDP software required |
+| Controller (macOS) | macOS | **Larktun Desktop Client** + Microsoft **Windows App** | Free from the Mac App Store |
+| Controller (Phone / Tablet / TV) | iPhone / iPad / Android / Android TV | **Larktun App** | Built-in RDP client, no system VPN needed, no separate RDP app required |
+
+:::note[Linux desktops work the same way]
+If you want to connect to a Linux graphical desktop (Ubuntu, Debian, Oracle Linux, etc.), install a desktop environment and `xrdp` listening on TCP `3389`. The client workflow is identical. See [Remote Development with Linux, Hermes, ChatGPT, and RDP](/en/blog/larktun-linux-remote-development-hermes-chatgpt-rdp) for a real-world Linux RDP setup.
+:::
+
+## 2. Enable Microsoft Remote Desktop on the Target Windows PC
+
+Complete these three checks on the **Windows PC you want to control**. Test the first connection while sitting near the computer before relying on unattended access.
+
+![3-Step Windows Host Preparation for Microsoft RDP](/img/docs/remote/windows-enable-rdp-guide-en.svg)
+
+### 2.1 Turn on Remote Desktop
+
+- **Windows 11**: open **Settings → System → Remote Desktop**, toggle **Remote Desktop** on, and click **Confirm**.
+- **Windows 10**: open **Settings → System → Remote Desktop**, toggle **Enable Remote Desktop** on, and confirm.
+- **Classic dialog (any version)**: press `Win + R`, run `sysdm.cpl`, open the **Remote** tab, select **Allow remote connections to this computer**, and keep **Allow connections only from computers running Remote Desktop with Network Level Authentication (recommended)** checked.
+
+Expand the details below the toggle to confirm the Remote Desktop port is **`3389`** (default).
+
+### 2.2 Verify Username and Password (Avoid Common Sign-in Pitfalls)
+
+Most "Your credentials did not work" errors come from username format, blank passwords, or Windows Hello PINs:
+
+1. **Find your exact local username**: open **Terminal (PowerShell)** and run:
+
+   ```powershell
+   whoami
+   ```
+
+   If the output is `office-pc\alex`, your local username is `alex`.
+2. **Set a non-empty password**: Windows blocks RDP logins for blank-password accounts by default. Configure a strong password under **Settings → Accounts → Sign-in options → Password**.
+3. **If you sign in to Windows with a Microsoft account**:
+   - RDP requires your **Microsoft account password**, **not** your 4–6 digit Windows Hello PIN.
+   - Go to **Settings → Accounts → Sign-in options** and turn off **For improved security, only allow Windows Hello sign-in for Microsoft accounts on this device (Recommended)**.
+   - Lock the screen (`Win + L`), choose the key icon under Sign-in options, and **sign in once using your Microsoft account password** so Windows caches the credential locally.
+   - In the RDP client, enter `MicrosoftAccount\your-email@outlook.com` (or the username returned by `whoami`).
+4. **Non-administrator accounts**: administrators have RDP permission automatically. For standard users, add them under **Settings → System → Remote Desktop → Remote Desktop users**.
+
+### 2.3 Check Windows Firewall and Sleep Settings
+
+1. **Allow TCP `3389` in Windows Firewall**:
+   Enabling Remote Desktop normally activates `Remote Desktop - User Mode (TCP-In)`. If Windows classifies the Larktun virtual interface as a Public network, inbound `3389` may still be blocked. Open an elevated PowerShell to verify and allow it:
+
+   ```powershell
+   # Verify the RDP service is listening on TCP 3389
+   Get-NetTCPConnection -LocalPort 3389 -State Listen
+
+   # Ensure the built-in Remote Desktop firewall rule group is enabled
+   Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+   ```
+
+   To tighten scope strictly to the Larktun private address range (`100.64.0.0/10`), you can add an explicit rule:
+
+   ```powershell
+   New-NetFirewallRule -DisplayName "Larktun RDP (TCP 3389)" -Direction Inbound -Protocol TCP -LocalPort 3389 -RemoteAddress 100.64.0.0/10 -Action Allow
+   ```
+
+   :::warning[Never forward port 3389 on your internet router]
+   Firewall rules above apply only to the host OS inside your private network. Do not expose port `3389` to the public internet.
+   :::
+
+2. **Disable sleep while plugged in**:
+   A sleeping PC drops off the network. Open **Settings → System → Power & battery → Screen and sleep** and set **When plugged in, put my device to sleep after** to **Never** (you can still let the display turn off after a few minutes).
+
+## 3. Connect Your Larktun Network and Get the Target IP
+
+### 3.1 Direct Mesh Mode (Recommended First)
+
+1. Install and sign in to the **Larktun Desktop Client (Larktun IPN)** on the target Windows PC. In client **Settings**, enable **Launch at startup** and set close behavior to **Minimize to tray**. See [Desktop Client Operations](./desktop-client-operations).
+2. Confirm the client shows **Connected** and note the target PC's private IP (for example `100.64.0.10`).
+3. On your controller PC, open the Larktun client, open the target device menu, choose **Copy IP Address**, and optionally run **Ping** to confirm reachability and latency:
+
+![Copy the target device IP or run Ping in the Larktun desktop client](/img/desktop-client/fig3-6-device-actions.webp)
+
+Devices signed in to the same Larktun account can reach each other by default with no manual ACL setup required (only verify port `3389` is not blocked if you customized strict ACL rules).
+
+### 3.2 Subnet Route Mode (No Larktun Client Required on Every LAN PC)
+
+When an office LAN (such as `192.168.6.0/24`) has multiple Windows machines behind an online Larktun subnet router:
+
+1. Advertise `192.168.6.0/24` on the subnet router and approve it on the **Routers** page. See [Approve Subnet Routes](./approve-subnet-routes).
+2. On desktop controllers (Windows / macOS / Linux), make sure route acceptance is enabled (`sudo larktun set --accept-routes` on CLI clients). The Larktun mobile app receives approved subnet routes automatically.
+3. Connect using the target PC's **LAN IP** (for example `192.168.6.10`), not the subnet router's IP.
+
+![Approve a subnet route on the Larktun Console Routers page](/img/docs/quickstart/routes/routers.webp)
+
+## 4. Connect from a Desktop Computer (Windows / macOS)
+
+Confirm the Larktun desktop client on your controller computer shows **Connected**, then launch the official Microsoft client.
+
+![Connecting from Windows mstsc and macOS Windows App with a Larktun IP](/img/docs/remote/rdp-desktop-clients-en.svg)
+
+### 4.1 Windows: Built-in Remote Desktop Connection (`mstsc`)
+
+1. Press `Win + R`, type `mstsc`, and press Enter.
+2. Click **Show Options** in the bottom-left corner:
+   - **Computer**: enter the target's Larktun IP, such as `100.64.0.10` (or LAN IP `192.168.6.10` in subnet mode; use `IP:port` only if you changed port `3389`).
+   - **User name**: enter the Windows username (`alex` or `MicrosoftAccount\name@outlook.com`).
+   - Check **Allow me to save credentials** on trusted personal PCs.
+3. Optional tabs worth configuring:
+   - **Display**: choose resolution or enable **Use all my monitors for the remote session**.
+   - **Local Resources**: keep **Clipboard** checked; click **More → Drives** to share local folders into the remote session for easy file copies.
+   - **General → Save As**: export a reusable `.rdp` desktop shortcut.
+4. Click **Connect** and enter the target Windows password.
+5. On first connection, Windows warns that the identity of the remote computer cannot be verified (normal for Windows' self-signed RDP certificate). Confirm the IP matches your host, check **Don't ask me again**, and click **Yes**.
+
+### 4.2 macOS: Microsoft Windows App
+
+Microsoft rebranded `Microsoft Remote Desktop` on macOS to **Windows App**:
+
+1. Install **Windows App** (by Microsoft Corporation) for free from the Mac App Store.
+2. Ensure the **Larktun Desktop Client** on your Mac is connected.
+3. Open **Windows App**, click **+ → Add PC**:
+   - **PC name**: enter `100.64.0.10` (or subnet IP `192.168.6.10`, or `IP:port` for a custom port).
+   - **User account**: choose **Add User Account** to store your Windows username and password, or leave it on **Ask when required**.
+   - **Friendly name**: optional label such as `Office Windows Workstation`.
+   - **Display**: enable **Optimize for Retina displays** or **Update the session resolution on resize** for crisp text.
+   - **Folders**: optionally share a local Mac folder into Windows.
+4. Click **Add**, double-click the new PC card, and click **Continue** on the first-time certificate prompt after verifying the IP.
+
+## 5. Connect from a Phone, Tablet, or TV (Larktun App Built-in RDP)
+
+On **iPhone, iPad, Android phones/tablets, and Android TV**, you **do not need a separate RDP app or system VPN permission**. Open the Larktun app and use its built-in RDP client directly.
+
+### 5.1 Open the RDP Entry Point
+
+- **iPad**: confirm the sidebar shows **Connected**. Select the target Windows PC in the **Devices** grid and tap **RDP client** under **Quick actions** on the right, or click **RDP client +** in the left sidebar to enter any Larktun IP or subnet LAN IP manually.
+
+![Larktun iPad app Devices view with RDP client quick action and sidebar entry](/img/docs/remote/ios-ipad-devices-rdp-en.webp)
+
+- **iPhone**: tap a device in **Devices** to launch RDP, tap the **RDP client** shortcut pill near the top to enter an IP manually (ideal for subnet IPs), or use **Smart Discovery** to detect port `3389` services automatically.
+
+<p style={{textAlign: 'center'}}>
+  <img
+    src="/img/docs/remote/ios-iphone-devices-rdp-en.webp"
+    alt="Larktun iPhone app Devices view and quick action pills"
+    width="360"
+    loading="lazy"
+  />
+</p>
+
+- **Android Phone / Tablet / Android TV**:
+  - On tablets, select a device and tap **RDP** in the right inspector, or open **RDP** from the left sidebar under Connections.
+  - On phones, tap **RDP** in device details or the long-press menu, or tap **+** in the top-right corner. For Android TV with a Bluetooth mouse, see [Install Larktun on a TV](./tv-install-larktun).
+
+![Larktun Android tablet Devices view with RDP quick action](/img/blog/android-webrtc-tablet/tablet-devices-en.webp)
+
+### 5.2 Fill In Connection Details and Advanced Settings
+
+When launched from a device, the **Host** field is pre-filled automatically. Review the fields below:
+
+![Larktun App Built-in RDP Form and Advanced Settings](/img/docs/remote/rdp-app-form-guide-en.svg)
+
+| Field | Example / Default | Details |
+| --- | --- | --- |
+| **Host** | `100.64.0.10` or `192.168.6.10` | Target Larktun IP, MagicDNS name, or reachable subnet LAN IP; do not append `:3389` here |
+| **Port** | `3389` | Target RDP port |
+| **Username** | `alex` or `MicrosoftAccount\email` | Target Windows account username (not your Larktun account) |
+| **Password** | Windows account password | Use **Show / Hide** to verify; **do not enter a Windows Hello PIN** |
+| **Domain (optional)** | Blank | Only needed for Active Directory domain-joined machines |
+| **Remember account** (Android) / **Favorite ★** | Optional | Credentials are stored securely in iOS Keychain or Android Keystore; tap **★** to save a favorite |
+
+Expand **Advanced settings** (labeled **Display settings** on Android) to tune graphics and network behavior:
+
+| Advanced Option | Default | Recommendation |
+| --- | --- | --- |
+| **Width / Height** | Auto-fit screen (landscape) | Leave empty to auto-fit your screen, or specify fixed pixels such as `1920` × `1080` |
+| **Color depth** | `32` | Keep `32` for Windows; lower to `16` only for legacy Linux `xrdp` compatibility |
+| **Network Level Authentication (NLA)** | On | Keep enabled to match Windows default security requirements |
+| **Remote audio** | On | Plays remote Windows audio over the RDP `rdpsnd` channel; can be muted in-session |
+| **H.264 video (AVC444)** | On | Uses VideoToolbox (iOS) or MediaCodec (Android) hardware decode; falls back automatically if the server declines AVC |
+| **Quality / bandwidth** | `Adaptive` | **Adaptive**: auto-throttles fps under congestion; **Quality**: full visual effects, uncapped fps; **Speed**: disables wallpaper/animations (~20 fps) for slow cellular links |
+| **Graphics mode** | `EGFX (recommended)` | Uses EGFX + H.264 by default; if using **Legacy / RemoteFX** on Windows, see [Optimize iOS Remote Desktop: Enable RemoteFX](../topics/optimize-ios-rdp-remotefx) |
+
+Tap **Connect** to open the full-screen remote desktop.
+
+![Larktun iPad full-screen RDP desktop with draggable floating control](/img/docs/remote/ios-ipad-rdp-desktop-en.webp)
+
+### 5.3 Everyday Controls and Productivity Features
+
+- **Draggable floating control**: tap the edge pill to access:
+  - **Touch / Mouse mode**: direct tap in touch mode, or laptop-style trackpad cursor in mouse mode (two-finger tap for right-click, two-finger scroll).
+  - **Onscreen keyboard & shortcut bar**: includes `Ctrl`, `Alt`, `Shift`, `Win`, `Esc`, `Tab`, arrow keys, paste, and `Ctrl+Alt+Del`.
+  - **Zoom & Readable fit**: zoom into dense UI elements on smaller phone screens.
+  - **Connection quality badge**: displays live latency and direct vs. DERP relay path in the top-right corner (including the subnet router path for LAN IPs).
+  - **Audio mute & session display settings**: mute/unmute audio, inspect connection info, or apply a new resolution manually.
+- **Favorites with live thumbnails**: tap **★** from the connection form or live desktop to pin the host in **Favorites** with a desktop snapshot for one-tap access.
+
+![Larktun iPad Favorites view showing saved RDP entry with thumbnail](/img/docs/remote/ios-ipad-favorites-rdp-en.webp)
+
+- **iPad external display mode**: plug in an external monitor and toggle the external display button in the header to move the Windows desktop onto the big screen while the iPad becomes a full-screen trackpad and shortcut controller:
+
+![Larktun iPad external display trackpad mode](/img/docs/remote/ios-ipad-external-trackpad-en.webp)
+
+- **Multi-session & background continuity**:
+  - On iPad, run multiple RDP, SSH, and web tabs side by side, or tear an RDP tab out into its own window.
+  - On Android, tapping **Return home** keeps the RDP session alive in the background so you can return via the top open-sessions pill; tap **Disconnect** when you want to close it completely.
+
+:::tip[Using Microsoft's official Windows App on iOS or Android]
+Because the Larktun mobile app runs an **app-only `tsnet` network (NoVPN)**, private `100.x.x.x` routes stay inside the Larktun app. Using the built-in RDP client is the simplest and conflict-free choice.
+
+If you specifically want to connect using Microsoft's standalone **Windows App Mobile**, join Larktun via the official Tailscale mobile app to create a system-wide VPN tunnel first (see [Sign In to Larktun with Tailscale on iPhone and iPad](./ios-tailscale-login-larktun)).
+:::
+
+## 6. Choosing Between Microsoft RDP, WebRTC, and RustDesk
+
+| Feature | Microsoft RDP (this guide) | Larktun WebRTC Remote | RustDesk Direct IP |
+| --- | --- | --- | --- |
+| **Supported target OS** | Windows Pro/Ent/Server, Linux (`xrdp`) | Windows (incl. Home), macOS | Windows (incl. Home), macOS, Linux |
+| **Extra software on target** | Built into Windows | Lightweight Larktun Host | RustDesk with Direct IP enabled |
+| **Local screen behavior** | Exclusive session (locks local console) | Shares live desktop | Shares live desktop / remote assistance |
+| **Default private port** | TCP `3389` | TCP `8771` (`3478` for subnet fallback) | TCP `21118` |
+| **Mobile experience** | Built into Larktun App (NoVPN) | Built into Larktun App (NoVPN) | Requires official Tailscale system VPN on mobile |
+| **Best for** | Office work, sharp text, native resolution scaling, dev/ops | Windows Home or Mac control, live screen sharing | Cross-platform PC-to-PC, Windows Home, live collaboration |
+
+## 7. Troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| No "Remote Desktop" toggle in Windows Settings | The PC is likely running **Windows Home**, which lacks the RDP host. Upgrade to Pro or use [WebRTC Remote Control](./webrtc-remote-control) / [RustDesk Direct IP](./rustdesk-ip-remote) |
+| "Your credentials did not work" / authentication failed | (1) Use the account password, not a Windows Hello PIN; (2) for Microsoft accounts try `MicrosoftAccount\email`, disable "Windows Hello-only" sign-in, and sign in once with the password locally; (3) verify username via `whoami`; (4) blank passwords are rejected |
+| Connection timed out / host unreachable | (1) Ping the target IP in the Larktun client to confirm both devices are online; (2) check Windows Firewall on the profile used by the Larktun adapter; (3) if you customized ACL rules, verify TCP `3389` is not blocked; (4) confirm the target PC is not asleep |
+| Subnet Windows PC cannot be reached | (1) Verify the subnet route is approved under **Routers**; (2) ensure desktop controllers accept routes (`--accept-routes`); (3) check that the router node can reach the target and has IP forwarding enabled; (4) if you customized ACL rules, confirm subnet access is permitted |
+| Target PC locks its physical screen when RDP connects | Normal behavior for single-session Windows RDP. Use [WebRTC Remote Control](./webrtc-remote-control) or [RustDesk Direct IP](./rustdesk-ip-remote) if both sides need to view the screen simultaneously |
+| Blurry text or lag on slow links | Switch **Quality / bandwidth** to **Speed** in Larktun App settings; if falling back to Legacy mode on Windows, follow [Enable RemoteFX](../topics/optimize-ios-rdp-remotefx); pick a closer relay in **Derper** if cross-region latency is high |
+| No audio in RDP session | Confirm **Remote audio** is enabled and not muted in the floating menu, and verify the `Windows Audio` service is running on the target PC |
+| PC becomes unreachable after a few days away | Verify sleep is set to **Never** when plugged in, Larktun **Launch at startup** is enabled, and (for subnet mode) the subnet router remains online |
+
+## 8. First-Time Verification Checklist
+
+1. Target Windows PC has **Remote Desktop** enabled (`3389`), a non-empty account password, and plugged-in sleep set to **Never**.
+2. Direct mode: target shows **Online** in Larktun with a `100.x.x.x` IP. Subnet mode: route is approved in **Routers** and reachable.
+3. Complete an initial connection on your local network and verify mouse, keyboard, clipboard copy/paste, and audio.
+4. **Switch your phone to cellular data (4G/5G)** or test from an external Wi-Fi network to confirm remote access works away from home or office.
+
+## Next Steps
+
+- Need to control Windows Home or macOS while keeping the live screen visible? See [WebRTC Remote Control Guide](./webrtc-remote-control) or [RustDesk Direct IP Remote Guide](./rustdesk-ip-remote)
+- Want sharper fallback graphics on older Windows servers? See [Optimize iOS Remote Desktop: Enable RemoteFX](../topics/optimize-ios-rdp-remotefx)
+- Want one gateway node to expose an entire office LAN? See [Approve Subnet Routes](./approve-subnet-routes)
+- Need deeper network diagnostics? See [Common Troubleshooting](../troubleshooting/common-issues)

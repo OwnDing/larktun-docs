@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" xml:lang="zh-CN" role="img" aria-labelledby="title desc">
+  <title id="title">手机平板使用 RustDesk 时的网络边界对比：NoVPN App 内组网 vs 系统级 VPN</title>
+  <desc id="desc">对比云雀通移动端 NoVPN App 内组网与官方 Tailscale App 系统级 VPN 的流量边界，说明为何手机端 RustDesk 需要系统级 VPN 接入云雀通，或直接使用云雀通内置 WebRTC/RDP。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#f1f5f9"/>
+    </linearGradient>
+    <filter id="sh" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+    <style>
+      .t { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif; fill: #0f172a; }
+      .m { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .muted { fill: #475569; }
+      .w { fill: #ffffff; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="620" rx="28" fill="url(#bg)"/>
+  <text x="600" y="52" text-anchor="middle" class="t" font-size="28" font-weight="800">手机 / 平板使用 RustDesk 必读：App 内组网 vs 系统 VPN</text>
+  <text x="600" y="82" text-anchor="middle" class="t muted" font-size="15">电脑端 Larktun 客户端提供系统虚拟网卡，RustDesk 可直接用；手机端需要注意网络边界（原理示意）</text>
+
+  <!-- Left Panel: Larktun NoVPN App -->
+  <g filter="url(#sh)">
+    <rect x="46" y="112" width="534" height="456" rx="22" fill="#ffffff" stroke="#fbbf24" stroke-width="2"/>
+    <rect x="70" y="136" width="250" height="28" rx="14" fill="#fef3c7"/>
+    <text x="195" y="155" text-anchor="middle" class="t" font-size="13" font-weight="750" style="fill:#b45309">方式一 · 云雀通手机 App（NoVPN）</text>
+    <text x="70" y="194" class="t" font-size="20" font-weight="800">仅云雀通 App 内部走私有网络</text>
+
+    <!-- Box: Inside Larktun App -->
+    <rect x="70" y="216" width="486" height="122" rx="14" fill="#ecfdf5" stroke="#34d399" stroke-width="1.6"/>
+    <text x="90" y="244" class="t" font-size="14.5" font-weight="750" style="fill:#047857">云雀通 App 内部（tsnet 沙箱） → 可直达 100.x.x.x ✓</text>
+    <rect x="90" y="260" width="136" height="32" rx="8" fill="#ffffff" stroke="#a7f3d0"/>
+    <text x="158" y="281" text-anchor="middle" class="t" font-size="12.5" font-weight="700">内置 WebRTC 远控</text>
+    <rect x="238" y="260" width="122" height="32" rx="8" fill="#ffffff" stroke="#a7f3d0"/>
+    <text x="299" y="281" text-anchor="middle" class="t" font-size="12.5" font-weight="700">内置 RDP 桌面</text>
+    <rect x="372" y="260" width="164" height="32" rx="8" fill="#ffffff" stroke="#a7f3d0"/>
+    <text x="454" y="281" text-anchor="middle" class="t" font-size="12.5" font-weight="700">SSH / SFTP / 浏览器</text>
+    <text x="90" y="322" class="t" font-size="12.5" style="fill:#065f46">不占用手机 VPN 权限，可与公司 VPN 共存</text>
+
+    <!-- Box: External RustDesk App -->
+    <rect x="70" y="356" width="486" height="92" rx="14" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.6"/>
+    <text x="90" y="384" class="t" font-size="14.5" font-weight="750" style="fill:#b91c1c">第三方 RustDesk 手机 App → 无法访问 100.x.x.x ✗</text>
+    <text x="90" y="410" class="t" font-size="13" style="fill:#7f1d1d">因为云雀通 App 未接管系统级 VPN，其他 App 发往</text>
+    <text x="90" y="432" class="t" font-size="13" style="fill:#7f1d1d">100.64.0.x 或子网 IP 的请求不会经过云雀通网络。</text>
+
+    <rect x="70" y="468" width="486" height="76" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="90" y="494" class="t" font-size="14" font-weight="750">建议做法：</text>
+    <text x="90" y="520" class="t muted" font-size="13">日常手机远控推荐直接使用云雀通 App 内置 WebRTC 远控或 RDP，体验更完整！</text>
+  </g>
+
+  <!-- Right Panel: Official Tailscale App System VPN -->
+  <g filter="url(#sh)">
+    <rect x="620" y="112" width="534" height="456" rx="22" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+    <rect x="644" y="136" width="248" height="28" rx="14" fill="#e0f2fe"/>
+    <text x="768" y="155" text-anchor="middle" class="t" font-size="13" font-weight="750" style="fill:#0369a1">方式二 · 官方 Tailscale App 接入云雀通</text>
+    <text x="644" y="194" class="t" font-size="20" font-weight="800">建立系统 VPN，手机 RustDesk 可用</text>
+
+    <!-- Box: System VPN Layer -->
+    <rect x="644" y="216" width="486" height="122" rx="14" fill="#eff6ff" stroke="#60a5fa" stroke-width="1.6"/>
+    <text x="664" y="244" class="t" font-size="14.5" font-weight="750" style="fill:#1d4ed8">系统级 VPN 隧道（接入 hs.larktun.com）</text>
+    <text x="664" y="272" class="t muted" font-size="13">1. 在云雀通控制台 Nodes 页生成 Auth Key</text>
+    <text x="664" y="296" class="t muted" font-size="13">2. 在手机官方 Tailscale App 填入 Auth Key 与</text>
+    <text x="680" y="318" class="m" font-size="13" font-weight="700" style="fill:#1d4ed8">https://hs.larktun.com</text>
+    <text x="860" y="318" class="t muted" font-size="13">并允许系统 VPN</text>
+
+    <!-- Box: RustDesk App Works -->
+    <rect x="644" y="356" width="486" height="92" rx="14" fill="#ecfdf5" stroke="#34d399" stroke-width="1.6"/>
+    <text x="664" y="384" class="t" font-size="14.5" font-weight="750" style="fill:#047857">手机 RustDesk App → 直连 100.64.0.10 ✓</text>
+    <text x="664" y="410" class="t" font-size="13" style="fill:#065f46">整台手机对 100.x.x.x 与已批准子网的流量都会走云雀通，</text>
+    <text x="664" y="432" class="t" font-size="13" style="fill:#065f46">打开手机上的 RustDesk 输入目标 IP + 固定密码即可远控。</text>
+
+    <rect x="644" y="468" width="486" height="76" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="664" y="494" class="t" font-size="14" font-weight="750">适用场景：</text>
+    <text x="664" y="520" class="t muted" font-size="13">手机端必须使用第三方 RustDesk、微软 Windows App 或其他第三方客户端时。</text>
+  </g>
+</svg>

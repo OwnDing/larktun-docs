@@ -1,0 +1,192 @@
+---
+title: RustDesk Direct IP Remote Guide
+description: Detailed illustrated guide to using RustDesk Direct IP Access (TCP 21118) over Larktun's private encrypted network — no self-hosted hbbs/hbbr servers, no public relays, and full support for Windows Home/Pro, macOS, and Linux.
+keywords:
+  - Larktun RustDesk
+  - RustDesk direct IP access
+  - RustDesk port 21118
+  - RustDesk without self-hosted server
+  - RustDesk private IP remote desktop
+  - remote control Windows Home
+  - RustDesk subnet route
+image: /img/docs/remote/rustdesk-architecture-en.svg
+sidebar_position: 2.7
+---
+
+# RustDesk Direct IP Remote Guide
+
+RustDesk is an open-source, cross-platform remote desktop tool that supports **Windows (both Home and Pro), macOS, and Linux**, while keeping the target machine's active desktop session visible.
+
+Out of the box, RustDesk relies on public ID/relay servers (which can be slow or congested) or requires you to rent a VPS and self-host relay services (hbbs / hbbr). Pairing **Larktun** with RustDesk's built-in **Direct IP Access** feature removes that overhead completely:
+
+- **No self-hosted RustDesk relay server**: no VPS, hbbs / hbbr deployment, public domain, or relay keys to maintain.
+- **No dependence on public RustDesk servers**: even if RustDesk's status bar says "Not ready" for public relays, connecting by Larktun IP still works immediately.
+- **Fast and reliable transport**: Larktun establishes direct WireGuard P2P links whenever possible and falls back to Larktun DERP relays automatically.
+- **Zero public port exposure**: never forward port `21118` on your internet router; access stays strictly inside your private Larktun network.
+- **Direct mesh or subnet routing**: connect via the target's `100.x.x.x` Larktun IP or reach multiple LAN PCs by their local IP (`192.168.6.10`) through an approved subnet router.
+
+![RustDesk Direct IP Remote over Larktun Architecture](/img/docs/remote/rustdesk-architecture-en.svg)
+
+## 1. Software Needed on Each Device
+
+| Role | Operating System | Required Software | Notes |
+| --- | --- | --- | --- |
+| Target host (direct mesh) | Windows / macOS / Linux | **Larktun Desktop Client** + **RustDesk** | Enable Direct IP Access (`21118`) and set a permanent password |
+| Target host (subnet mode) | LAN Windows / macOS / Linux | **RustDesk** only (Larktun client optional) | Reached through an online Larktun subnet router on the same LAN |
+| Controller (desktop) | Windows / macOS / Linux | **Larktun Desktop Client** + **RustDesk** | Desktop Larktun creates a system virtual interface so RustDesk reaches private IPs directly |
+| Controller (phone / tablet) | iPhone / iPad / Android | See Section 6 | Mobile third-party RustDesk requires system VPN mode; for NoVPN mobile control, use Larktun's built-in WebRTC or RDP |
+
+- Download Larktun clients from the [Larktun download page](https://larktun.com/download).
+- Download official RustDesk installers from [rustdesk.com](https://rustdesk.com).
+
+## 2. Step 1: Connect Your Larktun Network and Get the Target IP
+
+1. Install and sign in to the **Larktun Desktop Client (Larktun IPN)** on both the target PC and the controller PC using the same Larktun account (or authorized accounts in the same tenant). See [Desktop Client Operations](./desktop-client-operations).
+2. On the target PC, enable **Launch at startup** and **Minimize to tray** in Larktun client settings so it reconnects automatically after reboots.
+3. Confirm both devices show **Connected**. In the controller's device list, open the target device menu to **Copy IP Address** (for example `100.64.0.10`) and run **Ping** to verify connectivity:
+
+![Copy the target device IP or run Ping in the Larktun desktop client](/img/desktop-client/fig3-6-device-actions.webp)
+
+Devices signed in to the same Larktun account can connect to each other automatically with no manual ACL setup needed (only check port `21118` if you customized strict ACL rules).
+
+## 3. Step 2: Configure RustDesk on the Target Computer
+
+Complete these steps on the **computer you want to control**.
+
+![Target Host Setup in RustDesk for Direct IP Access and Permanent Password](/img/docs/remote/rustdesk-host-settings-en.svg)
+
+### 3.1 Install as a System Service (Important on Windows)
+
+On Windows, if RustDesk shows an **Install** button when first opened, install it as a system service rather than running portable mode only.
+
+:::important[Why install as a system service?]
+In portable-only mode:
+1. You cannot click inside **UAC administrator elevation prompts** or the **Windows lock / sign-in screen**.
+2. RustDesk will not automatically start after a reboot.
+
+Installing the system service is essential for reliable unattended access.
+:::
+
+### 3.2 Enable Direct IP Access and Set a Permanent Password
+
+1. Open RustDesk on the target computer and open **Settings** via the menu icon next to your ID.
+2. Go to the **Security** tab and click **Unlock security settings** (confirm administrator privileges).
+3. Under **Security**, check **Enable direct IP access**.
+4. Confirm **Direct IP access port** is set to **`21118`** (default). If you choose a custom port, allow that port in your OS firewall as well.
+5. Under **Password** on the same page:
+   - Click **Set permanent password** and enter a **strong password** (at least 10 characters with mixed letters and numbers).
+   - Select **Use permanent password** (or **Use both passwords**) so unattended logins do not require someone to click Accept locally.
+6. **Leave Network settings blank**: do not enter any ID Server, Relay Server, or Key under the **Network** tab.
+
+### 3.3 Check OS Firewall, Permissions, and Sleep Settings
+
+- **Windows Firewall**:
+  Allow RustDesk when prompted by Windows Defender Firewall. If connections still fail, open an elevated PowerShell to verify port `21118` and allow inbound traffic scoped to the Larktun private range (`100.64.0.0/10`):
+
+  ```powershell
+  # Confirm RustDesk is listening on TCP 21118
+  Get-NetTCPConnection -LocalPort 21118 -State Listen
+
+  # Allow TCP 21118 only from Larktun private addresses
+  New-NetFirewallRule -DisplayName "Larktun RustDesk Direct IP (TCP 21118)" -Direction Inbound -Protocol TCP -LocalPort 21118 -RemoteAddress 100.64.0.0/10 -Action Allow
+  ```
+
+- **macOS target hosts**:
+  In **System Settings → Privacy & Security**, grant RustDesk **Screen Recording** and **Accessibility** permissions, then restart RustDesk. Without Accessibility, you can see the desktop but cannot click or type.
+- **Linux target hosts**:
+  X11 provides the smoothest unattended experience. If `ufw` or `firewalld` is enabled, allow `TCP 21118` from the Larktun interface or range.
+- **Prevent sleep**:
+  Set plugged-in sleep to **Never** in OS power settings so the target machine stays reachable while unattended.
+
+:::warning[Security reminder]
+Direct IP Access listens directly on `TCP 21118`. Always use a strong permanent password, keep access strictly inside your private Larktun network, and **never forward port `21118` to the public internet**.
+:::
+
+## 4. Step 3: Connect by IP from the Controller
+
+Confirm your controller PC's Larktun desktop client shows **Connected**, then open RustDesk:
+
+![Connect from RustDesk Client Using a Private IP](/img/docs/remote/rustdesk-connect-ip-en.svg)
+
+1. In the **Control Remote Desktop** box, enter the target computer's Larktun IP:
+   - Default port `21118`: enter `100.64.0.10`
+   - Custom port (for example `21188`): enter `100.64.0.10:21188`
+   - With MagicDNS enabled: you may also enter the target hostname
+2. Click the connect arrow (or press Enter).
+3. Enter the **Permanent Password** configured on the target PC. Check **Remember password** on trusted personal computers so you can reconnect with a double-click from Recent Sessions or Favorites.
+4. Once connected, use the top toolbar for:
+   - **Quality presets**: switch between Good Quality, Balanced, and Optimize Reaction Time depending on bandwidth.
+   - **Display & audio**: switch between multiple monitors, enable audio forwarding, and sync clipboard text.
+   - **File transfer**: open the menu on a saved peer card and choose **Transfer File** to move files directly over your private Larktun link.
+
+:::tip["Not ready" at the bottom does not block Direct IP]
+If RustDesk displays **"Not ready. Please check your connection"** at the bottom, that only refers to RustDesk's public ID servers. **Direct IP Access bypasses public servers entirely** — as long as Larktun is connected and Ping succeeds, entering `100.64.0.10` connects normally.
+:::
+
+## 5. Advanced: Reach Multiple LAN Computers via Subnet Routing
+
+When an office or lab LAN (such as `192.168.6.0/24`) contains several PCs, you do not have to install Larktun on every machine:
+
+1. Advertise `192.168.6.0/24` from one online subnet router on that LAN and approve it on the **Routers** page. See [Approve Subnet Routes](./approve-subnet-routes).
+2. Ensure desktop controllers accept subnet routes (`sudo larktun set --accept-routes` on CLI clients).
+3. Install RustDesk on each target LAN computer (e.g., `192.168.6.10`), enable **Direct IP Access** with a **Permanent Password**, and allow inbound `TCP 21118` from the LAN router.
+4. In the controller's RustDesk app, enter the target computer's **LAN IP** (`192.168.6.10`) and permanent password to connect.
+
+![Approve a subnet route on the Larktun Console Routers page](/img/docs/quickstart/routes/routers.webp)
+
+:::note[Keep LAN IPs stable]
+Configure a static DHCP reservation on your LAN router for regularly accessed machines so their `192.168.x.x` address does not change.
+:::
+
+## 6. Important Note for Phones and Tablets
+
+Mobile users sometimes install both the **Larktun mobile app** and the **RustDesk mobile app**, then find RustDesk cannot reach `100.64.0.10`. This is because mobile networking differs from desktop virtual interfaces:
+
+![Mobile Networking Boundary for RustDesk: App-only tsnet vs System VPN](/img/docs/remote/rustdesk-mobile-network-boundary-en.svg)
+
+- **Larktun Mobile App (iOS / Android NoVPN)**: uses **app-only `tsnet`** without taking the system VPN slot. Only features built inside the Larktun app (WebRTC remote control, built-in RDP, SSH, SFTP, web browser) route through `100.x.x.x`; separate third-party apps like RustDesk cannot reach Larktun IPs.
+- **Option 1 (Recommended, no VPN slot needed)**:
+  - For live screen sharing on Windows Home/Pro or macOS → use Larktun App's built-in [WebRTC Remote Control](./webrtc-remote-control).
+  - For Windows Pro/Enterprise hosts → use Larktun App's built-in [Microsoft RDP Remote Desktop](./rdp-remote-desktop).
+- **Option 2 (When you specifically want the RustDesk mobile app)**:
+  - Install the official **Tailscale mobile app** and sign in to Larktun using a Larktun Auth Key and `https://hs.larktun.com` to create a system-wide VPN tunnel (see [Sign In to Larktun with Tailscale on iPhone and iPad](./ios-tailscale-login-larktun) and [Log In with Official Tailscale Client](./tailscale-client-login)).
+  - Once the system VPN is active, open the RustDesk mobile app and connect directly to `100.64.0.10` (or subnet IP `192.168.6.10`).
+
+## 7. Quick Comparison of Remote Access Options
+
+| Dimension | RustDesk Direct IP (this guide) | Microsoft RDP | Larktun WebRTC Remote |
+| --- | --- | --- | --- |
+| **Target OS** | Windows (Home & Pro), macOS, Linux | Windows Pro/Ent/Server, Linux (`xrdp`) | Windows (Home & Pro), macOS |
+| **Relay server required?** | No hbbs/hbbr needed; uses Larktun | None; uses Larktun | No external TURN; uses Larktun |
+| **Local desktop behavior** | Shares live screen (no lock-out) | Locks local console (exclusive session) | Shares live screen with multi-device view & take-control |
+| **Default private port** | TCP `21118` | TCP `3389` | TCP `8771` (`3478` for subnet fallback) |
+| **PC-to-PC experience** | Excellent (cross-platform, file transfer, multi-screen) | Excellent (native Windows clarity & scaling) | Controller focuses on mobile & tablet apps |
+| **Mobile-to-PC experience** | Needs official Tailscale system VPN | Built into Larktun App (NoVPN) | Built into Larktun App (NoVPN) |
+
+## 8. Troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| Connection timed out or refused for `100.64.0.10` | (1) Ping the target IP in Larktun to verify both machines are online; (2) verify **Enable direct IP access** is checked on the host; (3) allow `TCP 21118` in the host firewall (and check custom ACLs if you modified them); (4) append `:port` if using a non-default port |
+| Mobile RustDesk cannot connect, even though Larktun App can Ping | The Larktun mobile app is NoVPN (app-only). Use Larktun's built-in WebRTC/RDP, or connect the phone via the official Tailscale app (system VPN) as shown in Section 6 |
+| Prompt waits for manual approval on the target PC | In target RustDesk **Settings → Security**, configure a **Permanent Password** and choose **Use permanent password** (or both passwords) |
+| Cannot click Windows UAC prompts or lock screen | RustDesk is running in portable mode. Click **Install** inside RustDesk on the target Windows PC to install its system service |
+| Black screen or view-only on a Mac target | Grant both **Screen Recording** and **Accessibility** permissions to RustDesk in **System Settings → Privacy & Security**, then quit and reopen RustDesk |
+| Bottom status says "Not ready" | Normal when public RustDesk servers are unreachable; Direct IP over Larktun works independently as long as the Larktun IP is reachable |
+| High latency across regions | (1) Check Ping in Larktun to see direct vs. relay mode; (2) pick a closer or dedicated relay in **Derper**; (3) switch RustDesk quality to **Balanced** or **Optimize reaction time** |
+| Subnet LAN target cannot be reached | Confirm the route is approved in **Routers**, desktop controllers accept routes, and the target firewall allows `TCP 21118` from the LAN router (also check custom ACLs if modified) |
+
+## 9. First-Time Verification Checklist
+
+1. Both computers are online in Larktun and the controller can Ping the target's private IP (or the subnet route is approved and reachable).
+2. Target RustDesk is installed as a system service (Windows), **Direct IP Access (`21118`)** is enabled, a strong **Permanent Password** is set, and macOS privacy permissions are granted.
+3. The host firewall allows private-network `TCP 21118`, and **no public router port forwarding** exists for RustDesk.
+4. Connect from the controller using `100.x.x.x` (or LAN IP) and permanent password; verify mouse, keyboard, and file transfer.
+5. Re-test from a mobile hotspot or external network to confirm remote access works away from your LAN.
+
+## Next Steps
+
+- Connecting to Windows Pro / Enterprise and prefer Microsoft's native experience? Read [Microsoft RDP Remote Desktop Guide](./rdp-remote-desktop)
+- Want VPN-free remote control directly inside your phone or tablet app? Read [WebRTC Remote Control Guide](./webrtc-remote-control)
+- Need one router node to expose an office subnet? Read [Approve Subnet Routes](./approve-subnet-routes)
+- Investigating latency or relay paths? See [Common Troubleshooting](../troubleshooting/common-issues)

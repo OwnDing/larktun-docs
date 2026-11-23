@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" xml:lang="zh-CN" role="img" aria-labelledby="title desc">
+  <title id="title">在云雀通中使用微软 RDP 远程桌面的连接架构</title>
+  <desc id="desc">展示 Windows、macOS、iPhone/iPad 和 Android 通过云雀通加密私有网络访问 Windows 远程桌面（TCP 3389）的直接组网和子网路由两种模式。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f9ff"/>
+      <stop offset="0.55" stop-color="#eef5ff"/>
+      <stop offset="1" stop-color="#f5f3ff"/>
+    </linearGradient>
+    <linearGradient id="tunnel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.09"/>
+    </filter>
+    <style>
+      .t { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif; fill: #0f172a; }
+      .m { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .muted { fill: #475569; }
+      .white { fill: #ffffff; }
+      .sky { fill: #7dd3fc; }
+      .card { fill: #ffffff; stroke: #dbe5f1; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="680" rx="28" fill="url(#bg)"/>
+  <circle cx="1110" cy="86" r="110" fill="#bfdbfe" opacity="0.35"/>
+  <circle cx="96" cy="610" r="100" fill="#a7f3d0" opacity="0.28"/>
+
+  <!-- Header -->
+  <text x="600" y="56" text-anchor="middle" class="t" font-size="32" font-weight="800">云雀通 + 微软 RDP 远程桌面连接架构</text>
+  <text x="600" y="88" text-anchor="middle" class="t muted" font-size="17" font-weight="500">无需公网 IP 与 3389 端口映射 · 电脑端配合 mstsc / Windows App · 手机平板直接用云雀通 App 内置 RDP</text>
+
+  <!-- Connectors -->
+  <g fill="none" stroke-width="3" stroke-linecap="round">
+    <path d="M366 206 H452" stroke="#2563eb" stroke-dasharray="7 6"/>
+    <path d="M366 346 H452" stroke="#2563eb" stroke-dasharray="7 6"/>
+    <path d="M366 492 H452" stroke="#0d9488" stroke-dasharray="7 6"/>
+    <path d="M748 258 H834" stroke="#2563eb"/>
+    <path d="M748 456 H834" stroke="#d97706"/>
+  </g>
+  <polygon points="452,206 441,200 441,212" fill="#2563eb"/>
+  <polygon points="452,346 441,340 441,352" fill="#2563eb"/>
+  <polygon points="452,492 441,486 441,498" fill="#0d9488"/>
+  <polygon points="834,258 823,252 823,264" fill="#2563eb"/>
+  <polygon points="834,456 823,450 823,462" fill="#d97706"/>
+
+  <!-- Left Column: Control Devices -->
+  <text x="206" y="130" text-anchor="middle" class="t" font-size="18" font-weight="750">① 控制端（发起远程）</text>
+
+  <!-- Windows Client -->
+  <g filter="url(#shadow)">
+    <rect x="46" y="148" width="320" height="116" rx="18" class="card"/>
+    <rect x="64" y="164" width="94" height="24" rx="12" fill="#dbeafe"/>
+    <text x="111" y="180" text-anchor="middle" class="t" font-size="12" font-weight="700" style="fill:#1d4ed8">Windows 电脑</text>
+    <text x="64" y="212" class="t" font-size="17" font-weight="750">微软自带 mstsc 远程桌面</text>
+    <text x="64" y="236" class="t muted" font-size="13.5">安装 Larktun 桌面客户端登录入网</text>
+    <text x="64" y="254" class="t muted" font-size="13">系统级虚拟网卡，直接填目标 IP 连接</text>
+  </g>
+
+  <!-- macOS Client -->
+  <g filter="url(#shadow)">
+    <rect x="46" y="286" width="320" height="116" rx="18" class="card"/>
+    <rect x="64" y="302" width="84" height="24" rx="12" fill="#e0e7ff"/>
+    <text x="106" y="318" text-anchor="middle" class="t" font-size="12" font-weight="700" style="fill:#4338ca">macOS 电脑</text>
+    <text x="64" y="350" class="t" font-size="17" font-weight="750">微软 Windows App</text>
+    <text x="64" y="374" class="t muted" font-size="13.5">原 Microsoft Remote Desktop（免费）</text>
+    <text x="64" y="392" class="t muted" font-size="13">配合 Larktun 桌面客户端访问私有 IP</text>
+  </g>
+
+  <!-- Mobile Client -->
+  <g filter="url(#shadow)">
+    <rect x="46" y="424" width="320" height="136" rx="18" fill="#ffffff" stroke="#5eead4" stroke-width="2"/>
+    <rect x="64" y="440" width="166" height="24" rx="12" fill="#ccfbf1"/>
+    <text x="147" y="456" text-anchor="middle" class="t" font-size="12" font-weight="700" style="fill:#0f766e">iPhone / iPad / Android / TV</text>
+    <text x="64" y="488" class="t" font-size="17" font-weight="750">云雀通 App 内置 RDP 客户端</text>
+    <text x="64" y="512" class="t muted" font-size="13.5">不占用系统 VPN 权限 · H.264 硬解</text>
+    <text x="64" y="532" class="t muted" font-size="13">支持远端声音、剪贴板、收藏与外接屏</text>
+    <text x="64" y="550" class="t" font-size="12" font-weight="600" style="fill:#0f766e">无需另装第三方远程桌面 App</text>
+  </g>
+
+  <!-- Center Pillar: Larktun Private Network -->
+  <g filter="url(#shadow)">
+    <rect x="452" y="148" width="296" height="412" rx="24" fill="url(#tunnel)"/>
+    <rect x="528" y="172" width="144" height="28" rx="14" fill="#38bdf8" fill-opacity="0.18" stroke="#38bdf8" stroke-opacity="0.5"/>
+    <text x="600" y="191" text-anchor="middle" class="t sky" font-size="13" font-weight="700">LARKTUN 私有网络</text>
+
+    <!-- Lock icon -->
+    <path d="M582 238 V226 A18 18 0 0 1 618 226 V238" fill="none" stroke="#7dd3fc" stroke-width="3.5" stroke-linecap="round"/>
+    <rect x="574" y="236" width="52" height="40" rx="10" fill="url(#blueGrad)"/>
+    <circle cx="600" cy="256" r="4.5" fill="#0f172a"/>
+
+    <text x="600" y="308" text-anchor="middle" class="t white" font-size="22" font-weight="750">端到端加密通道</text>
+    <text x="600" y="334" text-anchor="middle" class="t" font-size="14" style="fill:#cbd5e1">WireGuard 直连 · DERP 自动回落</text>
+
+    <!-- Policy Pills -->
+    <rect x="478" y="360" width="244" height="48" rx="12" fill="#ffffff" fill-opacity="0.08" stroke="#334155"/>
+    <text x="600" y="381" text-anchor="middle" class="t white" font-size="14" font-weight="700">私有通道直达端口</text>
+    <text x="600" y="400" text-anchor="middle" class="m sky" font-size="13">TCP 3389（默认 RDP 端口）</text>
+
+    <rect x="478" y="422" width="244" height="48" rx="12" fill="#ffffff" fill-opacity="0.08" stroke="#334155"/>
+    <text x="600" y="443" text-anchor="middle" class="t white" font-size="14" font-weight="700">零公网暴露</text>
+    <text x="600" y="462" text-anchor="middle" class="t" font-size="12.5" style="fill:#cbd5e1">无需路由器映射 3389 · 防公网爆破</text>
+
+    <rect x="478" y="484" width="244" height="52" rx="12" fill="#10b981" fill-opacity="0.16" stroke="#34d399" stroke-opacity="0.45"/>
+    <text x="600" y="506" text-anchor="middle" class="t" font-size="13.5" font-weight="700" style="fill:#6ee7b7">认证与账号边界可控</text>
+    <text x="600" y="525" text-anchor="middle" class="t" font-size="12" style="fill:#d1fae5">仅授权账号和设备可访问目标主机</text>
+  </g>
+
+  <!-- Right Column: Target Windows / xrdp Hosts -->
+  <text x="994" y="130" text-anchor="middle" class="t" font-size="18" font-weight="750">② 被控端（开启微软 RDP）</text>
+
+  <!-- Direct Mesh Mode -->
+  <g filter="url(#shadow)">
+    <rect x="834" y="148" width="320" height="196" rx="18" class="card"/>
+    <rect x="852" y="166" width="114" height="24" rx="12" fill="#dbeafe"/>
+    <text x="909" y="182" text-anchor="middle" class="t" font-size="12" font-weight="700" style="fill:#1d4ed8">模式 A · 直接组网</text>
+    <text x="852" y="216" class="t" font-size="18" font-weight="750">目标 Windows 电脑</text>
+    <text x="852" y="242" class="t muted" font-size="13.5">1. 开启系统「远程桌面」（Pro/企业版）</text>
+    <text x="852" y="264" class="t muted" font-size="13.5">2. 安装并登录 Larktun 桌面客户端</text>
+    <rect x="852" y="282" width="284" height="44" rx="10" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <text x="866" y="301" class="t muted" font-size="12">控制端填写云雀通私有 IP：</text>
+    <text x="866" y="319" class="m" font-size="14" font-weight="700" style="fill:#1d4ed8">100.64.0.10 : 3389</text>
+  </g>
+
+  <!-- Subnet Route Mode -->
+  <g filter="url(#shadow)">
+    <rect x="834" y="366" width="320" height="194" rx="18" fill="#ffffff" stroke="#fcd34d" stroke-width="1.8"/>
+    <rect x="852" y="384" width="114" height="24" rx="12" fill="#fef3c7"/>
+    <text x="909" y="400" text-anchor="middle" class="t" font-size="12" font-weight="700" style="fill:#b45309">模式 B · 子网路由</text>
+    <text x="852" y="432" class="t" font-size="18" font-weight="750">办公室内网 Windows 主机</text>
+    <text x="852" y="458" class="t muted" font-size="13.5">路由节点宣告并批准 192.168.6.0/24</text>
+    <text x="852" y="480" class="t muted" font-size="13.5">目标电脑仅需开启 RDP，可不装客户端</text>
+    <rect x="852" y="498" width="284" height="44" rx="10" fill="#fffbeb" stroke="#fde68a"/>
+    <text x="866" y="517" class="t muted" font-size="12">控制端填写内网局域网 IP：</text>
+    <text x="866" y="535" class="m" font-size="14" font-weight="700" style="fill:#b45309">192.168.6.10 : 3389</text>
+  </g>
+
+  <!-- Footer Note -->
+  <rect x="46" y="592" width="1108" height="54" rx="16" fill="#ffffff" stroke="#dbe5f1" stroke-width="1.5"/>
+  <text x="600" y="624" text-anchor="middle" class="t" font-size="14.5" font-weight="600">提示：Windows 家庭版（Home）默认不含微软 RDP 服务端；家庭版电脑建议使用云雀通 WebRTC 远控或 RustDesk IP 远程。示意图，非实际产品截图。</text>
+</svg>

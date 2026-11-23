@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" xml:lang="zh-CN" role="img" aria-labelledby="title desc">
+  <title id="title">Windows 被控端开启微软远程桌面（RDP）三步准备示意</title>
+  <desc id="desc">分步骤示意如何在 Windows 电脑上开启远程桌面开关、确认用户名与密码、检查防火墙 TCP 3389 和电源睡眠设置。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eff6ff"/>
+    </linearGradient>
+    <filter id="sh" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <style>
+      .t { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif; fill: #0f172a; }
+      .m { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .muted { fill: #475569; }
+      .card { fill: #ffffff; stroke: #dbe5f1; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="680" rx="28" fill="url(#bg)"/>
+  <text x="600" y="54" text-anchor="middle" class="t" font-size="30" font-weight="800">被控端 Windows 开启微软 RDP 三步检查清单</text>
+  <text x="600" y="86" text-anchor="middle" class="t muted" font-size="16">在需要被远程控制的 Windows 10 / 11 电脑上完成以下三项设置（操作界面示意）</text>
+
+  <!-- Step 1 Card -->
+  <g filter="url(#sh)">
+    <rect x="42" y="114" width="352" height="474" rx="22" class="card"/>
+    <circle cx="80" cy="154" r="18" fill="#2563eb"/>
+    <text x="80" y="160" text-anchor="middle" class="t" font-size="16" font-weight="800" style="fill:#ffffff">1</text>
+    <text x="110" y="161" class="t" font-size="20" font-weight="750">开启「远程桌面」</text>
+
+    <!-- Mock Windows 11 Settings UI -->
+    <rect x="64" y="186" width="308" height="232" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+    <rect x="64" y="186" width="308" height="34" rx="14" fill="#e2e8f0"/>
+    <rect x="64" y="206" width="308" height="14" fill="#e2e8f0"/>
+    <text x="80" y="208" class="t" font-size="12.5" font-weight="700">设置 &gt; 系统 &gt; 远程桌面</text>
+
+    <!-- Toggle Row -->
+    <rect x="78" y="234" width="280" height="62" rx="10" fill="#ffffff" stroke="#93c5fd" stroke-width="1.8"/>
+    <text x="92" y="259" class="t" font-size="14.5" font-weight="700">远程桌面</text>
+    <text x="92" y="280" class="t muted" font-size="11.5">允许从其他设备连接此电脑</text>
+    <!-- Switch ON -->
+    <rect x="294" y="252" width="48" height="24" rx="12" fill="#2563eb"/>
+    <circle cx="330" cy="264" r="9" fill="#ffffff"/>
+
+    <!-- NLA & Port Info -->
+    <rect x="78" y="308" width="280" height="44" rx="10" fill="#ffffff" stroke="#e2e8f0"/>
+    <rect x="92" y="322" width="16" height="16" rx="4" fill="#2563eb"/>
+    <path d="M96 330 L99 333 L105 326" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <text x="116" y="335" class="t" font-size="12.5" font-weight="600">要求设备使用网络级别身份验证 (NLA)</text>
+
+    <rect x="78" y="362" width="280" height="42" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
+    <text x="92" y="388" class="t" font-size="12.5">当前远程桌面端口：</text>
+    <text x="214" y="388" class="m" font-size="13.5" font-weight="700" style="fill:#1d4ed8">3389 (默认)</text>
+
+    <!-- Warning Box -->
+    <rect x="64" y="434" width="308" height="134" rx="12" fill="#fffbeb" stroke="#fde68a"/>
+    <text x="80" y="460" class="t" font-size="14" font-weight="750" style="fill:#b45309">先确认 Windows 版本</text>
+    <text x="80" y="486" class="t" font-size="13" style="fill:#78350f">• 专业版 / 企业版 / 教育版 / Server：原生支持</text>
+    <text x="80" y="510" class="t" font-size="13" style="fill:#78350f">• 家庭版（Home）：无远程桌面服务端开关</text>
+    <text x="80" y="534" class="t" font-size="12.5" style="fill:#92400e">家庭版请改用云雀通 WebRTC 或 RustDesk</text>
+    <text x="80" y="554" class="t" font-size="12.5" style="fill:#92400e">快捷打开传统窗口：Win+R 输入 sysdm.cpl</text>
+  </g>
+
+  <!-- Step 2 Card -->
+  <g filter="url(#sh)">
+    <rect x="424" y="114" width="352" height="474" rx="22" class="card"/>
+    <circle cx="462" cy="154" r="18" fill="#0d9488"/>
+    <text x="462" y="160" text-anchor="middle" class="t" font-size="16" font-weight="800" style="fill:#ffffff">2</text>
+    <text x="492" y="161" class="t" font-size="20" font-weight="750">核对账号与登录密码</text>
+
+    <!-- Mock PowerShell whoami -->
+    <rect x="446" y="186" width="308" height="118" rx="14" fill="#0f172a"/>
+    <circle cx="466" cy="204" r="4.5" fill="#fb7185"/>
+    <circle cx="480" cy="204" r="4.5" fill="#fbbf24"/>
+    <circle cx="494" cy="204" r="4.5" fill="#34d399"/>
+    <text x="512" y="208" class="t" font-size="11.5" style="fill:#94a3b8">PowerShell 查询准确用户名</text>
+    <text x="462" y="238" class="m" font-size="13.5" style="fill:#38bdf8">PS C:\&gt; whoami</text>
+    <text x="462" y="262" class="m" font-size="13.5" style="fill:#e2e8f0">office-pc\alex</text>
+    <text x="462" y="286" class="t" font-size="12" style="fill:#94a3b8">斜杠后的 alex 即为本地登录用户名</text>
+
+    <!-- Microsoft Account / PIN Pitfall -->
+    <rect x="446" y="320" width="308" height="134" rx="14" fill="#fef2f2" stroke="#fecaca"/>
+    <text x="462" y="346" class="t" font-size="14.5" font-weight="750" style="fill:#b91c1c">最常见踩坑：微软账号与 PIN 码</text>
+    <text x="462" y="372" class="t" font-size="13" style="fill:#7f1d1d">1. RDP 必须使用账户密码，不能填开机 PIN</text>
+    <text x="462" y="396" class="t" font-size="13" style="fill:#7f1d1d">2. 微软账号建议填 MicrosoftAccount\邮箱</text>
+    <text x="462" y="420" class="t" font-size="13" style="fill:#7f1d1d">3. 设置 &gt; 账户 &gt; 登录选项：关闭「仅允许</text>
+    <text x="478" y="440" class="t" font-size="13" style="fill:#7f1d1d">Windows Hello 登录」，用密码登录过一次</text>
+
+    <!-- Non-empty password & RDP group -->
+    <rect x="446" y="468" width="308" height="100" rx="12" fill="#f0fdfa" stroke="#99f6e4"/>
+    <text x="462" y="494" class="t" font-size="14" font-weight="750" style="fill:#0f766e">其他账号检查</text>
+    <text x="462" y="520" class="t" font-size="13" style="fill:#115e59">• 空密码账号默认会被 Windows 拒绝 RDP</text>
+    <text x="462" y="544" class="t" font-size="13" style="fill:#115e59">• 非管理员需在「远程桌面用户」里添加</text>
+  </g>
+
+  <!-- Step 3 Card -->
+  <g filter="url(#sh)">
+    <rect x="806" y="114" width="352" height="474" rx="22" class="card"/>
+    <circle cx="844" cy="154" r="18" fill="#4f46e5"/>
+    <text x="844" y="160" text-anchor="middle" class="t" font-size="16" font-weight="800" style="fill:#ffffff">3</text>
+    <text x="874" y="161" class="t" font-size="20" font-weight="750">防火墙与电源防休眠</text>
+
+    <!-- Firewall Box -->
+    <rect x="828" y="186" width="308" height="168" rx="14" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="844" y="214" class="t" font-size="15" font-weight="750">Windows 防火墙（TCP 3389）</text>
+    <text x="844" y="240" class="t muted" font-size="13">开启远程桌面通常会自动放行规则：</text>
+    <rect x="842" y="252" width="280" height="34" rx="8" fill="#e0e7ff"/>
+    <text x="854" y="274" class="t" font-size="12.5" font-weight="700" style="fill:#3730a3">远程桌面 - 用户模式 (TCP-In) · 3389</text>
+    <text x="844" y="308" class="t muted" font-size="12.5">若连不上，检查云雀通虚拟网卡是否处于</text>
+    <text x="844" y="328" class="t muted" font-size="12.5">「公用网络」并放行该配置文件的 3389</text>
+
+    <!-- Power Box -->
+    <rect x="828" y="370" width="308" height="110" rx="14" fill="#f8fafc" stroke="#cbd5e1"/>
+    <text x="844" y="398" class="t" font-size="15" font-weight="750">防止外出后电脑睡眠失联</text>
+    <text x="844" y="424" class="t muted" font-size="13">设置 &gt; 系统 &gt; 电源和电池 &gt; 屏幕和睡眠</text>
+    <text x="844" y="448" class="t" font-size="13" font-weight="700" style="fill:#1d4ed8">接通电源时使设备进入睡眠：设为「从不」</text>
+    <text x="844" y="468" class="t muted" font-size="12">并开启 Larktun 客户端的「开机自启动」</text>
+
+    <!-- Security Note -->
+    <rect x="828" y="494" width="308" height="74" rx="12" fill="#ecfdf5" stroke="#a7f3d0"/>
+    <text x="844" y="520" class="t" font-size="13.5" font-weight="750" style="fill:#047857">安全底线：禁止映射公网 3389</text>
+    <text x="844" y="544" class="t" font-size="12.5" style="fill:#065f46">只通过云雀通加密私有网络访问</text>
+  </g>
+
+  <text x="600" y="636" text-anchor="middle" class="t muted" font-size="14">完成后，回到 Larktun 桌面客户端确认目标电脑显示「在线」，再复制其 100.x.x.x 私有 IP（或记录局域网 IP）。</text>
+</svg>
