@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" xml:lang="en-US" role="img" aria-labelledby="title desc">
+  <title id="title">Larktun vs. Tailscale vs. EasyTier Mesh VPN Comparison</title>
+  <desc id="desc">Comparison of Larktun, Tailscale, and EasyTier positioning, core capabilities, and ideal use cases. Each tool fits distinct scenarios with no single absolute winner.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#172554"/>
+    </linearGradient>
+    <linearGradient id="larktunBorder" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#818cf8"/>
+    </linearGradient>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #f8fafc; }
+      .muted { fill: #cbd5e1; }
+      .subtle { fill: #94a3b8; }
+      .accent { fill: #7dd3fc; }
+      .emerald { fill: #6ee7b7; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="680" rx="32" fill="url(#bg)"/>
+  <circle cx="1120" cy="70" r="240" fill="#6366f1" opacity=".12"/>
+  <circle cx="90" cy="640" r="200" fill="#38bdf8" opacity=".08"/>
+
+  <!-- Top Header -->
+  <text x="64" y="70" font-size="18" font-weight="700" class="accent" letter-spacing="1.2">MESH VPN COMPARISON GUIDE</text>
+  <rect x="910" y="42" width="226" height="38" rx="19" fill="#38bdf8" fill-opacity=".14" stroke="#38bdf8" stroke-opacity=".45"/>
+  <text x="1023" y="67" text-anchor="middle" font-size="15" font-weight="600" class="accent">Right Tool for Each Case</text>
+
+  <text x="64" y="142" font-size="44" font-weight="750">Larktun vs. Tailscale vs. EasyTier</text>
+  <text x="64" y="186" font-size="21" class="muted">No single absolute winner—choose based on network region, mobile workflow, and governance</text>
+
+  <!-- Card 1: Tailscale -->
+  <g transform="translate(64, 228)">
+    <rect width="336" height="378" rx="22" fill="#ffffff" fill-opacity=".045" stroke="#475569" stroke-width="1.5"/>
+    <rect x="24" y="24" width="144" height="30" rx="15" fill="#94a3b8" fill-opacity=".18"/>
+    <text x="96" y="44" text-anchor="middle" font-size="13" font-weight="600" class="muted">Global Ecosystem</text>
+    <text x="24" y="92" font-size="30" font-weight="700">Tailscale</text>
+    <text x="24" y="122" font-size="15" class="subtle">WireGuard · Mature Managed SaaS</text>
+    <line x1="24" y1="144" x2="312" y2="144" stroke="#334155" stroke-width="1"/>
+
+    <text x="24" y="180" font-size="15" class="muted">• Proven WireGuard mesh ecosystem</text>
+    <text x="24" y="214" font-size="15" class="muted">• MagicDNS, Exit Nodes &amp; SSO</text>
+    <text x="24" y="248" font-size="15" class="muted">• Effortless outside mainland China</text>
+    <text x="24" y="282" font-size="15" class="subtle">△ Relays overseas; no CN App Store</text>
+    <text x="24" y="312" font-size="15" class="subtle">△ Mobile requires system VPN slot</text>
+
+    <rect x="24" y="330" width="288" height="30" rx="8" fill="#1e293b"/>
+    <text x="168" y="350" text-anchor="middle" font-size="13" class="muted">Best for: Global teams &amp; existing tailnets</text>
+  </g>
+
+  <!-- Card 2: Larktun -->
+  <g transform="translate(432, 214)">
+    <rect width="336" height="406" rx="22" fill="#1e3a5f" fill-opacity=".42" stroke="url(#larktunBorder)" stroke-width="2.5"/>
+    <rect x="24" y="24" width="190" height="30" rx="15" fill="#38bdf8" fill-opacity=".2"/>
+    <text x="119" y="44" text-anchor="middle" font-size="13" font-weight="700" class="accent">China-Ready · Built-In Remote</text>
+    <text x="24" y="92" font-size="30" font-weight="750">Larktun</text>
+    <text x="24" y="122" font-size="15" class="accent">Tailscale-Based · Multi-Tenant SaaS</text>
+    <line x1="24" y1="144" x2="312" y2="144" stroke="#38bdf8" stroke-opacity=".35" stroke-width="1"/>
+
+    <text x="24" y="180" font-size="15">• China relays + dedicated / self-hosted</text>
+    <text x="24" y="214" font-size="15">• CN iOS &amp; Android apps without VPN</text>
+    <text x="24" y="248" font-size="15">• Built-in WebRTC, RDP, SSH &amp; SFTP</text>
+    <text x="24" y="282" font-size="15">• OpenWrt, Linux, NAS &amp; Docker pkgs</text>
+    <text x="24" y="316" font-size="15">• Multi-tenant isolation &amp; visual ACLs</text>
+
+    <rect x="24" y="346" width="288" height="38" rx="10" fill="#38bdf8" fill-opacity=".18" stroke="#38bdf8" stroke-opacity=".4"/>
+    <text x="168" y="370" text-anchor="middle" font-size="13" font-weight="600" class="accent">Best for: China users, mobile ops &amp; teams</text>
+  </g>
+
+  <!-- Card 3: EasyTier -->
+  <g transform="translate(800, 228)">
+    <rect width="336" height="378" rx="22" fill="#ffffff" fill-opacity=".045" stroke="#475569" stroke-width="1.5"/>
+    <rect x="24" y="24" width="160" height="30" rx="15" fill="#34d399" fill-opacity=".16"/>
+    <text x="104" y="44" text-anchor="middle" font-size="13" font-weight="600" class="emerald">Open &amp; Decentralized</text>
+    <text x="24" y="92" font-size="30" font-weight="700">EasyTier</text>
+    <text x="24" y="122" font-size="15" class="subtle">Rust · Decentralized Mesh VPN</text>
+    <line x1="24" y1="144" x2="312" y2="144" stroke="#334155" stroke-width="1"/>
+
+    <text x="24" y="180" font-size="15" class="muted">• 100% open-source, no account needed</text>
+    <text x="24" y="214" font-size="15" class="muted">• Strong TCP / KCP / QUIC traversal</text>
+    <text x="24" y="248" font-size="15" class="muted">• Lightweight multi-hop &amp; self-relay</text>
+    <text x="24" y="282" font-size="15" class="subtle">△ Network layer only; separate remote apps</text>
+    <text x="24" y="312" font-size="15" class="subtle">△ No multi-tenant SaaS; no CN iOS app</text>
+
+    <rect x="24" y="330" width="288" height="30" rx="8" fill="#1e293b"/>
+    <text x="168" y="350" text-anchor="middle" font-size="13" class="muted">Best for: Self-hosters &amp; harsh NATs</text>
+  </g>
+
+  <!-- Bottom note -->
+  <text x="64" y="650" font-size="15" class="subtle">docs.larktun.com · Practical Selection Guide for Mesh Networking &amp; Zero-Trust Remote Access</text>
+</svg>
