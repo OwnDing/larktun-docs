@@ -1,6 +1,12 @@
 ---
 title: Product Architecture
-description: Understand how Larktun maps SaaS control, tenant isolation, ACL, and relay paths.
+description: Understand Larktun's four-layer zero-trust architecture—SaaS control plane, multi-tenant network isolation, direct WireGuard P2P vs. DERP relay forwarding, and lightweight endpoint execution.
+keywords:
+  - Larktun architecture
+  - zero-trust mesh architecture
+  - Headscale multi-tenant control plane
+  - DERP relay direct P2P
+  - WireGuard private network architecture
 sidebar_position: 2
 ---
 
@@ -8,48 +14,56 @@ import ArchitectureDemoEmbed from '@site/src/components/ArchitectureDemoEmbed';
 
 # Product Architecture
 
-Larktun can be described in four layers: SaaS control, tenant network control, relay, and endpoint execution. The goal is to deliver stable and lightweight remote access while keeping strict tenant isolation.
+Larktun separates **control-plane coordination** from **encrypted data-plane transport** across four clean layers: SaaS control, tenant network control, relay fallback, and endpoint execution. This architecture delivers low-latency peer-to-peer connectivity whenever NAT permits, automatic relay fallback when networks are restrictive, and strict multi-tenant isolation by design.
 
-## Architecture layers
+## The Four Architecture Layers
 
-- SaaS control layer: tenant lifecycle, identity verification, policy distribution, and audit aggregation
-- Tenant network control layer: isolated network state, device inventory, and ACL state per tenant
-- Relay layer: traffic forwarding fallback with shared, dedicated, or user-managed relay options
-- Endpoint execution layer: encrypted path setup and ACL enforcement with low-memory background runtime
+| Layer | Primary Responsibilities | Operational Benefit |
+|---|---|---|
+| **1. SaaS Control Layer** | Account auth, tenant lifecycle, Auth Keys, quotas, and centralized audit log aggregation | Fast onboarding with no control servers or TLS certs to self-host |
+| **2. Tenant Network Control Layer** | Per-tenant node registry, private IP allocation, subnet routes, MagicDNS, and ACL policy compilation | Zero cross-tenant state sharing and small blast radius |
+| **3. Relay (DERP) Layer** | Encrypted TLS relay fallback when direct UDP traversal is blocked (shared, dedicated, or user-managed) | Reliable reachability across symmetric NAT and strict corporate firewalls |
+| **4. Endpoint Execution Layer** | WireGuard tunnel setup, local ACL enforcement, path probing, and in-app `tsnet` runtime on mobile | Quiet, low-memory background operation and end-to-end encryption |
 
-## How tenant isolation is enforced
+## How a Connection Flows End to End
 
-- Devices, user groups, and policy sets are maintained per tenant
-- ACL evaluation is tenant-scoped with no cross-tenant inheritance
-- Audit logs are archived per tenant for traceability and compliance reviews
+When Device A connects to Device B (for example, your laptop SSHing into a cloud server or your iPad opening a home NAS):
 
-## Choosing relay strategy
+1. **Authenticate & register**: Both endpoints authenticate to the control plane (`https://hs.larktun.com`) and exchange public WireGuard keys—private keys never leave the endpoint.
+2. **Receive scoped netmap & ACLs**: The tenant control layer computes the minimal peer map allowed by the tenant's ACL document and pushes updates only to authorized peers.
+3. **Attempt direct P2P path first**: Endpoints coordinate STUN/UDP hole punching to establish an encrypted WireGuard tunnel directly between peers, keeping latency minimal and bypassing relays entirely.
+4. **Automatic DERP relay fallback**: If symmetric NAT or strict firewalls prevent direct UDP, encrypted WireGuard packets automatically traverse the tenant's configured DERP relay without dropping the session, and upgrade back to direct P2P automatically whenever network conditions allow.
 
-- Shared relay: best for individual free users, quick validation, and small-team rollouts
-- Dedicated relay: best for higher stability and predictable capacity
-- User-managed relay: best for custom boundary, region, or compliance requirements
+## How Tenant Isolation Is Enforced
 
-## Stability and footprint design
+- **Dedicated network state per tenant**: Devices, users, IP address pools (`100.64.0.0/16` or custom ranges), routes, and MagicDNS namespaces are partitioned strictly by tenant.
+- **No cross-tenant ACL references**: ACL compilation evaluates rules exclusively within one tenant boundary.
+- **Isolated observability**: Audit records and device online/offline telemetry remain scoped per tenant for clean compliance reviews.
 
-- Prefer direct path first, then relay fallback when needed
-- Keep path health monitoring and auto-reconnect enabled
-- Maintain low endpoint memory footprint for long-running sessions
+## Choosing Your Relay Strategy
 
-## Interactive simulator
+- **Shared relay**: Included by default for free individual accounts, rapid testing, and lightweight remote access.
+- **Dedicated relay**: Recommended for paid teams needing predictable latency and reserved capacity for RDP, WebRTC, or continuous operations.
+- **User-managed relay**: Best for enterprises with data-residency requirements, private data-center egress boundaries, or custom regional POP placement (see [Deployment Modes and Configuration](../getting-started/install-and-configure)).
+
+## Interactive Architecture Simulator
+
+Use the simulator below to step through device login, direct P2P connectivity, and DERP relay fallback flows interactively:
 
 <ArchitectureDemoEmbed />
 
-> The embedded simulator currently uses Chinese UI labels, while the interaction flow is the same.
+> Note: UI labels inside the embedded interactive simulator are currently in Chinese, while the connection flow and topology concepts match the four-layer architecture described above.
 
-## Architecture diagram
+## System Architecture Diagram
 
-![Larktun architecture diagram](/img/arc-larktun.webp)
+![Larktun four-layer zero-trust architecture diagram](/img/arc-larktun.webp)
 
-## Continue reading
+## Continue Reading
 
-- [Product Overview](./what-is-larktun)
+- [Larktun Product Overview](./what-is-larktun)
 - [Core Concepts](./core-concepts)
 - [ACLs Introduction](./acls-introduction)
 - [Routes Introduction](./routes-introduction)
+- [Headscale Multi-Tenant Isolation Engineering Post](/blog/headscale-multi-tenant-isolation)
 - [Quick Start](../getting-started/quick-start)
 - [Deployment Modes and Configuration](../getting-started/install-and-configure)

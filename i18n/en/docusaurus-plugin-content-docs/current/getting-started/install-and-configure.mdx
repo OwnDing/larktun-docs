@@ -1,64 +1,64 @@
 ---
 title: Deployment Modes and Configuration
-description: Choose the right combination of SaaS control, tenant ACL, and relay strategy.
+description: Plan your Larktun deployment across tenant boundaries, IP ranges, client platforms, ACL baselines, and shared, dedicated, or user-managed DERP relay servers.
+keywords:
+  - Larktun deployment
+  - custom DERP relay
+  - Headscale SaaS configuration
+  - multi-tenant network planning
+  - zero-trust deployment guide
 sidebar_position: 3
 ---
 
 # Deployment Modes and Configuration
 
-Larktun is delivered as a SaaS service for both individual users and teams. Deployment planning is usually a combination of tenant boundaries, ACL strategy, and relay model rather than one fixed topology.
+Larktun is delivered as a managed SaaS control plane designed for both individual power users and multi-team organizations. Rather than forcing a rigid network topology, a clean deployment combines four modular decisions: **tenant boundaries**, **overlay IP planning**, **client onboarding paths**, and **relay (DERP) strategy**.
 
-## Target users and common scenarios
+## Who Uses Which Deployment Pattern
 
-- Individual users: remote access to home devices, personal servers, and development machines with low operational overhead.
-- Team users: collaborative access to internal resources with centralized ACL and audit controls.
+- **Individual users & home labs**: One personal tenant connecting home PCs, NAS appliances, OpenWrt routers, cloud VMs, and mobile devices (iOS/Android/TV) with zero control-plane maintenance.
+- **Engineering & IT operations teams**: Department- or project-scoped tenants with centralized ACL templates, subnet routers for internal data-center/office ranges, and per-tenant audit logs.
+- **Compliance-sensitive or multi-region enterprises**: Managed SaaS control plane paired with dedicated or customer-hosted DERP relays to keep relayed traffic inside approved regions or private infrastructure.
 
-## SaaS relay capabilities
+## Comparing the Three Relay Strategies
 
-Under the same SaaS control plane, you can choose among three relay options:
+Direct peer-to-peer WireGuard paths are always preferred automatically. When symmetric NAT, strict corporate firewalls, or cross-ISP routing blocks direct UDP, Larktun falls back seamlessly to DERP relays:
 
-- Free relay (shared): available by default, ideal for fast onboarding and lightweight validation.
-- Dedicated relay: for paid teams that need tighter latency, capacity, isolation, and stability.
-- User-managed relay: customer-operated DERP nodes for custom geography, network boundaries, or compliance.
+| Relay Model | Setup Effort | Latency & Stability | Isolation & Compliance | Best Fit |
+|---|---|---|---|---|
+| **Shared Relay (Free)** | Zero (enabled by default) | Good for general remote access | Shared multi-tenant relay pool | Individual users, PoCs, fast onboarding |
+| **Dedicated Relay (VIP)** | Low (select in console) | Lower jitter, reserved bandwidth | Dedicated platform relay capacity | Paid teams, frequent RDP/WebRTC/SSH workloads |
+| **User-Managed Relay** | Moderate (deploy own DERP node) | Fully controlled by your region & ISP | Traffic stays on your own relay hosts | Strict compliance, custom regions, China/global edge tuning |
 
-Recommended progression:
+### Recommended Rollout Progression
 
-1. Start with free shared relay for initial rollout and path verification.
-2. Move to dedicated relay when traffic volume or SLA requirements grow.
-3. Add user-managed relay when compliance or strict network boundaries are required.
+1. **Start on the default shared relay** to validate device login, ACLs, and subnet routing in minutes.
+2. **Upgrade to a dedicated relay** if daily remote desktop (RDP/WebRTC), large file transfers, or cross-ISP sessions need more predictable throughput.
+3. **Add a user-managed DERP relay** when data-residency policies, specialized corporate networks, or custom regional POPs require relay infrastructure under your direct control.
 
-## Recommended deployment models
+## Planning Checklist Before Scaling Up
 
-### SaaS control plane
+1. **Tenant partitioning**: Split distinct customers, business units, or production vs. staging environments into separate tenants so device inventories and ACL blast radius never mix.
+2. **Overlay CIDR planning**: Larktun uses `100.64.0.0/16` by default; customize it (for example `192.168.6.0/24`) if your enterprise environment already allocates `100.64.0.0/10` internally.
+3. **Client onboarding mix**: Pick the right client per endpoint type:
+   - Desktops: [Desktop Client Operations](./desktop-client-operations)
+   - Linux servers & containers: [Install on Linux](./linux-install-larktun) · [Docker Login](./docker-login-larktun)
+   - Home / office gateways: [Install on NAS](./nas-install-larktun) · [Synology NAS](./synology-nas-tailscale-larktun) · [OpenWrt Routers](./openwrt-install-larktun)
+   - Mobile & big screens: [iOS App Overview](../introduction/ios-app-overview) · [Android TV](./tv-install-larktun)
+4. **Least-privilege ACL baseline**: Start with explicit user/group rules and port-scoped destinations (`:22`, `:443`, `:3389`, `:5001`) instead of permanent wildcard access.
+5. **Subnet routers for agentless devices**: Place one always-on Linux host or OpenWrt router on the LAN to reach cameras, PLCs, printers, or legacy NAS boxes via [Approve Subnet Routes](./approve-subnet-routes).
 
-Best for fast onboarding for both individuals and teams, with managed account/tenant, policy, audit, and operations capabilities.
+## User-Managed DERP Relay Configuration
 
-### SaaS + dedicated relay
+To attach your own DERP server in the console's **Derper** page:
 
-Best for paid users (individuals or teams) that require tighter latency, capacity, and fault-isolation control while keeping SaaS control-plane operations.
+1. Deploy a DERP node on a host with a public IP close to your users and open its HTTPS/DERP port (TCP) and STUN port (UDP, default `3478`).
+2. Add the node configuration in **Derper** using the visual form or JSON editor.
+3. Keep `omitDefaultRegions: false` during initial testing so clients can fall back to platform relays if your custom node goes down; only switch to `true` after verifying redundancy and failover.
 
-### SaaS + user-managed relay
+### Example DERP JSON Configuration
 
-Best for users who need custom geography, network boundaries, or compliance placement.
-
-## Planning checklist
-
-- Tenant partitioning: separate by customer, business unit, or environment
-- ACL model: define least-privilege access by role and device tags
-- Relay placement: decide shared, dedicated, or user-managed with region layout
-- Stability controls: reconnect behavior, health checks, and path monitoring
-- Endpoint experience: ensure low footprint and non-intrusive runtime
-
-## User-managed relay guidance
-
-1. Start with one relay close to primary user regions.
-2. Add health checks and alerting to maintain availability.
-3. Add redundancy and failover drills for higher concurrency.
-4. Apply minimal exposure and regular security patching.
-
-## Configuration example
-
-Example DERP JSON for tenant `t01`:
+Below is an example custom region definition for tenant `t01`:
 
 ```json
 {
@@ -84,9 +84,16 @@ Example DERP JSON for tenant `t01`:
 }
 ```
 
-## Rollout guidance
+### Relay Hardening and Operations Tips
 
-- For individual users, start with one tenant, one relay region, and one validated ACL path
-- For teams, template one tenant first, then replicate safely
-- Standardize ACL and audit before scaling device count
-- Validate failover for user-managed relay before production
+- Use a unique `regionID` between `900` and `999` to avoid colliding with default region IDs.
+- Monitor TLS certificate expiry, TCP port reachability, and UDP STUN responsiveness on your custom DERP host.
+- For production teams, deploy at least two relay nodes in separate availability zones or regions and test failover before relying exclusively on custom relays.
+
+## Continue Reading
+
+- [Quick Start](./quick-start)
+- [Create Your First Secure Access Path](./publish-your-first-service)
+- [ACLs Introduction](../introduction/acls-introduction)
+- [Product Architecture](../introduction/product-architecture)
+- [Common Issues](../troubleshooting/common-issues)

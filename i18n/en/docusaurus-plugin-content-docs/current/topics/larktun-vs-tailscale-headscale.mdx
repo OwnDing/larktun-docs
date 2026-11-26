@@ -1,45 +1,57 @@
 ---
 title: Relationship Between Larktun, Tailscale, and Headscale
-description: Understand how Larktun relates to Tailscale and Headscale, and how Larktun extends the open-source foundation with SaaS multi-tenancy, Chinese device names, and mobile experience.
+description: Understand how Larktun builds on the open-source ecosystem of Tailscale and Headscale—adding multi-tenant SaaS control-plane isolation, custom relays, Chinese device aliases, and integrated no-VPN mobile apps.
+keywords:
+  - Larktun Tailscale Headscale
+  - Headscale SaaS architecture
+  - Tailscale compatible control plane
+  - open source zero-trust mesh
 sidebar_position: 1
 ---
 
 # Relationship Between Larktun, Tailscale, and Headscale
 
-Many users ask the same question when they first learn about Larktun: how is Larktun related to `Tailscale` and `Headscale`?
+One of the first technical questions engineers ask when evaluating Larktun is: **how exactly does Larktun relate to Tailscale and Headscale?**
 
-In short, Larktun is a zero-trust networking and remote access product developed on top of the work made possible by `Tailscale` and `Headscale`. We appreciate these open-source projects, and we also build substantial product and engineering work on top of that foundation.
+In short: Larktun is an independent SaaS zero-trust networking platform built with deep respect for the protocol and open-source ecosystem pioneered by **Tailscale** and **Headscale**, combined with extensive multi-tenant control-plane engineering, a custom SaaS console, and purpose-built desktop and mobile applications.
 
-## What each project solves
+## How the Three Fit Together
 
-`Tailscale` provides mature WireGuard-based networking ideas, a strong client ecosystem, and an easy device onboarding experience. It helps devices connect securely across NAT and regions with identity and policy instead of public exposure.
+| Layer | Tailscale | Headscale | Larktun |
+|---|---|---|---|
+| Data plane | WireGuard encrypted mesh + NAT traversal + DERP | Uses Tailscale clients' WireGuard data plane | WireGuard encrypted mesh + direct P2P + shared/dedicated/custom DERP |
+| Control plane | Closed-source Tailscale SaaS | Open-source single-tenant Go control plane | Multi-tenant, clustered Headscale-derived SaaS control plane |
+| Management UI | Tailscale Admin Console | CLI-first (third-party community UIs) | Custom SaaS console (Nodes, Routers, visual + JSON ACLs, Derper, Audit) |
+| Client ecosystem | Official Tailscale clients | Official Tailscale clients | Custom Larktun clients (Desktop, Linux, OpenWrt, NoVPN iOS/Android/TV) + compatible with Tailscale clients |
 
-`Headscale` provides an important open-source control-plane foundation. It helps developers understand how device identity, node management, routes, ACLs, and MagicDNS work together.
+## What Each Project Contributes
 
-Larktun continues from there with a SaaS console, tenant isolation, Chinese device names, mobile tools, and a product experience closer to everyday usage in China.
+- **Tailscale** established the modern WireGuard mesh model: automatic key distribution, NAT traversal, MagicDNS, subnet routers, exit nodes, and declarative ACLs—making private networking dramatically simpler than legacy hub-and-spoke VPNs.
+- **Headscale** proved that the control plane can be implemented transparently in open source, enabling developers to inspect and extend node registration, routing, ACL compilation, and MagicDNS.
+- **Larktun** turns that foundation into a ready-to-use SaaS service and client suite without forcing every user to self-host servers, manage certificates, or wrestle with system VPN limits on mobile.
 
-## What Larktun adds
+## What Larktun Builds on Top
 
-Larktun is not a thin wrapper. We have added multiple product and engineering capabilities:
+Larktun is not a thin skin over a default Headscale binary. Key engineering investments include:
 
-- Device aliases and Chinese device-name display across both client and control-plane logic.
-- SaaS-oriented Headscale transformation with multi-tenancy, multiple networks, tenant isolation, and independent policies.
-- An independently developed iOS app with in-app networking that does not require system VPN permission.
-- An improved and open-sourced Android app for community review, usage, and contribution.
-- An independently built SaaS console for accounts, devices, ACLs, routes, relays, and network management.
+1. **True multi-tenant Headscale control plane**: Isolated per-tenant tailnets, custom IP pools (e.g. `192.168.6.0/24`), tenant-scoped ACL compilation, scoped MagicDNS (`hostname.<tenant>.<domain>`), and horizontal `cluster_id` sharding (detailed in our [Multi-Tenant Isolation](/blog/headscale-multi-tenant-isolation) and [Cluster Architecture](/blog/headscale-cluster-infinite-scale) engineering posts).
+2. **Chinese & Unicode device aliases**: Readable device naming synced across the console and desktop/mobile clients so operators can recognize machines instantly.
+3. **Independently developed NoVPN iOS/iPadOS & Android apps**: Powered by `tsnet` so users get Ping, SSH, SFTP, private Web browsing, RDP, WebRTC remote control, and AI assistant tools inside one app without occupying the OS VPN slot.
+4. **Open-source contributions**: We publish our enhanced Android client, Headscale SaaS reference projects, and stress-testing scripts publicly for community review (see [Open Source Links](../introduction/open-source-links)).
+5. **Managed SaaS console & relay flexibility**: Unified management for accounts, Auth Keys, subnet route approvals, visual + JSON ACL editing, and shared / VIP / user-managed DERP relays.
 
-## How to understand Larktun's positioning
+## Client Interoperability
 
-If you know `Tailscale`, think of Larktun as a zero-trust networking service adapted for local usage patterns in China.
+Because Larktun preserves protocol compatibility on the control plane:
 
-If you know `Headscale`, think of Larktun as a SaaS, multi-tenant, access-governance, and client-experience productization path built on top of that foundation.
-
-If you simply want secure access to a NAS, development machine, server, or internal team service, Larktun offers a ready-to-use path without requiring you to maintain a control plane, certificates, relays, and every low-level detail yourself.
+- You can point standard **Tailscale** clients (on Synology DSM, ASUSTOR, Linux, Windows, macOS, or iOS) directly to Larktun via `--login-server=https://hs.larktun.com`.
+- Conversely, you can use the **Larktun iOS and Android apps** to log in to an existing Tailscale or self-hosted Headscale network using an auth key without migrating your servers.
 
 ## Continue Reading
 
-- [Product Overview](../introduction/what-is-larktun)
+- [Larktun Product Overview](../introduction/what-is-larktun)
 - [Product Architecture](../introduction/product-architecture)
-- [FAQ: Relationship between Larktun, Tailscale, and Headscale](../troubleshooting/faq#what-is-the-relationship-between-larktun-tailscale-and-headscale)
-- [What Is Larktun?](/blog/what-is-larktun)
+- [Can Larktun Be a Tailscale Alternative?](./tailscale-alternative)
 - [Open Source Links](../introduction/open-source-links)
+- [FAQ: Relationship Between Larktun, Tailscale, and Headscale](../troubleshooting/faq#what-is-the-relationship-between-larktun-tailscale-and-headscale)
+- [What Is Larktun?](/blog/what-is-larktun)

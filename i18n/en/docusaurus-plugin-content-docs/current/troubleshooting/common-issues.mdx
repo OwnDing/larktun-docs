@@ -1,116 +1,132 @@
 ---
 title: Common Issues
-description: Larktun troubleshooting guide for access denial, offline devices, latency, disconnects, and client runtime issues.
+description: Step-by-step Larktun troubleshooting guide for ACL permission denials, offline devices, unreachable subnet routes, high latency, relay fallback, and client diagnostics.
 keywords:
   - Larktun troubleshooting
-  - Larktun FAQ
+  - Larktun common issues
   - remote access failure
   - offline devices
   - ACL denial
+  - subnet route not working
 sidebar_position: 1
 ---
 
 # Larktun Common Issues
 
-This page is written for end users. It follows a simple pattern: what you see and what you can do next.
+This guide is organized around symptoms you actually observe when connecting to devices in your Larktun network, along with the fastest verification commands and fixes for each layer.
 
-## Recommended troubleshooting order
+## Recommended Troubleshooting Order
 
-1. Check `Nodes`: source and target devices are online.
-2. Check `ACLs`: subject, target, and port match your request.
-3. If subnet access is involved, check `Routers`.
-4. For latency/disconnects, then check `Derper`.
+Always isolate problems from the control plane down to the data path so you do not waste time debugging the wrong layer:
 
-## 1. Access denied by ACL
+1. **Check `Nodes`**: confirm both source and target devices are **Online** in the same tenant.
+2. **Check `ACLs`**: verify your user/group, target device/CIDR, and exact port are permitted.
+3. **Check `Routers`** (subnet scenarios only): confirm the CIDR route is advertised, approved, and accepted on the client.
+4. **Check `Derper` & path quality**: inspect whether traffic is direct P2P or relayed and verify latency.
 
-What you may see:
+### Quick CLI Diagnostic Commands
 
-- Permission denied errors
-- Device is online but connection still fails
-- One user works but another user is denied
+On Linux, macOS, Windows, or OpenWrt endpoints, these three commands surface most root causes in seconds:
 
-What you can do:
+```bash
+# 1. Verify login state, assigned private IP, and peer online status
+larktun status
 
-1. In `ACLs`, confirm subject is your current account or user group.
-2. Confirm target device is correct (not an old or similarly named node).
-3. Confirm protocol and port are correct (`SSH 22`, `HTTPS 443`, `RDP 3389`).
-4. If ACL was just changed, wait a few seconds and retry.
+# 2. Check whether traffic to a target peer is direct P2P or relayed via DERP
+larktun ping <target-ip-or-hostname>
 
-## 2. Device shows offline or cannot connect
+# 3. Inspect NAT type, UDP reachability, and nearest DERP relay latency
+larktun netcheck
+```
 
-What you may see:
+## 1. Access Denied by ACL
 
-- Target device offline in `Nodes`
-- Device briefly comes online then drops
-- Repeated connection timeout
+### Symptoms
+- Connection refused or permission denied even though both devices show **Online** in **Nodes**.
+- One user or device can connect, while another user in the same tenant is blocked.
+- Ping works, or one port works, while SSH (`22`) or RDP (`3389`) fails.
 
-What you can do:
+### How to Fix
+1. Open **ACLs** and verify that `src` matches your exact account (with trailing `@` where required), user group, or device tag.
+2. Verify `dst` points to the active node (not an older duplicate device with a similar hostname) and includes the right port suffix (`:22`, `:443`, `:3389`, `:5001`, or `:*`).
+3. Confirm you clicked **Save / Publish** after editing, wait 5–10 seconds for policy propagation, and retry.
+4. Check the target host's own OS firewall (`ufw`, `firewalld`, Windows Defender Firewall) to make sure the service listens on the private interface rather than `127.0.0.1` only.
 
-1. On the target device, confirm client is signed in and not manually disconnected.
-2. Refresh `Nodes` and verify you selected the correct device name.
-3. Retry under another network path (for example Wi-Fi vs wired).
-4. If still offline, restart the target-side client and retry.
+## 2. Device Shows Offline or Fails to Connect
 
-## 3. Subnet resources unreachable (subnet scenarios only)
+### Symptoms
+- The target machine appears **Offline** in **Nodes**.
+- The device briefly comes online after login, then drops or times out repeatedly.
 
-What you may see:
+### How to Fix
+1. On the target machine, run `larktun status` (or open the desktop/mobile app) to confirm the daemon (`larktund`) is running and signed in.
+2. Confirm the Auth Key used for headless login has not expired or been revoked, and verify `--login-server=https://hs.larktun.com` was spelled accurately.
+3. Check the system clock on routers, NAS devices, and embedded Linux hosts—large clock skew causes TLS handshake failures against the control plane.
+4. Test from another network path (for example switching between Wi-Fi and cellular) to rule out a restrictive local firewall blocking outbound HTTPS/UDP.
+5. Restart the client service (`sudo systemctl restart larktund` on systemd Linux) and refresh **Nodes**.
 
-- You can reach the gateway node itself, but not devices behind it
-- Subnet IP connections fail
+## 3. Subnet Resources Unreachable (Subnet Router Scenarios)
 
-What you can do:
+### Symptoms
+- You can `ping` or SSH into the subnet router node itself, but cannot reach devices behind it (such as `192.168.6.10`).
 
-1. In `Routers`, confirm subnet route is approved.
-2. Verify subnet range is correct and not overlapping.
-3. Retry access to the subnet resource.
+### How to Fix
+1. In **Routers**, confirm the subnet CIDR (for example `192.168.6.0/24`) is both visible and switched **On** (approved).
+2. In **ACLs**, verify there is an explicit `accept` rule allowing your `src` to reach `192.168.6.0/24:<port>` or `192.168.6.0/24:*`.
+3. On the **client** trying to reach the subnet, confirm route acceptance is enabled (`sudo larktun set --accept-routes`).
+4. On a Linux or OpenWrt **subnet router**, confirm kernel IPv4 forwarding is enabled (`sysctl net.ipv4.ip_forward` should return `1`) and the router's firewall permits forwarding between the Larktun interface and LAN zone.
+5. Verify your local Wi-Fi network does not use the exact same CIDR as the remote subnet (overlapping `192.168.1.0/24` routes cause traffic to stay on the local LAN).
 
-## 4. High latency or intermittent disconnects
+## 4. High Latency, Laggy Remote Desktop, or Intermittent Disconnects
 
-What you may see:
+### Symptoms
+- Sluggish RDP/WebRTC frame updates or SSH typing lag.
+- Occasional session drops, especially during evening peak hours or across different ISPs.
 
-- Laggy remote desktop
-- Occasional SSH drops
-- Session quality changes over time
+### How to Fix
+1. Run `larktun ping <target>` to see whether packets travel **direct** or via a **DERP relay**.
+2. If traffic is stuck on a distant relay due to symmetric NAT, check whether UDP outbound traffic is permitted or switch to a geographically closer relay region in **Derper**.
+3. For heavy daily remote desktop workloads, upgrade from the default shared relay to a **dedicated relay** or attach a **user-managed relay** closer to your servers (see [Deployment Modes and Configuration](../getting-started/install-and-configure)).
+4. If using iOS RDP in bitmap fallback mode, enable RemoteFX on Windows (see [Optimize iOS Remote Desktop: Enable RemoteFX](../topics/optimize-ios-rdp-remotefx)).
 
-What you can do:
+## 5. Higher-Than-Expected Client Usage or Background Interruptions
 
-1. Confirm whether it happens mostly during network peak hours.
-2. Free shared relay is enabled by default for all users.
-3. If you need better latency/stability, use dedicated relay in `Derper`.
-4. If you need custom boundaries, configure user-managed relay in `Derper`.
+### Symptoms
+- Higher CPU/memory usage than normal on a desktop endpoint.
+- Repeated reconnect notifications.
 
-## 5. Higher-than-expected client usage or disruptions
+### How to Fix
+1. Avoid scripts or manual loops that repeatedly execute `larktun up` when the tunnel is already connected.
+2. Close stale foreground remote desktop/file transfer windows when finished.
+3. Enable quiet background mode (minimize to system tray) in client settings.
 
-What you may see:
+## 6. User-Managed Relay Unreachable
 
-- Higher CPU/memory usage than expected
-- Frequent popups or interruption feeling
+### Symptoms
+- Connections degrade or drop immediately after adding a custom DERP relay.
 
-What you can do:
+### How to Fix
+1. In **Derper**, double-check `hostName`, `ipv4`, `derpport` (TCP), and `stunport` (UDP).
+2. Temporarily keep `omitDefaultRegions: false` so traffic can fail back to default platform relays while you debug TLS certificates and firewall rules on your custom DERP host.
+3. Verify externally with `curl -I https://<hostName>:<derpport>` and confirm UDP `3478` is open in your cloud security group.
 
-1. Keep client running in background; avoid repeated manual reconnect loops.
-2. Close unnecessary foreground windows and duplicated sessions.
-3. In Settings, enable quieter runtime behavior (such as minimize to tray).
+## 7. DNS Resolution or Alibaba Cloud Private DNS Conflicts
 
-## 6. User-managed relay unavailable (user-managed relay only)
+If you run Larktun alongside Alibaba Cloud ECS / internal DNS and see unexpected lookup failures, follow our dedicated guide: [Resolving Larktun and Alibaba Cloud DNS Issues](./larktun-alibaba-cloud-dns).
 
-What you may see:
+## When to Contact Support
 
-- User-managed relay node unreachable
-- Connection quality gets worse after relay change
+If the issue persists after completing the checklist above, include these details so support can diagnose it immediately:
 
-What you can do:
+- Exact timestamp (with timezone) when the failure occurred
+- Your account email and tenant name
+- Source and target device names (and OS / client version)
+- Target protocol and port (e.g., SSH 22, RDP 3389, HTTPS 443)
+- Output of `larktun status` and `larktun ping <target>` (redact any Auth Keys)
 
-1. In `Derper`, verify `hostName`, `ipv4`, `derpport`, and `stunport`.
-2. Temporarily switch back to default free relay and re-test.
-3. After baseline recovery, re-check user-managed relay config item by item.
+## Related Guides
 
-## When to contact support
-
-If the issue remains, share these details for faster help:
-
-- Time of issue
-- Your account and tenant name
-- Source and target device names
-- Protocol and port
-- Steps you already tried
+- [10-Minute Diagnostics Flow](./diagnostics)
+- [FAQ](./faq)
+- [Approve Subnet Routes](../getting-started/approve-subnet-routes)
+- [Install Larktun on OpenWrt Routers](../getting-started/openwrt-install-larktun)

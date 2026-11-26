@@ -1,50 +1,69 @@
 ---
 slug: headscale-cluster-infinite-scale
-title: "Headscale Cluster for Large-Scale Device Onboarding"
-description: "How to evolve Headscale from a monolith into a scalable cluster with cluster_id sharding, shared PostgreSQL, ACS, and incremental netmap rebuilds."
+title: "Headscale Cluster Architecture for Large-Scale Device Onboarding"
+description: "How to evolve Headscale from a single-node monolith into a horizontally scalable cluster using cluster_id logical sharding, shared PostgreSQL, an admission control service (ACS), and incremental netmap rebuilds."
 authors: [ownding]
 tags: [headscale, cluster, saas, scalability]
 ---
 
-This post explains how to evolve `headscale` from a monolith into a near linearly scalable cluster using `cluster_id` sharding, shared PostgreSQL, an admission/control service (ACS), strict query isolation, and incremental netmap rebuilds.
+Standard `headscale` is designed as a single-node control plane backed by SQLite or PostgreSQL. That architecture is simple to self-host, but when device counts grow into the thousands across many independent users, a single Headscale instance hits hard ceilings in concurrent long-lived map streams, database write contention, and full netmap recalculations.
 
-Original post:
-[headscale 系列：组建 headscale 集群，把设备接入能力做成“无限接近无限”](https://ownding.com/2025/10/01/headscale-%E7%B3%BB%E5%88%97%EF%BC%9A%E7%BB%84%E5%BB%BA-headscale-%E9%9B%86%E7%BE%A4%EF%BC%8C%E6%8A%8A%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E8%83%BD%E5%8A%9B%E5%81%9A%E6%88%90%E2%80%9C%E6%97%A0%E9%99%90%E6%8E%A5%E8%BF%91%E6%97%A0%E9%99%90%E2%80%9D/)
+This article outlines the architecture used to evolve `headscale` from a single monolith into a horizontally scalable cluster: `cluster_id` logical sharding, shared PostgreSQL storage, an Admission and Control Service (ACS), mandatory query isolation, and incremental netmap rebuilds.
 
 {/* truncate */}
 
-## Core Takeaway
+## Why Single-Node Headscale Hits a Ceiling
 
-These building blocks move headscale toward a SaaS-style control plane:
+Every online Tailscale/Larktun client maintains a persistent control stream to its Headscale server. Even when the data plane runs peer-to-peer, the control plane still handles:
 
-- `cluster_id` logical sharding
-- Shared PG/PG cluster
-- ACS for tenant assignment and sticky routing
-- Mandatory `cluster_id` filtering in DAO/ORM
-- Incremental netmap calculation instead of full rebuilds
+- Persistent HTTP/2 / Noise polling connections for every active device
+- Database reads and writes for heartbeats, endpoint updates, and route changes
+- ACL evaluation and netmap serialization whenever peer state changes
 
-## Architecture Highlights
+On a single process, scaling vertically eventually runs into lock contention, elevated GC pauses, and blast-radius risk during maintenance restarts. Splitting users horizontally across multiple stateless-ish shard nodes solves both capacity and reliability.
 
-1. Multiple `headscale` nodes run in parallel, each bound to a unique `cluster_id`.
-2. All nodes share one database layer, but every query must include `cluster_id`.
-3. ACS handles first-time assignment, policy constraints, and balancing.
-4. LISTEN/NOTIFY + debounce limits netmap recomputation scope and CPU impact.
+## Five Core Building Blocks
 
-## Startup Example
+Moving Headscale toward a SaaS-grade multi-node control plane relies on five coordinated design pieces:
+
+1. **`cluster_id` logical sharding**: Partition control-plane ownership cleanly across independent Headscale worker nodes, each pinned to a unique `cluster_id`.
+2. **Shared PostgreSQL / PG cluster**: Keep durable metadata in a centralized relational database while isolating every worker's working set by `cluster_id`.
+3. **Admission and Control Service (ACS)**: Act as the front-door coordinator for first-time tenant placement, quota enforcement, region affinity, and sticky routing.
+4. **Mandatory DAO/ORM query scoping**: Enforce `WHERE cluster_id = ?` at the data-access layer so one cluster node can never accidentally read, mutate, or broadcast another shard's nodes.
+5. **Incremental netmap calculation**: Replace global netmap rebuilds with event-driven, scoped recomputation and caching.
+
+## Cluster Architecture Overview
+
+In a clustered deployment:
+
+- Multiple `headscale` nodes run side by side, each launched with a distinct `CLUSTER_ID` (for example `A`, `B`, or numeric shard IDs).
+- A dynamic edge router (such as Traefik) maps each tenant or user endpoint to its assigned Headscale shard based on ACS placement records.
+- All nodes connect to the same PostgreSQL cluster, which simplifies cross-shard operational tooling and tenant migration without requiring separate database instances per worker.
+- PostgreSQL `LISTEN/NOTIFY` paired with short debounce windows triggers netmap recalculation strictly for the affected `cluster_id` and scope key.
+
+## Node Startup Configuration
+
+Each Headscale shard node declares its shard identity, shared PostgreSQL DSN, and DERP map endpoint at startup:
 
 ```bash
 CLUSTER_ID=A \
-PG_DSN="postgres://..." \
+PG_DSN="postgres://headscale:secret@pg-cluster.internal:5432/headscale?sslmode=require" \
 DERP_MAP_URL="https://derp.example.com/map.json" \
 ./headscale --config ./config.yaml
 ```
 
-## Isolation Snippets
+Keeping shard identity injected via environment variables allows all nodes to share the same container image and base configuration template.
+
+## Enforcing Data and Query Isolation
+
+Logical sharding only works if database queries are both **indexed** and **impossible to forget**. First, extend core tables (`users`, `nodes`, `pre_auth_keys`, `routes`, `policies`) with a non-null `cluster_id` column and supporting indexes:
 
 ```sql
 ALTER TABLE nodes ADD COLUMN cluster_id TEXT NOT NULL DEFAULT 'default';
 CREATE INDEX idx_nodes_cluster_id ON nodes(cluster_id);
 ```
+
+Second, wrap database access in a scoped helper inside the DAO/ORM layer so every read and write automatically injects the shard predicate:
 
 ```go
 func (c *ClusterDB) Scoped() *gorm.DB {
@@ -52,27 +71,38 @@ func (c *ClusterDB) Scoped() *gorm.DB {
 }
 ```
 
-## Incremental Netmap Strategy
+By routing all repository methods through `Scoped()`, cross-shard leaks are caught structurally rather than relying on individual handler authors to remember manual `WHERE` clauses.
 
-- On data changes, emit `NOTIFY netmap_dirty(cluster_id, scope_key)`.
-- Each node consumes only matching `cluster_id` events.
-- Rebuild only affected scope (`user/tag/route domain`) rather than full sets.
-- Add caching + versioning to minimize redundant computation.
+## Moving from Full to Incremental Netmap Rebuilds
 
-## Demo Screenshots
+Rebuilding the entire netmap across all nodes on every endpoint change wastes CPU and amplifies reconnect storms. An incremental pipeline avoids unnecessary work:
 
-![cluster id 1 nodes](/img/blog/headscale/cluster-scale/h1.webp)
-![cluster id 2 nodes](/img/blog/headscale/cluster-scale/h2.webp)
-![users table](/img/blog/headscale/cluster-scale/user.webp)
-![nodes table](/img/blog/headscale/cluster-scale/nodes.webp)
-![preauth keys table](/img/blog/headscale/cluster-scale/keys.webp)
+1. When a node endpoint, route, or ACL changes, emit a lightweight notification such as `NOTIFY netmap_dirty(cluster_id, scope_key)`.
+2. Only the Headscale worker owning that `cluster_id` consumes the event; other shards ignore it immediately.
+3. Combine rapid bursts of changes with a short debounce window (e.g., 100–300 ms) so rapid client flapping coalesces into a single rebuild.
+4. Recompute and push updates strictly for the affected `scope_key` (tenant/user, tag group, or route domain), backed by an in-memory versioned cache.
 
-## Related Link
+## Multi-Shard Verification Screenshots
 
-- Project:
-  [OwnDing/headscale-saas](https://github.com/OwnDing/headscale-saas)
+The screenshots below demonstrate two isolated shards (`cluster_id = 1` and `cluster_id = 2`) sharing the same PostgreSQL schema while maintaining separate node lists, users, and pre-auth keys:
 
----
+![Nodes managed by cluster shard 1](/img/blog/headscale/cluster-scale/h1.webp)
 
-This article is mirrored on the Larktun blog. For source updates and original context, refer to:
-[headscale 系列：组建 headscale 集群，把设备接入能力做成“无限接近无限”](https://ownding.com/2025/10/01/headscale-%E7%B3%BB%E5%88%97%EF%BC%9A%E7%BB%84%E5%BB%BA-headscale-%E9%9B%86%E7%BE%A4%EF%BC%8C%E6%8A%8A%E8%AE%BE%E5%A4%87%E6%8E%A5%E5%85%A5%E8%83%BD%E5%8A%9B%E5%81%9A%E6%88%90%E2%80%9C%E6%97%A0%E9%99%90%E6%8E%A5%E8%BF%91%E6%97%A0%E9%99%90%E2%80%9D/)
+![Nodes managed by cluster shard 2](/img/blog/headscale/cluster-scale/h2.webp)
+
+![Shared PostgreSQL users table partitioned by cluster_id](/img/blog/headscale/cluster-scale/user.webp)
+
+![Shared PostgreSQL nodes table partitioned by cluster_id](/img/blog/headscale/cluster-scale/nodes.webp)
+
+![Shared PostgreSQL pre-auth keys table partitioned by cluster_id](/img/blog/headscale/cluster-scale/keys.webp)
+
+## Operational Benefits
+
+With `cluster_id` sharding in place, adding capacity becomes an operational routine instead of a risky vertical upgrade: launch a new Headscale shard with a new `CLUSTER_ID`, register it in ACS, and assign new tenants (or seamlessly migrate busy tenants) without interrupting existing shards.
+
+## Open-Source Project and Next Steps
+
+- Reference implementation: [OwnDing/headscale-saas](https://github.com/OwnDing/headscale-saas)
+- Next in series: [Headscale SaaS Seamless User Switching](/blog/headscale-saas-seamless-user-switch)
+- Multi-tenant isolation details: [Headscale Multi-Tenant Isolation for ACL, Routes, and MagicDNS](/blog/headscale-multi-tenant-isolation)
+- See how Larktun productizes this architecture: [Larktun Product Architecture](/docs/introduction/product-architecture)

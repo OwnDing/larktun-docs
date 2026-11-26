@@ -114,6 +114,20 @@ function getGroups(): NavGroup[] {
           }),
           href: '/docs/getting-started/publish-your-first-service',
         },
+        {
+          title: translate({
+            id: 'homepage.link.nas',
+            message: 'NAS 安装与登入',
+          }),
+          href: '/docs/getting-started/nas-install-larktun',
+        },
+        {
+          title: translate({
+            id: 'homepage.link.openwrt',
+            message: 'OpenWrt 路由器安装',
+          }),
+          href: '/docs/getting-started/openwrt-install-larktun',
+        },
       ],
     },
     {

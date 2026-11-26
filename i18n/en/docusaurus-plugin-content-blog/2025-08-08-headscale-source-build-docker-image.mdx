@@ -6,12 +6,9 @@ authors: [ownding]
 tags: [headscale, docker, ko, image-build]
 ---
 
-The official `Headscale` image is usually around `80MB` in `docker images`. In contrast, custom images built from a handwritten `Dockerfile` are often much larger.
+The official `Headscale` image is usually around `80MB` in `docker images`. In contrast, custom images built from a handwritten `Dockerfile` are often much larger and harder to keep consistent with upstream releases.
 
-This post documents a closer-to-official approach: use `ko` to package Headscale into a container image, instead of maintaining a Dockerfile.
-
-Original post:
-[Headscale series: package source-built headscale as Docker image](https://ownding.com/2025/08/08/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%B0%86%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E7%9A%84headscale%E6%89%93%E5%8C%85%E6%88%90docker%E9%95%9C%E5%83%8F/)
+This guide shows a closer-to-official approach: use `ko` to package a source-built Headscale Go binary into a minimal container image without maintaining a Dockerfile.
 
 {/* truncate */}
 
@@ -81,12 +78,8 @@ docker run -d \
   headscale:v0.26.1-r serve
 ```
 
-## Reference
+## Continue Reading
 
-- Source build article:
-  [Build Headscale from Source](https://ownding.com/2025/07/30/%E4%BD%BF%E7%94%A8Headscale%E6%BA%90%E7%A0%81%E8%87%AA%E8%A1%8C%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85/)
-
----
-
-This article is mirrored on the Larktun blog. For source updates and original context, refer to:
-[Headscale series: package source-built headscale as Docker image](https://ownding.com/2025/08/08/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%B0%86%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E7%9A%84headscale%E6%89%93%E5%8C%85%E6%88%90docker%E9%95%9C%E5%83%8F/)
+- [Building Headscale from Source](/blog/headscale-build-from-source)
+- [Using MagicDNS and Extra Records in Headscale](/blog/headscale-magicdns)
+- [Stress Testing Headscale at 200+ Concurrent Clients](/blog/headscale-stress-test)

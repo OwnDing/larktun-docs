@@ -1,47 +1,79 @@
 ---
 title: Secure NAS Remote Access Without Public Port Exposure
-description: Use Larktun to access NAS files, photos, and home services remotely without public IPs or port forwarding, while controlling access through ACLs.
+description: Access Synology, ASUSTOR, TrueNAS, or Linux NAS files, photos, WebDAV, and admin panels remotely without a public IP, DDNS, or port forwarding using Larktun private networking and ACLs.
+keywords:
+  - secure NAS remote access
+  - NAS without public IP
+  - remote access Synology without port forwarding
+  - private NAS VPN alternative
+  - Larktun NAS
 sidebar_position: 3
 ---
 
 # Secure NAS Remote Access Without Public Port Exposure
 
-NAS users often face the same problem: there is no public IP at home, or they do not want to expose NAS admin panels, WebDAV, Samba, photo services, or backup tools directly to the internet.
+Home and studio NAS units store irreplaceable photos, personal documents, backups, and self-hosted apps—yet most residential broadband connections sit behind CGNAT with no public IPv4 address. Even when a public IP is available, forwarding NAS admin ports (`5000`/`5001`), SMB (`445`), or SSH (`22`) directly to the internet turns your storage box into a constant target for ransomware scanners and credential-stuffing bots.
 
-Larktun does not require you to expose the NAS. Instead, it puts your phone, computer, and NAS into a controlled private network. Only authorized devices and accounts can access the NAS within ACL boundaries.
+Larktun eliminates port forwarding and DDNS completely. Instead of exposing your NAS to the public internet, Larktun places your NAS, laptop, and phone into an encrypted, identity-verified private mesh where only explicitly authorized devices can reach NAS services.
 
-## Why avoid direct NAS port exposure
+## Why Private Mesh Beats Port Forwarding and Vendor Cloud Relays
 
-NAS devices often store photos, documents, backups, and private family data. Public port forwarding introduces risks:
+- **Zero public attack surface**: Your NAS admin UI, Docker containers, and SMB/WebDAV services never appear on Shodan or internet port scans.
+- **Works seamlessly behind CGNAT**: No public IPv4 address, router UPnP, or fragile DDNS updates required.
+- **Direct P2P speeds whenever possible**: Unlike vendor quick-connect relays that throttle every transfer through remote servers, Larktun negotiates encrypted peer-to-peer tunnels first and falls back to relays only when NAT requires it.
+- **Granular port and user governance**: Separate full admin access (for you) from photo/media-only access (for family members) using tenant ACLs.
 
-- Admin panels become visible to internet scanners.
-- Residential IP changes can break access.
-- Multiple exposed services become hard to track.
-- Temporary sharing permissions are easy to forget.
+## Choosing the Right NAS Access Pattern
 
-With Larktun, the NAS can stay inside your private network. Remote access happens through the Larktun private network, without requiring a public IP or public service exposure.
+Pick the integration method that matches your NAS hardware and firmware:
 
-## Recommended access patterns
+| Approach | How It Works | Best For | Setup Guide |
+|---|---|---|---|
+| **1. Native Larktun Linux client** | Run the one-line installer directly on ARM64 / x86-64 Linux NAS | TrueNAS SCALE, Ubuntu/Debian NAS, open Linux NAS with SSH | [Install Larktun on a NAS](../getting-started/nas-install-larktun) |
+| **2. Tailscale client -> Larktun control plane** | Install Tailscale from the NAS App Store and point `--login-server` to `https://hs.larktun.com` | Synology DSM, ASUSTOR ADM, QNAP, read-only NAS firmware | [Synology NAS Guide](../getting-started/synology-nas-tailscale-larktun) · [ASUSTOR / NAS Guide](../getting-started/nas-install-larktun) |
+| **3. LAN Subnet Router (Agentless)** | Install Larktun on an OpenWrt router or mini PC in the same LAN and publish the NAS subnet | Older ARMv7 NAS, locked-down appliances, accessing NAS + cameras together | [Install on OpenWrt](../getting-started/openwrt-install-larktun) · [Approve Subnet Routes](../getting-started/approve-subnet-routes) |
 
-There are two common approaches:
+## Example: Least-Privilege ACL for Home NAS
 
-1. If the NAS supports it, install or run the Larktun client directly so the NAS becomes a private-network device.
-2. If the NAS cannot run a client, use a router, server, or mini PC in the same LAN as a subnet router and publish the NAS subnet into the Larktun network.
+After your NAS (or LAN subnet router) is online, avoid leaving every port open permanently. Scope ACL rules to the exact services you use—for example DSM HTTPS (`5001`), Immich/Photo Web UI (`2283`), and SMB (`445`):
 
-In both cases, use ACLs to limit access. For example, allow only your phone and computer to access the NAS web UI, file service, or photo service.
+```json
+{
+  "hosts": {
+    "home-nas": "100.64.0.20/32"
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["owner@example.com@"],
+      "dst": ["home-nas:5001", "home-nas:445", "home-nas:2283", "home-nas:22"]
+    },
+    {
+      "action": "accept",
+      "src": ["family@example.com@"],
+      "dst": ["home-nas:2283"]
+    }
+  ]
+}
+```
 
-## Good fit for
+With this policy in place, family devices can browse the photo library on port `2283` without ever being able to reach the NAS admin panel or SSH.
 
-- Individuals who want to access home NAS files and photos remotely.
-- Users who need safe access to home servers, download machines, or Home Assistant.
-- Users without public IPs who want to avoid DDNS and port forwarding.
-- Users who want account, device, and port-level access control.
+## Mobile Access Without System VPN Conflicts
+
+On iPhone, iPad, or Android, you can open your NAS Web UI (`https://100.64.0.20:5001`), inspect files over SFTP, or check device latency directly inside the Larktun mobile app—without turning on a system-wide VPN or interrupting your work VPN.
+
+## Quick Verification Checklist
+
+1. Confirm the NAS (or subnet router) appears **Online** in **Nodes**.
+2. Disconnect your phone from home Wi-Fi (switch to 4G/5G) and open the NAS admin URL using its private Larktun IP or LAN subnet IP.
+3. Verify your router has **no** inbound port-forwarding rules pointing to the NAS.
 
 ## Continue Reading
 
 - [Install and Log In to Larktun on a NAS](../getting-started/nas-install-larktun)
-- [Create Your First Secure Access Path](../getting-started/publish-your-first-service)
-- [Routes Introduction](../introduction/routes-introduction)
+- [Connect a Synology NAS via Tailscale and Larktun](../getting-started/synology-nas-tailscale-larktun)
+- [Install Larktun on OpenWrt Routers](../getting-started/openwrt-install-larktun)
+- [Approve Subnet Routes](../getting-started/approve-subnet-routes)
 - [ACLs Introduction](../introduction/acls-introduction)
 - [Common Issues](../troubleshooting/common-issues)
-- [What Is Larktun?](/blog/what-is-larktun)

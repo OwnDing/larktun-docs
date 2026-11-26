@@ -1,46 +1,96 @@
 ---
 title: Secure SSH Without Exposing Public Port 22
-description: Use Larktun to SSH into development machines, cloud servers, and production servers without exposing public port 22, with device identity and ACL-based access control.
+description: Connect to cloud VMs, production Linux servers, and home mini PCs over SSH without exposing public port 22—using Larktun private networking, device identity, and port-scoped ACLs.
+keywords:
+  - secure SSH without port 22
+  - private SSH access
+  - zero-trust SSH
+  - hide SSH port cloud server
+  - Larktun SSH
 sidebar_position: 4
 ---
 
 # Secure SSH Without Exposing Public Port 22
 
-SSH is one of the most common entry points for development and operations, but public port `22` is also one of the most scanned surfaces on the internet.
+SSH is the primary administration entry point for cloud servers, development VMs, and home labs—and public TCP port `22` is simultaneously one of the most relentlessly scanned attack surfaces on the internet. Even with key-based authentication, leaving port `22` publicly reachable exposes `sshd` to automated brute-force noise, zero-day exploits, and brittle IP allowlists that break whenever your home or mobile IP changes.
 
-Larktun brings the server management entry point into a private network. Public service ports can remain open when needed, while SSH does not have to face the internet directly. Only authorized devices inside the Larktun network can reach it.
+Larktun moves SSH completely off the public internet. Your web services (`80`/`443`) can remain public when needed, while SSH becomes reachable **only** from authenticated devices inside your private Larktun tenant under explicit ACL rules.
 
-## Problems with public SSH exposure
+## Why Public Port 22 and Static IP Allowlists Fall Short
 
-Opening public port `22` can cause several issues:
+- **Continuous automated scanning**: Public cloud IPs receive thousands of credential-stuffing and protocol-probing attempts daily.
+- **Dynamic home and mobile IPs**: Residential broadband and 4G/5G connections rotate IPs frequently, forcing constant edits to AWS/Alibaba Cloud/Oracle security groups.
+- **Fragmented team permissions**: Access ends up scattered across cloud security groups, jump hosts, and individual `authorized_keys` files.
+- **Lingering temporary access**: When a contractor finishes a deployment or a teammate switches projects, removing their SSH reachability across dozens of servers is error-prone.
 
-- Continuous internet scanning and brute-force attempts.
-- Home and mobile IP addresses change, making allowlists hard to maintain.
-- Multi-user operations scatter permissions across cloud security groups, server accounts, and local keys.
-- Temporary access can remain after collaboration ends.
+With Larktun, network reachability to port `22` is governed centrally by **identity + device + ACL**.
 
-Larktun uses device identity and ACLs to make the access boundary clear: who can access which server and which port.
+## Step-by-Step: Lock Down SSH Behind Larktun
 
-## Recommended practice
+Follow this exact order so you never lock yourself out of a remote cloud server:
 
-1. Install and sign in to the Larktun client on the server.
-2. Sign in to the same tenant on your computer or phone.
-3. Use ACLs to allow only the required account, device, or group to SSH.
-4. Keep public port `22` closed in the cloud security group.
-5. SSH using the Larktun device name or private address.
+### 1. Install and Authenticate Larktun on the Server
 
-The server remains reachable, but SSH is visible only to authorized Larktun devices.
+SSH into the server once using your current method, install the Linux client (see [Install and Log In to Larktun on Linux](../getting-started/linux-install-larktun)), and join your tenant with an Auth Key:
 
-## Good fit for
+```bash
+curl -fsSL https://download.larktun.com/install.sh | sh
+sudo larktun up --login-server=https://hs.larktun.com --auth-key=<Your Auth Key>
+```
 
-- Individual developers accessing cloud servers, Oracle Cloud instances, lightweight servers, or home mini PCs.
-- Teams operating production servers without public SSH exposure.
-- Temporary server access for members, with ACL removal after the task.
-- AI Agents that need controlled access to logs, development machines, or test environments.
+Verify the server appears **Online** on the **Nodes** page and note its private Larktun IP (for example `100.64.0.15`).
+
+### 2. Add a Least-Privilege Port-22 ACL Rule
+
+In the console's **ACLs** page, allow only authorized operators or groups to reach port `22` on tagged servers:
+
+```json
+{
+  "groups": {
+    "group:ops": ["alice@", "bob@"]
+  },
+  "tagOwners": {
+    "tag:cloud-server": ["group:ops"]
+  },
+  "acls": [
+    {
+      "action": "accept",
+      "src": ["group:ops"],
+      "dst": ["tag:cloud-server:22"]
+    }
+  ]
+}
+```
+
+### 3. Verify Private SSH Before Touching the Public Firewall
+
+From your laptop—or directly from the built-in SSH terminal in the Larktun iOS/Android app (which works without system VPN permission)—open a **new** SSH session to the private IP while keeping your original terminal open as a safety net:
+
+```bash
+ssh ubuntu@100.64.0.15
+```
+
+Confirm you can log in cleanly, run commands, and reconnect reliably.
+
+### 4. Close Public Port 22 in Your Cloud Security Group
+
+Once private SSH over `100.64.0.15` is verified:
+
+1. Remove the inbound `0.0.0.0/0 -> TCP 22` rule in your cloud provider's security group / firewall (keep your cloud console serial/VNC recovery access available as an emergency fallback).
+2. Optionally restrict `sshd` or local `ufw`/`firewalld` rules so TCP `22` only accepts connections arriving on the Larktun tunnel interface.
+3. Re-test SSH over `100.64.0.15` and confirm public port `22` times out from the open internet.
+
+## Best-Fit Scenarios
+
+- **Solo developers**: Manage Oracle Cloud, AWS Lightsail, Alibaba Cloud ECS, or home mini PCs securely from any coffee shop or hotel Wi-Fi without updating IP allowlists.
+- **Engineering teams**: Grant or revoke production SSH reachability in seconds by editing one tenant ACL instead of hunting through server firewalls.
+- **Mobile emergency ops**: Use the Larktun iOS or Android app's built-in SSH/SFTP terminal to restart services or inspect logs without enabling a system VPN.
+- **Controlled AI Agent access**: Give AI Agents scoped access only to designated dev/staging hosts and ports rather than broad network exposure (see [Secure AI Agent Access](./ai-agent-secure-access)).
 
 ## Continue Reading
 
-- [Secure SSH With Larktun Without Exposing Port 22](/blog/secure-ssh-to-server-with-larktun)
+- [Deep Dive Blog: Secure SSH With Larktun Without Exposing Port 22](/blog/secure-ssh-to-server-with-larktun)
+- [Install and Log In to Larktun on Linux](../getting-started/linux-install-larktun)
 - [ACLs Introduction](../introduction/acls-introduction)
-- [Core Concepts](../introduction/core-concepts)
+- [iOS Networking App Without System VPN Permission](./ios-app-without-vpn-permission)
 - [Diagnostics](../troubleshooting/diagnostics)

@@ -1,5 +1,6 @@
 import type {ReactNode} from 'react';
 import clsx from 'clsx';
+import Head from '@docusaurus/Head';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import {
   PageMetadata,
@@ -17,14 +18,23 @@ import Heading from '@theme/Heading';
 function BlogListPageMetadata({metadata}: Props): ReactNode {
   const {
     siteConfig: {title: siteTitle},
+    i18n: {currentLocale},
   } = useDocusaurusContext();
-  const {blogDescription, blogTitle, permalink} = metadata;
+  const {blogDescription, blogTitle, permalink, page} = metadata;
   const isBlogOnlyMode = permalink === '/';
-  const title = isBlogOnlyMode ? siteTitle : blogTitle;
+  const baseTitle = isBlogOnlyMode ? siteTitle : blogTitle;
+  const isPaginated = page > 1;
+  const pageSuffix = currentLocale === 'en' ? ` - Page ${page}` : ` - 第 ${page} 页`;
+  const title = isPaginated ? `${baseTitle}${pageSuffix}` : baseTitle;
 
   return (
     <>
       <PageMetadata title={title} description={blogDescription} />
+      {isPaginated && (
+        <Head>
+          <meta name="robots" content="noindex, follow" />
+        </Head>
+      )}
       <SearchMetadata tag="blog_posts_list" />
     </>
   );

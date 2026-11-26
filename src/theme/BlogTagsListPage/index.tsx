@@ -1,5 +1,6 @@
 import type {ReactNode} from 'react';
 import clsx from 'clsx';
+import Head from '@docusaurus/Head';
 import {translate} from '@docusaurus/Translate';
 import {
   PageMetadata,
@@ -32,6 +33,9 @@ export default function BlogTagsListPage({tags, sidebar}: Props): ReactNode {
         ThemeClassNames.page.blogTagsListPage,
       )}>
       <PageMetadata title={title} description={description} />
+      <Head>
+        <meta name="robots" content="noindex, follow" />
+      </Head>
       <SearchMetadata tag="blog_tags_list" />
       <BlogLayout sidebar={sidebar}>
         <Heading as="h1">{title}</Heading>

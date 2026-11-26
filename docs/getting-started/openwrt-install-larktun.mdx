@@ -1,11 +1,12 @@
 ---
 title: 在 OpenWrt 路由器上安装云雀通
-description: 在 OpenWrt 路由器上通过一键脚本安装云雀通（Larktun），生成 Auth Key 并登入，实现路由器级的零信任远程访问与组网。
+description: 在 OpenWrt 路由器上通过一键脚本安装云雀通（Larktun），检查存储空间与架构、生成 Auth Key 登入、配置子网路由与防火墙转发，实现路由器级零信任远程访问。
 keywords:
   - OpenWrt 安装云雀通
   - OpenWrt VPN
   - OpenWrt 远程访问
   - 路由器 Tailscale
+  - OpenWrt 子网路由
   - 路由器组网
   - headscale
   - Larktun OpenWrt
@@ -14,33 +15,54 @@ sidebar_position: 12
 
 # 在 OpenWrt 路由器上安装云雀通
 
-云雀通（Larktun）支持直接安装在 OpenWrt 路由器上。安装完成后，路由器本身会作为一个节点接入云雀通网络，你也可以基于它继续配置子网路由，让局域网内的其他设备无需单独安装客户端即可被远程访问。
+云雀通（Larktun）支持直接安装在 OpenWrt 路由器上。相比只在单台电脑或 NAS 上装客户端，把路由器本身接入云雀通网络有明显优势：路由器常年 7×24 小时在线，且可以作为**局域网子网路由节点（Subnet Router）**，让家里或办公室里无法装客户端的设备（例如监控摄像头、打印机、旧款 NAS、智能家居网关、工控设备）无需暴露公网端口即可被安全远程访问。
 
-本教程介绍如何在 OpenWrt 上使用在线脚本安装云雀通、生成 Auth Key，并完成首次登入。
+本教程覆盖 OpenWrt 环境检查、一键脚本安装、Auth Key 登入、子网路由与防火墙配置、服务运维以及常见报错排查。
 
-## 开始前准备
+## 开始前准备与环境检查
+
+在开始安装前，请先确认以下条件：
 
 - 路由器已刷入 OpenWrt 系统，并能够正常访问互联网。
-- 已通过 SSH 登入路由器后台（LuCI 的 **系统 > 管理权 > SSH 访问** 或终端工具均可）。
-- 注册并登入 [云雀通控制台](https://larktun.com/auth/login)。
-- 路由器有足够的存储空间用于安装 `larktun` 与 `larktund`（建议至少预留几 MB 的可用空间）。
+- 已通过 SSH 登入路由器后台（可在 LuCI 的 **系统 > 管理权 > SSH 访问** 中开启，或直接使用终端 `ssh root@<路由器IP>`）。
+- 已注册并登入 [云雀通控制台](https://larktun.com/auth/login)。
+- 确认路由器架构、剩余闪存空间和系统时间正常：
+
+```bash
+# 查看 CPU 架构与 opkg 架构标识
+uname -m
+opkg print-architecture
+
+# 检查 /overlay 可用空间（建议至少预留 10~15 MB，避免安装中断）
+df -h /overlay
+
+# 确认系统时间正确（时间偏差过大会导致 wget 与控制面 TLS 校验失败）
+date
+```
+
+:::tip
+如果路由器剩余空间极小（例如早期 16MB Flash 设备），建议先卸载不用的软件包，或确认是否已配置外置 USB/TF 卡扩容 overlay，再执行安装。
+:::
 
 ## 1. 使用在线脚本安装
 
-通过 SSH 进入路由器后，执行以下命令下载并运行安装脚本：
+通过 SSH 进入 OpenWrt 路由器后，执行以下命令下载并运行安装脚本：
 
 ```bash
 wget -O /tmp/larktun.sh https://download2.larktun.com/openwrt/install.sh && sh /tmp/larktun.sh
 ```
 
-脚本会自动识别路由器的 CPU 架构，下载对应的云雀通程序，并完成基础的服务配置。安装过程中的日志会实时输出在终端中。
+脚本会自动识别路由器的 CPU 架构（如 `aarch64_generic`、`x86_64`、`mipsel` 等）和 OpenWrt 版本，拉取对应的 `.ipk` 安装包，并完成 `larktun` 与 `larktund` 守护进程及开机自启配置。安装过程中的日志会实时输出在终端中。
 
 安装成功后，终端会显示类似下图的提示界面，包含安装完成提示，以及后续登入所需的命令格式：
 
 ![OpenWrt 上云雀通安装完成提示界面](/img/docs/openwrt/openwrt-install-success.webp)
 
 :::tip
-如果执行 `wget` 时报证书或下载失败，请确认路由器系统时间是否正确，以及是否能正常解析和访问 `download2.larktun.com`。
+如果执行 `wget` 时报证书错误或下载失败，请先核对三件事：
+1. 路由器系统时间是否准确（可在 LuCI **系统 > 系统 > 时间同步** 启用 NTP）；
+2. 是否安装了完整的 `ca-bundle` / `ca-certificates`；
+3. 路由器是否能正常解析和访问 `download2.larktun.com`。
 :::
 
 ## 2. 在控制台生成 Auth Key
@@ -60,23 +82,68 @@ wget -O /tmp/larktun.sh https://download2.larktun.com/openwrt/install.sh && sh /
 larktun up --login-server=https://hs.larktun.com --auth-key=<您的 Auth Key>
 ```
 
-其中 `--login-server` 需指向云雀通的接入控制面（例如 `https://hs.larktun.com`，具体请以控制台页面中的引导提示为准）。
+其中 `--login-server` 指向云雀通的控制面地址（例如 `https://hs.larktun.com`，具体以控制台页面中的引导提示为准）。
 
-## 验证接入状态
+如果希望这台 OpenWrt 路由器**同时作为局域网子网路由**，把路由器后面的内网段（例如 `192.168.1.0/24`）发布出来，可以在登入时直接带上 `--advertise-routes` 参数：
 
-执行登入命令后，回到云雀通控制台的 **Nodes（设备）** 页面并刷新，确认这台 OpenWrt 路由器已经显示为在线。在线后，你可以参考[批准子网路由](./approve-subnet-routes)，把路由器后面的局域网段一并发布到云雀通网络，让其他设备无需安装客户端即可被远程访问。
+```bash
+larktun up \
+  --login-server=https://hs.larktun.com \
+  --auth-key=<您的 Auth Key> \
+  --advertise-routes=192.168.1.0/24
+```
+
+## 4. 验证接入状态与服务自启
+
+执行登入命令后，同时在路由器终端和控制台确认状态：
+
+```bash
+# 查看云雀通节点在线状态、分配的私有 IP 及对端列表
+larktun status
+
+# 确认已开启开机自启（init.d / procd）
+/etc/init.d/larktund enabled && echo "autostart enabled"
+
+# 查看最近运行日志
+logread | grep -i larktun | tail -n 30
+```
+
+回到云雀通控制台的 **Nodes（设备）** 页面并刷新，确认这台 OpenWrt 路由器已显示为 **在线**。建议顺手把默认主机名重命名为易识别的名称（例如 `home-openwrt`）。
+
+## 5. 发布局域网子网与防火墙注意事项
+
+如果你希望外出时通过 OpenWrt 路由器访问整个家庭或办公局域网设备（如 NAS、摄像头、打印机、软路由旁路由等），请依次完成三步：
+
+1. **在控制台批准路由**：进入 **路由（Routers）** 页面，开启 OpenWrt 宣告的局域网段开关。
+2. **配置 ACL 放行**：在 **访问控制（ACLs）** 中允许你的账号或设备访问目标内网段及端口（详细写法见[批准子网路由](./approve-subnet-routes)）。
+3. **确认 OpenWrt 转发与防火墙规则**：
+   - 确认内核已开启 IPv4 转发（OpenWrt 路由器默认已开启，可用 `sysctl net.ipv4.ip_forward` 验证结果为 `1`）。
+   - 如果外部设备能 `ping` 通 OpenWrt 的云雀通私有 IP，但无法访问路由器后面的内网 IP，请检查 LuCI **网络 > 防火墙** 中是否允许云雀通虚拟网卡接口与 `lan` 区域之间的转发（Forward）及回程 NAT（Masquerading），必要时为云雀通网卡建一个接口并归入受控防火墙区域。
+   - **避免网段冲突**：尽量不要让家里和公司/外出网络都使用同一个 `192.168.1.0/24` 网段；如果冲突，建议将家里 OpenWrt LAN 网段调整为不常见网段（例如 `192.168.68.0/24`）。
+
+## OpenWrt 常见运维命令
+
+| 场景 | 命令 |
+|---|---|
+| 查看连接状态与节点 IP | `larktun status` |
+| 测试到对端是否直连/中继 | `larktun ping <目标IP>` |
+| 重启云雀通后台服务 | `/etc/init.d/larktund restart` |
+| 查看系统日志排查报错 | `logread \| grep -i larktun` |
+| 刷机升级前保留配置 | 在 LuCI **系统 > 备份/升级 > 配置** 中将云雀通状态目录加入保留清单，或升级后重新用 Auth Key 登入 |
 
 ## 安装或登入失败怎么办
 
-- `wget` 下载失败或超时：检查路由器能否访问公网，以及防火墙、广告屏蔽插件是否拦截了下载请求。
-- 提示存储空间不足：清理无用的软件包或日志后重试，OpenWrt 设备的可用空间通常比较有限。
-- 执行 `larktun up` 后路由器始终不在线：确认 Auth Key 没有过期或被重复使用，并检查 `--login-server` 地址是否完整、拼写正确。
-- 路由器重启后云雀通未自动运行：检查安装脚本是否已将 `larktund` 注册为 OpenWrt 的开机自启服务（init.d / procd）。
-- 仍未解决：参考[问题处理](../troubleshooting/common-issues)，或在控制台提交工单时附上路由器型号、固件版本与执行命令的完整输出。
+- **`wget` 报证书错误、下载失败或超时**：确认路由器可以访问公网，用 `date` 检查系统时间是否准确，并确认防火墙或去广告插件未拦截 `download2.larktun.com`。
+- **提示存储空间不足（`No space left on device`）**：运行 `df -h /overlay` 检查剩余空间，清理无用的软件包或日志后重试；16MB Flash 小空间路由器建议优先排查空间占用。
+- **执行 `larktun up` 后路由器始终不在线**：确认 Auth Key 没有过期或被单次消耗，检查 `--login-server=https://hs.larktun.com` 拼写完整，并通过 `logread | grep -i larktun` 查看具体握手报错。
+- **路由器重启后云雀通未自动运行**：执行 `/etc/init.d/larktund enable && /etc/init.d/larktund start` 重新注册为 OpenWrt 的开机自启服务。
+- **能连路由器但连不上局域网内其他设备**：依次检查控制台路由是否批准、ACL 是否放行目标子网端口、客户端是否开启 `--accept-routes`，以及 OpenWrt 防火墙区域转发规则。
+- **仍未解决**：参考[常见问题](../troubleshooting/common-issues)与[诊断流程](../troubleshooting/diagnostics)，或在控制台提交工单时附上路由器型号、OpenWrt 版本与 `logread` 关键日志。
 
 ## 下一步
 
 - [批准子网路由](./approve-subnet-routes)
 - [开通第一条安全访问链路](./publish-your-first-service)
+- [NAS 安装与登入云雀通](./nas-install-larktun)
 - [使用 Tailscale 客户端登入](./tailscale-client-login)
-- [问题处理](../troubleshooting/common-issues)
+- [常见问题](../troubleshooting/common-issues)
