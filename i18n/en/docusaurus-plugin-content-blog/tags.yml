@@ -130,3 +130,7 @@ webrtc:
   label: WebRTC
   permalink: /webrtc
   description: WebRTC remote control, desktop streaming, and multi-device collaboration over the Larktun private network.
+easytier:
+  label: EasyTier
+  permalink: /easytier
+  description: Posts comparing EasyTier decentralized mesh networking with Tailscale and Larktun.

@@ -1,0 +1,296 @@
+---
+slug: larktun-vs-tailscale-vs-easytier
+title: "Larktun vs. Tailscale vs. EasyTier: How to Choose the Right Mesh VPN"
+description: "An objective comparison of Larktun, Tailscale, and EasyTier across architecture, relay networks in China, China App Store iOS apps without system VPN permission, OpenWrt and NAS packages, built-in WebRTC remote control, multi-tenancy, and ACL management."
+authors: [ownding]
+tags: [larktun, tailscale, easytier, zero-trust-networking, remote-access, mobile, vpn, acl, multi-tenant]
+keywords:
+  - Larktun vs Tailscale vs EasyTier
+  - Tailscale vs EasyTier
+  - Larktun vs EasyTier
+  - Tailscale alternative in China
+  - mesh VPN comparison
+  - zero-trust remote access
+  - China DERP relay Tailscale
+  - iOS mesh networking without VPN permission
+  - OpenWrt mesh VPN installer
+  - WebRTC remote control private network
+  - multi-tenant ACL mesh VPN
+image: /img/blog/larktun-vs-tailscale-vs-easytier/comparison-overview-en.svg
+---
+
+import Head from '@docusaurus/Head';
+
+When people compare modern mesh VPN and zero-trust remote access tools—especially for connecting home NAS devices, dev servers, routers, and remote teams without a public IP—three names come up again and again: **Larktun**, **Tailscale**, and **EasyTier**.
+
+Let's start with the most important takeaway: **none of these three tools is universally "better" than the others.** Each one reflects a different engineering trade-off and fits a clear set of real-world scenarios. Tailscale is the mature global benchmark for WireGuard mesh networking; EasyTier is an impressive, fully open-source, decentralized Rust mesh engine with aggressive NAT traversal; and Larktun builds on the Tailscale and Headscale ecosystem to focus on China-friendly relays, no-VPN mobile workbenches, built-in WebRTC remote control, ready-made router/NAS installers, and multi-tenant ACL governance.
+
+This guide breaks down how they actually compare in day-to-day use—and how to choose the one that fits your setup.
+
+{/* truncate */}
+
+![Comparison of Larktun, Tailscale, and EasyTier across architecture, relays, mobile apps, remote control, and governance](/img/blog/larktun-vs-tailscale-vs-easytier/comparison-overview-en.svg)
+
+## At-a-Glance Comparison
+
+Before diving into details, here is how the three tools stack up across architecture, connectivity in China, mobile apps, hardware packaging, remote control, and access governance:
+
+| Dimension | Tailscale | EasyTier | Larktun |
+| --- | --- | --- | --- |
+| **Core Architecture** | WireGuard + managed SaaS control plane (or self-hosted Headscale) | Rust + Tokio, fully decentralized mesh | Multi-tenant SaaS built on Tailscale protocol & Headscale concepts |
+| **Account & Onboarding** | Third-party OAuth (Google, Microsoft, GitHub, etc.) | No account required; join with network name + secret (optional Web Console) | Larktun account or Auth Key; **compatible with official Tailscale clients** |
+| **Relays & China Connectivity** | Official DERP relays are mostly outside mainland China (self-hosted DERP possible) | Community nodes + trivial to self-host relays on any VPS; TCP/KCP/QUIC traversal | **Built-in mainland China shared relays**, plus dedicated VIP and self-hosted DERP options; fast China download mirrors |
+| **Mobile & Mainland China iOS** | Not available on Mainland China App Store; requires system VPN permission | Official iOS client not on Mainland China App Store; requires system VPN permission | **Available on Mainland China App Store**; in-app networking via `tsnet`—**no system VPN permission needed** on iOS or Android |
+| **Routers / NAS / Packages** | Very mature ecosystem across Synology, QNAP, OpenWrt, Linux, Docker | Lightweight single binaries across Windows, macOS, Linux, OpenWrt, Docker, Android | Desktop apps (Windows/macOS), **OpenWrt one-line script & `.ipk`**, Linux script, multi-arch Docker, NAS guides, and **Android TV APK** |
+| **Remote Control & Workbench** | Networking layer + Tailscale SSH; desktop control requires third-party apps | Networking layer + subnet proxy; SSH, RDP, and remote desktop require third-party apps | Mobile apps bundle **WebRTC remote control** (Windows/macOS), RDP, SSH, SFTP, enhanced multi-tab browser, Smart Discovery, file transfer, and AI assistant |
+| **Multi-Tenancy & ACLs** | Mature web ACLs/Grants and enterprise SSO for global teams | Local config / group-secret ACLs; no native multi-tenant SaaS console | **Native multi-tenant isolation**, per-tenant ACLs (templates + visual UI + JSON), centralized route approval, and Chinese device aliases |
+| **Open Source & Control** | Open-source clients, closed SaaS control plane (Headscale available for self-hosting) | Fully open-source and decentralized; 100% independent of third-party services | Selected clients & tooling open-source; managed SaaS control plane with optional self-hosted relays |
+
+## Understanding Each Tool's Position
+
+Picking a networking tool rarely needs to be a zero-sum debate. Most frustrations happen when people force a tool built for one priority into a workflow designed around another.
+
+### Tailscale: The Global Zero-Trust Standard
+
+Tailscale largely defined what modern private mesh networking feels like: WireGuard for fast, encrypted tunnels; STUN hole-punching with DERP relay fallback; and polished features like MagicDNS, Subnet Routers, Exit Nodes, Tailscale SSH, and identity-based ACLs.
+
+If your devices and teammates are mostly outside mainland China—or your company already standardizes on Google Workspace, Okta, or GitHub SSO and uses non-China App Store accounts—**Tailscale remains an outstanding, rock-solid choice**. When users in China run into friction with Tailscale, it is rarely because the protocol is weak; it is because official DERP placement, App Store availability, and regional tooling were not designed around mainland China environments.
+
+### EasyTier: Open-Source, Decentralized, and Built for Harsh NATs
+
+EasyTier has earned a strong following for good reason. Written in Rust on top of Tokio, it is lightweight, fully open-source, and completely decentralized. You do not need to register an account with any vendor—pick a network name and secret, point to a public node or your own low-cost VPS, and your devices form a mesh.
+
+Where EasyTier shines brightest is the transport layer: **aggressive NAT traversal, multi-protocol fallback (UDP, TCP, KCP, QUIC), and multi-hop routing across peer nodes**. If you live behind restrictive campus networks, double symmetric NATs, or severe UDP packet loss—or if full open-source self-sovereignty with zero third-party control planes is a hard requirement—EasyTier is an excellent fit.
+
+### Larktun: Built on Tailscale's Foundations, Engineered for Daily Usability & Governance
+
+Larktun starts from a practical observation: many individuals, developers, and teams love the reliability and zero-trust model of Tailscale and Headscale, but don't want to spend a weekend setting up overseas Apple IDs, maintaining a Headscale control server, renewing certificates, hosting custom DERP relays, and juggling five separate mobile apps just to open a NAS page, SSH into a server, or control a desktop computer.
+
+Instead of reinventing WireGuard from scratch, Larktun builds on the proven Tailscale and Headscale foundation and focuses on **China-ready relay infrastructure, no-VPN mobile workbenches, built-in WebRTC remote control, hardware-friendly installers, and multi-tenant permission governance**. For more background, see [How Larktun relates to Tailscale and Headscale](/docs/topics/larktun-vs-tailscale-headscale).
+
+## Larktun vs. Tailscale: Same Foundation, Key Optimizations Where It Hurts Most
+
+If you already know Tailscale, the natural question is: *what does Larktun actually change on top of it?* Here are the areas where the difference shows up immediately in everyday use.
+
+### 1. Mainland China Relays—Plus Dedicated and Self-Hosted DERP Options
+
+When two peers establish a direct P2P WireGuard tunnel, both Tailscale and Larktun run at line speed. The real difference happens when strict carrier NATs, cellular networks, or corporate firewalls force traffic through a **DERP relay**.
+
+Tailscale's public DERP servers sit outside mainland China, so relayed connections from China often suffer from high latency and jitter unless you buy a domestic server and self-host a private DERP node. Larktun solves this out of the box:
+
+- **Mainland China shared relays are enabled by default** for every user, including free accounts.
+- **Dedicated VIP relays and self-hosted DERP nodes** can be configured directly in the `Derper` console via either a visual form or JSON (see [Deployment and Configuration](/docs/getting-started/install-and-configure)).
+- **Domestic download mirrors** keep desktop installers, Linux scripts, and OpenWrt packages fast without proxy workarounds.
+
+### 2. China App Store iOS App—Without Requiring System VPN Permission
+
+For iPhone and iPad users in China, this is often the single biggest quality-of-life upgrade:
+
+- **Direct Mainland China App Store availability**: Official Tailscale iOS is unavailable in the Mainland China App Store, forcing users to manage overseas Apple IDs. Larktun's iOS app can be downloaded directly from the China App Store, making onboarding family members or teammates far easier.
+- **No system VPN slot required**: Standard mobile mesh clients rely on iOS Network Extension or Android `VpnService`, occupying the OS's single VPN slot and conflicting with corporate VPNs or proxy apps.
+
+Larktun's iOS and Android apps embed networking inside the app process via **`tsnet`**. They **do not request system VPN permission**, do not hijack traffic from other apps on your phone, and run peacefully alongside your existing company VPN. Read [In-App Networking Without VPN Permission](/blog/larktun-tsnet-app-without-vpn-permission) for the architecture and trade-offs behind this design.
+
+### 3. Ready-to-Use OpenWrt, Linux, Docker, and NAS Installers—Plus Tailscale Client Compatibility
+
+Real home and office networks include far more than laptops:
+
+- **OpenWrt routers**: A one-line installer automatically detects common router architectures (`aarch64_generic`, `x86_64`, `mipsel`, etc.), installs the `.ipk` package, and enables autostart so your router acts as a 24/7 subnet router (see the [OpenWrt installation guide](/docs/getting-started/openwrt-install-larktun)).
+- **Linux & ARM64 NAS**: One-line scripts auto-configure `systemd`, OpenRC, or SysV init, and include built-in protection for underlay DNS routes on cloud providers like Alibaba Cloud whose internal DNS sits inside `100.64.0.0/10` (see the [Linux installation guide](/docs/getting-started/linux-install-larktun)).
+- **Multi-arch Docker image**: Supports `amd64`, `arm64`, and `armv7` in both low-privilege userspace mode and kernel TUN mode (see the [Docker guide](/docs/getting-started/docker-login-larktun)).
+- **Native Tailscale client compatibility**: On appliances like Synology DSM or ASUSTOR NAS where Tailscale is already in the official app store, simply install Tailscale and sign in with `--login-server=https://hs.larktun.com` (see the [Synology NAS guide](/docs/getting-started/synology-nas-tailscale-larktun)).
+- **Practical local touches**: Chinese console UI, **Chinese device names and aliases**, customizable private IP ranges to avoid LAN/cloud overlaps, and a free tier with 5 devices by default (expandable to 10 via referrals) with no traffic caps.
+
+## Larktun vs. EasyTier: From a Network Pipe to a Full Client Suite, Remote Control, and Team Governance
+
+Comparing Larktun and EasyTier highlights two very different product philosophies.
+
+To be clear about where EasyTier excels: it is a **lean, powerful, open-source networking core**. If you enjoy running your own VPS relay, configuring nodes via CLI or YAML/TOML, relying on KCP/QUIC over lossy links, and owning 100% of your stack with zero SaaS dependency, EasyTier delivers tremendous freedom.
+
+Larktun focuses on everything that comes *after* the tunnel is up—turning a private network into a cohesive, everyday workspace for both individuals and teams:
+
+### 1. A Complete, Unified Client Suite—Not Just a Network Toggle
+
+With EasyTier, once the virtual interface is running, you still assemble your own toolchain: another app for SSH/SFTP, another app for RDP or desktop control, a separate browser, and an overseas Apple ID if you want the official iOS client (which still consumes the system VPN slot).
+
+Larktun ships a unified suite across Windows (`.msi`), macOS (`.pkg`), Linux, OpenWrt, Docker, [Android TV](/docs/getting-started/tv-install-larktun), iPhone, iPad, Android phones, and Android tablets. On mobile, the app is a self-contained remote workbench:
+
+- **In-app `tsnet` networking** with no system VPN conflict;
+- **Smart Discovery** that scans and surfaces Web, SSH, SFTP, and RDP services so you don't have to memorize IP addresses and ports;
+- **Built-in SSH & SFTP** (including side-by-side terminal and file panes on tablets);
+- **Enhanced multi-tab WebView** tailored for complex private web apps like ComfyUI, NAS dashboards, and Grafana, complete with fullscreen mode and full file downloads;
+- **Built-in RDP, file transfer, iPad tear-off windows & external display support, and an optional AI assistant** (see [iOS App Overview](/docs/introduction/ios-app-overview) and the [Android App Update](/blog/larktun-android-webrtc-tablet-phone-ui)). Better yet, the **Android app is free to use**.
+
+### 2. Built-In, Lightweight, Ad-Free WebRTC Remote Control
+
+Neither EasyTier nor Tailscale includes native cross-platform remote desktop control for taking over an active Windows or macOS desktop session—meaning users typically deploy RustDesk, Sunshine/Moonlight, or commercial ad-supported remote tools on top.
+
+Larktun integrates **WebRTC remote control** directly over your private network:
+
+- **Lightweight, ad-free hosts** for Windows and macOS (`Larktun Host`);
+- **Control from iPhone, iPad, Android phones, and Android tablets** with hardware-accelerated H.264 video, Opus audio, clipboard sync, and multi-monitor switching;
+- **Multi-device collaboration**: connect multiple devices to the same desktop at once—one controls while others view, and any authorized device can tap **Take control** seamlessly;
+- **Zero public remote-control ports**: all media and input stay inside your encrypted Larktun network, protected by both network ACLs and host access tokens (see [Larktun WebRTC Remote Control](/blog/larktun-webrtc-remote-control)).
+
+### 3. Native Multi-Tenancy and Visual ACL Management
+
+When you only have two personal machines, access control rarely crosses your mind. Once you add family members, developers, ops staff, or separate client environments, managing permissions manually gets messy fast.
+
+Because EasyTier is decentralized by design, its group-based ACLs rely on local node configurations and shared group secrets—there is no built-in multi-tenant SaaS console for centralized governance or audit views.
+
+Larktun is built from the ground up around **multi-tenant isolation and accessible ACL governance**:
+
+- **Strict tenant boundaries**: every individual or team workspace gets isolated devices, routes, ACLs, relay settings, and audit logs.
+- **Templates + Visual Editor + JSON**: start with built-in ACL templates or point-and-click rules in the console, or write full Headscale/Tailscale-style JSON policies with `groups`, `tagOwners`, `autoApprovers`, and policy `tests` (see [ACLs Introduction](/docs/introduction/acls-introduction)).
+- **Centralized route approval & instant revocation**: subnet routes and exit nodes require explicit approval in the `Routers` console, and revoking a teammate's or contractor's access takes one click instead of touching individual config files.
+
+### 4. Lower Day-to-Day Setup and Maintenance Friction
+
+With EasyTier, flexibility comes with hands-on responsibility: checking public relay health, maintaining your own relay VPS, and aligning configs across platforms. Larktun wraps that operational overhead into a guided SaaS console while still letting advanced users attach their own DERP relays whenever needed.
+
+## Four Extra Factors Worth Thinking Through
+
+Before making your final call, four practical trade-offs are easy to overlook:
+
+### 1. System-Wide VPN vs. In-App Networking (`tsnet`)
+
+Each mobile approach has clear boundaries:
+
+- Choose **system-wide VPN** (Tailscale, EasyTier, or Larktun desktop clients) when you need **third-party native mobile apps**—like Infuse over SMB, Synology Photos, or a standalone database GUI—to reach private IPs transparently.
+- Choose **in-app `tsnet` networking** (Larktun iOS & Android) when you run a corporate VPN or proxy on your phone and want instant, zero-conflict access to web UIs, SSH, SFTP, RDP, WebRTC remote control, and file transfers inside one app.
+
+### 2. Harsh-NAT Traversal vs. Predictable Relay Fallback
+
+- On networks plagued by **double symmetric NAT, campus firewalls, or aggressive UDP throttling**, EasyTier's TCP/KCP/QUIC stack and multi-hop mesh give it a real edge at punching through hostile links.
+- Across typical home broadband, office networks, cloud servers, and 4G/5G cellular connections, WireGuard's maturity and efficiency remain hard to beat—and pairing it with Larktun's mainland China relays (or a nearby self-hosted DERP) keeps fallback latency low and predictable.
+
+### 3. Self-Hosting & Control-Plane Ownership
+
+All three tools encrypt your data end to end, so the real privacy decision is **who operates the coordination plane**:
+
+- Need **100% open-source, zero-vendor self-hosting**? Pick EasyTier or self-hosted Headscale + Tailscale clients.
+- Want **managed SaaS convenience with mainland China relays and optional self-hosted DERP**? Pick Larktun.
+- Already standardized on **global enterprise SSO and Tailscale Funnel/Serve**? Stick with Tailscale.
+
+### 4. You Can Mix and Match
+
+Because Larktun stays protocol-compatible with the Tailscale ecosystem, you don't even have to treat this as an all-or-nothing migration:
+
+- Run the official **Tailscale package on Synology or ASUSTOR NAS** pointed at Larktun's control server for mainland China relays and a unified console.
+- Already running **Tailscale or self-hosted Headscale**? Install the Larktun iOS or Android app and use **third-party login** with your existing Auth Key and server URL to get no-VPN SSH, SFTP, and private Web browsing without migrating your network (see [Third-Party Tailscale / Headscale Login](/docs/getting-started/ios-third-party-login)).
+
+## Which One Should You Choose?
+
+### Choose Tailscale if:
+- Your devices and users are mostly **outside mainland China**, or direct P2P works reliably and overseas App Store access is not an issue;
+- Your organization relies on Okta, Google Workspace, or GitHub SSO and native features like Tailscale Funnel and Serve;
+- You depend on system-wide mobile VPN so third-party native iOS/Android apps can reach your tailnet directly.
+
+### Choose EasyTier if:
+- You prioritize **100% open-source, decentralized, account-free networking** with complete control over every component;
+- You frequently deal with **restrictive campus networks, symmetric NATs, or severe UDP packet loss** where TCP/KCP/QUIC and multi-hop routing shine;
+- You already run a domestic VPS, enjoy CLI/YAML/Docker workflows, and prefer pairing the network with your own standalone remote desktop and SSH tools.
+
+### Choose Larktun if:
+- You primarily operate in **mainland China** and want **built-in domestic relays**, fast local mirrors, and a Chinese-friendly console without maintaining Headscale or custom DERP servers yourself;
+- You want an **iOS app directly from the Mainland China App Store** (and a free Android app) that works **without system VPN permission**, coexisting seamlessly with corporate VPNs;
+- You want an **all-in-one remote workflow**—including lightweight, ad-free **WebRTC remote control** for Windows and macOS, plus built-in RDP, SSH, SFTP, Smart Discovery, and an enhanced browser for NAS and ComfyUI;
+- You run **OpenWrt routers, Linux servers, Docker hosts, or NAS devices** and want tested one-line scripts, `.ipk` packages, and official Tailscale compatibility;
+- You manage access for **families, dev/ops teams, or multiple clients** and want **native multi-tenant isolation, visual + JSON ACLs, and centralized route approval**.
+
+<Head>
+  <script type="application/ld+json">{JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'How does Larktun relate to Tailscale, and can they be used together?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Larktun builds on the Tailscale protocol ecosystem and Headscale control-plane concepts, adding mainland China relays, SaaS multi-tenancy, visual ACLs, Chinese device aliases, no-VPN mobile apps, and built-in WebRTC remote control. They work well together: official Tailscale packages on Synology or ASUSTOR NAS can sign in to Larktun, and Larktun mobile apps can also sign in to existing Tailscale or self-hosted Headscale networks.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Why does the Larktun iOS app not require system VPN permission?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Larktun embeds networking inside the mobile app via tsnet instead of taking over the system VPN interface. Only traffic inside the Larktun app—such as WebRTC remote control, RDP, SSH, SFTP, the built-in browser, and file transfer—uses your private network, so other apps are unaffected and corporate VPNs do not conflict.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Which is faster in China: Larktun, Tailscale, or EasyTier?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'When direct P2P hole-punching succeeds, all three run near your available upload/download bandwidth. The difference appears on relayed connections: Tailscale defaults to overseas DERP servers with higher latency from mainland China; EasyTier supports KCP/QUIC and easy self-hosted domestic VPS relays; Larktun provides mainland China shared relays out of the box plus dedicated and self-hosted DERP options.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Which tool is best for accessing a home NAS and PC without a public IP?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Choose Larktun if you want fast China setup, Mainland China App Store iOS access without VPN conflicts, and built-in WebRTC/RDP/SSH/Web tools in one app. Choose EasyTier if you prefer fully open-source, account-free networking with your own VPS relay. Choose Tailscale if you already use its global ecosystem and third-party remote apps.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Which option works best for team permission management and multi-tenant isolation?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'For teams in China or multi-project environments, Larktun offers native multi-tenant isolation, visual plus JSON ACL editors with templates, and centralized subnet route approval. Global organizations using enterprise SSO fit well with Tailscale commercial plans, while EasyTier is geared toward decentralized, self-managed deployments.',
+        },
+      },
+    ],
+  })}</script>
+</Head>
+
+## Frequently Asked Questions
+
+### How does Larktun relate to Tailscale, and can they be used together?
+
+Larktun evolves from the Tailscale protocol ecosystem and Headscale control-plane design, adding mainland China relays, SaaS multi-tenancy, visual ACL governance, Chinese device names, no-VPN mobile apps, OpenWrt/Linux installers, and built-in WebRTC remote control.
+
+They interoperate smoothly: NAS appliances like Synology and ASUSTOR can run the official Tailscale package pointed at Larktun's control server, and users who already operate Tailscale or self-hosted Headscale can use Larktun's iOS and Android apps via third-party login without migrating their network.
+
+### Why does the Larktun iOS app not require system VPN permission?
+
+Larktun uses `tsnet` to run the mesh networking stack inside the app process rather than claiming the operating system's VPN slot. As a result:
+
+- You do not need to configure a system VPN profile or disconnect your corporate VPN;
+- Only tools inside the Larktun app (WebRTC remote control, RDP, SSH, SFTP, built-in browser, file transfer) traverse your private network;
+- All other apps on your phone continue using your normal network unchanged.
+
+### Which is faster in China: Larktun, Tailscale, or EasyTier?
+
+When peers achieve a **direct P2P connection**, speeds for all three depend primarily on each side's uplink and downlink bandwidth. The gap shows up when traffic falls back to a **relay**:
+
+- **Tailscale** defaults to overseas DERP servers, which often means higher latency in mainland China unless you host your own DERP.
+- **EasyTier** pairs aggressive NAT traversal (TCP/KCP/QUIC) with easy self-hosted VPS relays in China.
+- **Larktun** includes **mainland China shared relays out of the box**, with upgrades to dedicated relays or self-hosted DERP nodes whenever you want tighter capacity control.
+
+### Which tool is best for accessing a home NAS and PC without a public IP?
+
+If you want the shortest path from installation to actually using your devices—including China App Store iOS access, no-VPN mobile tools, and built-in WebRTC/RDP control of Windows and Mac—**Larktun** offers the most complete package. If you enjoy 100% open-source self-hosting and tuning your own relay infrastructure, **EasyTier** is a great match. If you already use **Tailscale** smoothly, you can keep it—or pair it with Larktun's mobile apps.
+
+### Which option works best for team permission management?
+
+For teams in China or organizations isolating multiple departments or clients, **Larktun** makes governance straightforward with native multi-tenancy, template/visual/JSON ACL editors, and centralized route approval. Global enterprises deeply integrated with international SSO providers are well served by **Tailscale** commercial plans, while **EasyTier** excels when technical teams want full decentralized control and are comfortable managing configs themselves.
+
+## Final Thoughts
+
+Taken together, these three tools represent three complementary strengths in modern mesh networking:
+
+- **Tailscale** set the standard for effortless WireGuard zero-trust networking;
+- **EasyTier** proved how capable a pure open-source, decentralized Rust mesh can be under tough NAT conditions;
+- **Larktun** brings that reliable networking foundation together with mainland China relays, ready-to-use hardware installers, no-VPN mobile workbenches, lightweight WebRTC remote control, and approachable multi-tenant ACL governance.
+
+Pick the tool that matches your network, devices, and daily workflow. If you want to try Larktun's China relays, no-VPN mobile apps, or WebRTC remote control, these guides are a good place to start:
+
+- [Larktun Downloads](https://larktun.com/download) (Windows, macOS, Linux, OpenWrt, Docker, iOS, Android, and Android TV)
+- [Quick Start: Connect Devices, Configure ACLs, and Choose Relays](/docs/getting-started/quick-start)
+- [Install Larktun on OpenWrt Routers](/docs/getting-started/openwrt-install-larktun)
+- [iOS App Overview: No-VPN Mesh, WebRTC Remote Control, RDP, and SSH](/docs/introduction/ios-app-overview)
+- [How Larktun Relates to Tailscale and Headscale](/docs/topics/larktun-vs-tailscale-headscale)

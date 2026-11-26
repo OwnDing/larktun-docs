@@ -1,0 +1,313 @@
+---
+slug: larktun-vs-tailscale-vs-easytier
+title: "Larktun（云雀通）、Tailscale、EasyTier 全面对比：三款异地组网工具怎么选？"
+description: "客观对比云雀通 Larktun、Tailscale 与 EasyTier 三款异地组网工具：从底层架构、国内中继、国区 iOS 免 VPN 权限 App、OpenWrt/NAS 安装包、WebRTC 远程控制、多租户与 ACL 权限配置等维度梳理差异与适用场景，帮你按需选型。"
+authors: [ownding]
+tags: [larktun, tailscale, easytier, zero-trust-networking, remote-access, mobile, vpn, acl, multi-tenant]
+keywords:
+  - Larktun Tailscale EasyTier 对比
+  - 云雀通 Tailscale EasyTier
+  - Tailscale 替代方案
+  - EasyTier 对比 Tailscale
+  - 异地组网软件推荐
+  - 内网穿透 异地组网对比
+  - Tailscale 国内中继
+  - 国区 iOS 组网 免 VPN 权限
+  - OpenWrt 异地组网
+  - 零信任组网 多租户 ACL
+  - WebRTC 远程控制 私有网络
+image: /img/blog/larktun-vs-tailscale-vs-easytier/comparison-overview.svg
+---
+
+import Head from '@docusaurus/Head';
+
+说到无公网 IP 的异地组网与安全远程访问，**Larktun（云雀通）**、**Tailscale** 和 **EasyTier** 是现在最常被放到同一张桌子上比较的三款工具。
+
+先把最重要的结论放在前面：**这三款软件没有绝对的好坏，只是设计哲学与发力点不同，各自都有非常清晰的适用场景。** Tailscale 是 WireGuard 零信任组网的行业标杆，生态和海外体验极其成熟；EasyTier 是 Rust 编写的纯开源去中心化新锐，穿透能力强、自建灵活、没有商业账号绑定；而云雀通 Larktun 则基于 Tailscale 协议与 Headscale 控制面思想继续演进，把重心放在了国内网络优化、国区免 VPN 移动端 App、开箱即用的远程控制与团队多租户权限治理上。
+
+如果你正在为家庭 NAS、开发服务器、软路由或小团队协作挑选组网方案，这篇文章会从真实使用出发，把三者的关系、差异和取舍一次讲透。
+
+{/* truncate */}
+
+![Larktun（云雀通）、Tailscale、EasyTier 异地组网定位与适用场景对比](/img/blog/larktun-vs-tailscale-vs-easytier/comparison-overview.svg)
+
+## 一张表看懂三者核心差异
+
+在展开细节前，先用一张对照表梳理三款工具在架构、国内网络体验、移动端、路由器/NAS 支持、远控能力与权限治理上的核心区别：
+
+| 对比维度 | Tailscale | EasyTier | Larktun（云雀通） |
+| --- | --- | --- | --- |
+| **底层技术与架构** | WireGuard + 官方托管控制面（社区可自建 Headscale） | Rust + Tokio，完全去中心化 Mesh 架构 | 基于 Tailscale 协议与 Headscale 思想演进的 SaaS 多租户架构 |
+| **账号与入网方式** | 第三方 OAuth 登录（Google / Microsoft / GitHub 等） | 无需注册账号，凭自定义网络名与口令即可组网（可选 Web 控制台） | 中文账号或 Auth Key 登入，同时**兼容原生 Tailscale 客户端** |
+| **国内中继与网络优化** | 官方 DERP 中继主要位于海外，国内回退中继延迟偏高（可自建 DERP） | 支持社区公共节点，极易用国内低配 VPS 自建中继；支持 TCP/KCP/QUIC 穿透 | **默认提供国内共享中继**，支持升级专用中继或自建 DERP；提供国内高速下载源 |
+| **移动端与国区 iOS** | 国区 App Store 未上架，需海外 Apple ID；依赖系统 VPN 权限 | 官方 iOS 客户端未上架国区 App Store，需海外 Apple ID；依赖系统 VPN 权限 | **国区 App Store 可直接下载**；基于 `tsnet` 应用内组网，**iOS / Android 均不占用系统 VPN 权限** |
+| **路由器 / NAS / 多端安装包** | 生态极成熟，群晖/威联通/OpenWrt/各 Linux 发行版包完备 | 覆盖 Windows/macOS/Linux/OpenWrt/Docker/Android，单二进制部署轻便 | 提供 Windows/macOS 客户端、**OpenWrt 一键脚本与 `.ipk`**、Linux 一键脚本、多架构 Docker、NAS 指南与 **Android TV 版** |
+| **远程控制与工作台** | 专注网络层与 Tailscale SSH；桌面远控需搭配第三方软件 | 专注网络层与子网代理；SSH、RDP、桌面远控均需搭配第三方软件 | 移动端内置 **WebRTC 远控**（支持 Windows/macOS）、RDP、SSH、SFTP、增强浏览器、智能发现、文件互传与 AI 助手 |
+| **多租户与 ACL 权限治理** | 成熟的网页端 Tailnet ACL/Grants、SSO 集成，适合海外及企业团队 | 支持基于本地配置与共享密钥的身份组 ACL，无中心化多租户管理面板 | **原生多租户隔离**、每租户独立 ACL（模板 + 图形化 + JSON 双模式）、独立路由审批与中文设备名 |
+| **开源与自主可控** | 客户端等组件开源，官方控制面闭源；可自建开源 Headscale | 核心与生态完全开源、去中心化，可 100% 脱离第三方服务 | 部分客户端及周边项目开源，SaaS 控制面开箱即用，支持自建中继掌控数据转发边界 |
+
+## 先厘清定位：为什么说三者没有绝对好坏？
+
+很多人在做技术选型时，容易陷入“非此即彼”的误区，好像选了一个就必须否定另外两个。但异地组网其实是一个**多维权衡**的问题——你更看重全球生态、极致开源可控，还是国内开箱即用与一站式工作体验，答案自然会指向不同的工具。
+
+### Tailscale：定义范式的全球标杆
+
+Tailscale 几乎重新定义了现代私有组网的体验：用 WireGuard 保证隧道性能与安全，用 STUN 打洞和 DERP 中继屏蔽复杂 NAT，再加上 MagicDNS、子网路由（Subnet Router）、出口节点（Exit Node）和细粒度 ACL，把过去动辄几小时的 IPSec/OpenVPN 配置变成了几分钟的登录操作。
+
+如果你身处海外网络环境，或者团队已经深度绑定 Google Workspace / Okta / GitHub SSO，且日常使用美区等海外 Apple ID，**Tailscale 依然是极其省心、稳健的选择**。国内用户觉得它“水土不服”，通常不是因为它不够优秀，而是因为它的默认中继、控制面、应用商店区域和中文产品化并不是围绕中国大陆环境设计的。
+
+### EasyTier：开源去中心化与强穿透的极客利器
+
+EasyTier 是近两年社区口碑非常突出的国产开源项目。它用 Rust 重写了一整套去中心化的 Mesh 组网栈，内存占用极低，不强制依赖任何中心商业服务器——只要约定好网络名称和密码，就能靠公共节点或自己花几十块钱买的国内云服务器拉起一张私有网络。
+
+它最让人印象深刻的地方在传输层：**激进的 NAT 穿透策略、多协议回退（UDP / TCP / KCP / QUIC）以及任意节点可参与的多跳路由**。面对校园网、双层对称 NAT、UDP 严重丢包等恶劣网络，或者你对“100% 纯开源、零账号体系、数据与元数据完全掌握在自己手里”有刚性要求，EasyTier 的表现会非常亮眼。
+
+### Larktun（云雀通）：面向国内日常与团队治理的产品化演进
+
+云雀通的起点很朴素：很多个人用户、开发者和中小团队，其实非常认可 Tailscale 的协议可靠性与零信任模型，也希望有类似 Headscale 的可控性，但不想为了连回家的 NAS 或公司的几台测试机，先去研究海外 Apple ID、自己买机器搭 Headscale、配 TLS 证书、折腾自建 DERP，更不想装完组网后再在手机上切四五个 App 去连 SSH、开网页、做远程控制。
+
+所以云雀通选择站在 `Tailscale` 与 `Headscale` 成熟的组网技术底座之上，把大量工程精力投入到**国内网络适配、客户端全链路体验、原生远控能力以及多租户权限治理**上。关于三者技术渊源的更多背景，也可以看 [云雀通与 Tailscale、Headscale 的关系](/docs/topics/larktun-vs-tailscale-headscale)。
+
+## Larktun 对比 Tailscale：同源底座，但补齐了国内与移动端的关键短板
+
+很多熟悉 Tailscale 的朋友问过同一个问题：“既然云雀通是基于 Tailscale 和 Headscale 演进的，我直接用 Tailscale 不行吗？”
+
+答案取决于你的实际痛点。如果你在原版 Tailscale 上没有遇到阻碍，完全可以继续用；但如果你在国内长期使用，下面这几处优化往往正是决定日常顺不顺手的关键。
+
+### 1. 内置国内中继，也保留专用与自建 DERP 空间
+
+WireGuard 组网在两端能 P2P 直连时速度都很快，真正的分水岭出现在**无法直连、必须走中继（DERP）**的时候——比如手机 4G/5G 蜂窝网络、公司严格防火墙、部分宽带的对称型 NAT。
+
+Tailscale 官方公共 DERP 节点主要部署在海外（东京、新加坡、欧美等），国内设备一旦回退到海外 DERP，不仅延迟动辄上百毫秒，高峰期还容易丢包卡顿；想改善就得自己买国内服务器、配域名和证书、手动维护私有 DERP 节点并在 ACL 里配置 `derpMap`。
+
+云雀通把这件事做成了默认体验：
+
+- **开箱自带国内共享中继**：个人与免费用户登录即可使用，避免流量绕道海外。
+- **按需切换专用中继或自建中继**：对稳定性和带宽隔离要求更高的个人或团队，可以在控制台的 `Derper` 页面通过图形界面或 JSON 切换到 VIP 专用中继，或者挂载自己的私有 DERP 服务器（详见 [部署方式与配置](/docs/getting-started/install-and-configure)）。
+- **国内高速下载通道**：无论是桌面安装包还是 Linux / OpenWrt 安装脚本，都提供国内下载源，不需要为了装个客户端到处找代理。
+
+### 2. 国区 App Store 可直接下载的 iOS App，且无需系统 VPN 权限
+
+这是很多苹果用户从 Tailscale 切换到云雀通最直接的原因。
+
+- **获取门槛**：Tailscale 官方 iOS 版无法在中国大陆 App Store 下载，必须准备并切换海外 Apple ID。云雀通 iOS App **直接在国区 App Store 上架**，打开即可安装更新，对给家人配设备或企业内推广都友好得多。
+- **不占用系统 VPN 权限**：传统移动端组网软件都需要向系统申请 VPN 权限（iOS 的 Network Extension / Android 的 VpnService），这不仅有授权门槛，还会独占系统唯一的 VPN 槽位——一旦你在公司挂着企业 VPN，或者手机开着其他代理工具，就只能反复切来切去。
+
+云雀通 iOS 与 Android App 底层采用 **`tsnet` 应用内组网**：把网络节点直接嵌进 App 进程里，**不申请系统 VPN 权限、不接管手机其他应用的流量、也不会和公司 VPN 冲突**。你可以继续保持手机原有的网络环境，打开云雀通 App 就能直接访问私有网络里的设备和服务。关于这一设计的技术原理和适用边界，可以阅读 [不申请 VPN 权限，把云雀通网络装进 App](/blog/larktun-tsnet-app-without-vpn-permission)。
+
+### 3. OpenWrt、Linux、Docker、NAS 等常用硬件一键到位，且兼容 Tailscale 客户端
+
+国内用户的私有设备形态非常多样：刷了 OpenWrt 的硬路由/软路由、群晖或华硕 NAS、ARM 开发板、阿里云/腾讯云服务器、客厅里的 Android TV。
+
+云雀通为这些高频场景准备了开箱即用的安装包与脚本：
+
+- **OpenWrt 路由器**：提供一键安装脚本，自动识别 `aarch64_generic`、`x86_64`、`mipsel` 等常见架构拉取对应 `.ipk` 包并注册开机自启，轻松把路由器变成 7×24 小时在线的子网路由网关（参见 [在 OpenWrt 路由器上安装云雀通](/docs/getting-started/openwrt-install-larktun)）。
+- **Linux 服务器与 ARM64 NAS**：一条命令完成安装与 `systemd` / OpenRC / SysV 自启配置，并内置了对阿里云等云厂商 `100.64.0.0/10` 底层 DNS 路由的保护（参见 [Linux 安装教程](/docs/getting-started/linux-install-larktun)）。
+- **Docker 多架构镜像**：原生提供 `amd64` / `arm64` / `armv7` 镜像，同时支持低权限用户态（userspace）和内核 TUN 两种模式（参见 [Docker 登入云雀通](/docs/getting-started/docker-login-larktun)）。
+- **兼容原生 Tailscale 客户端**：像群晖 DSM、华硕 ADM 这类应用中心已经预装 Tailscale 套件的 NAS，不需要折腾第三方源，直接装好官方 Tailscale 后执行 `--login-server=https://hs.larktun.com` 就能接入云雀通网络（参见 [群晖 NAS 接入教程](/docs/getting-started/synology-nas-tailscale-larktun)）。
+- **中文细节与灵活网段**：支持中文控制台、**中文设备名与设备别名**，支持自定义私有 IP 网段（避免和现有局域网或云内网冲突），免费额度默认 5 台设备且可通过邀请扩展至 10 台、直连不限流量与速度。
+
+## Larktun 对比 EasyTier：从“修通网络”到“全套客户端 + 远控 + 权限治理”
+
+如果把 EasyTier 和云雀通放在一起看，两者的差异会比和 Tailscale 更清晰。
+
+先客观地说 EasyTier 的优势：它是一款非常优秀的**底层组网引擎**。如果你手头有一台国内小鸡、喜欢用命令行或配置文件精细调校参数、需要靠 KCP/QUIC 穿透极端丢包网络、或者希望完全脱离任何 SaaS 账号体系，EasyTier 简洁而强悍，几乎没有多余负担。
+
+而云雀通瞄准的是另一半真实需求：**当网络通了之后，普通人、开发者和团队每天怎么用，以及设备变多之后怎么管？** 在这方面，云雀通相比 EasyTier 省掉了大量拼装和维护工作：
+
+### 1. 全套统一体验的客户端与“移动远程工作台”
+
+用 EasyTier 组好网之后，它交付给你的是一个虚拟局域网 IP。接下来想在手机或平板上干活，你通常还得：
+
+1. 准备海外 Apple ID 去装 iOS 端（或用其他设备中转），并开启系统 VPN；
+2. 另装浏览器打开 NAS、OpenWrt、Home Assistant 或 ComfyUI；
+3. 另装 SSH / SFTP 客户端去连 Linux 服务器；
+4. 另装微软 RDP 或第三方远控软件连 Windows / Mac；
+5. 手动记住一堆 IP 和端口号。
+
+云雀通把这一整套链路收进了一致的全平台客户端体系中：桌面端提供 Windows（`.msi`）、macOS（`.pkg`）图形化客户端，路由器和服务器提供 OpenWrt / Linux / Docker 安装包，客厅大屏提供 [Android TV 版 APK](/docs/getting-started/tv-install-larktun)；而在 **iPhone、iPad、Android 手机与安卓平板**上，云雀通 App 直接把常用工具整合到了一起：
+
+- **免 VPN 应用内组网**，开 App 即用；
+- **智能服务发现**：自动探测网络内的 Web、SSH、SFTP、RDP 入口，一键收藏，不必死记 IP 和端口；
+- **内置 SSH + SFTP 工作台**：支持平板左右分栏，一边敲命令一边传日志和配置；
+- **内置增强多标签浏览器**：专门优化了 ComfyUI、NAS 后台、Grafana 等复杂内网 Web 应用，支持全屏与完整文件下载；
+- **内置 RDP 与文件互传**，并支持 iPad 标签撕离、外接显示器扩展以及 AI 助手辅助排错与操作（详见 [iOS 客户端功能介绍](/docs/introduction/ios-app-overview) 与 [Android App 更新介绍](/blog/larktun-android-webrtc-tablet-phone-ui)）。而且 **Android App 免费使用**。
+
+### 2. 额外提供轻量无广告的 WebRTC 远程控制
+
+远程桌面是异地组网最高频的下游需求之一。EasyTier 和 Tailscale 本身都只管“网络连通”，如果你在外面想直接操作家里或办公室正在跑任务的 Windows 或 Mac 桌面，往往还要额外搭建一套 RustDesk、Sunshine/Moonlight，或者忍受商业远控软件的弹窗广告与限速。
+
+云雀通直接在私有网络之上提供了原生 **WebRTC 远程控制**：
+
+- **轻量无广告的被控端**：提供 Windows 和 macOS 版 Larktun Host，安装包小巧安静，支持开机自启。
+- **跨端随时接管桌面**：iPhone、iPad、Android 手机与安卓平板都可以直接控制 Windows 与 Mac 电脑，采用 H.264 硬件编解码与 Opus 音频，支持系统声音、文本剪贴板同步与多显示器切换。
+- **多设备同时连接同一台电脑**：比如 iPad 正连着办公电脑，拿起手机也能同时观看当前桌面，需要操作时一键点击“接管控制”，非常适合移动切换与多人排错。
+- **统一的安全边界**：所有远控流量都在你自己的云雀通私有网络内流转，**无需将任何远控端口暴露到公网**，继续由云雀通的 ACL 和 Host 访问令牌双重保护（详见 [WebRTC 远程控制正式上线](/blog/larktun-webrtc-remote-control)）。
+
+### 3. 多租户隔离与可视化 ACL，团队权限管理轻松很多
+
+个人玩一两台设备时，几乎感受不到权限管理的痛点；但只要设备超过五台，或者有家人、同事、外包、不同客户项目接入，问题很快就会暴露出来。
+
+EasyTier 坚持去中心化理念，虽然已经支持基于本地配置文件与身份组密钥（Group Secret）的 ACL 规则，但在多人协作场景下，节点配置分散、密钥同步与审计需要自行维护，也没有原生的“多租户工作空间”概念。如果某台受管终端需要调整权限，往往需要修改配置或借助外部编排工具。
+
+云雀通在架构层原生面向 **SaaS 多租户与零信任权限治理** 设计：
+
+- **租户级完全隔离**：个人用户天然拥有独立租户，企业可以按部门、项目或客户划分多个租户；每个租户的设备目录、路由、ACL、中继配置和审计日志互不干扰。
+- **模板 + 图形化 + JSON 三种 ACL 体验**：在控制台 `ACLs` 页面，新手可以直接套用内置模板或用图形化表单配置“谁能访问哪台设备的哪个端口”，资深运维则可以用接近 Tailscale / Headscale 的 JSON 策略结合 `groups`、`tagOwners`、`autoApprovers` 和策略回归测试 `tests` 做精细控制（详见 [ACLs 介绍](/docs/introduction/acls-introduction)）。
+- **集中路由审批与即时生效**：子网路由和出口节点不会在终端一声不响地自动放开，而是由管理员在控制台 `Routers` 页面统一审批；成员离职或临时外包到期时，在控制台一键撤销权限或禁用设备即可生效，不用挨台机器改配置。
+
+### 4. 上手路径更短，维护心智负担更轻
+
+EasyTier 给足了极客折腾的自由度，但也意味着你要自己关心公共节点是否稳定、是否要自己部署并维护中继、不同平台客户端的参数怎么对齐。云雀通把这些底层复杂度藏进了 SaaS 控制台里：注册、安装、登录、点一下开关，几分钟就能跑通整套网络和远控，把时间留给真正要做的事。
+
+## 选型时容易忽略的 4 个补充细节
+
+除了上面最直观的差异，在实际落地时，还有四个维度很值得提前想清楚：
+
+### 1. 系统级 VPN vs. 应用内组网（tsnet）怎么取舍？
+
+没有任何一种移动端接入形态能通吃所有需求：
+
+- 如果你需要在手机上让**第三方原生 App** 直接访问内网 IP（例如在 iPhone 上直接用 Infuse 挂载 SMB、用群晖 Drive / Photos 原生 App 同步照片、用第三方数据库客户端连内网 MySQL），**系统级 VPN 模式**（Tailscale、EasyTier，或在电脑端使用云雀通桌面客户端）依然是最完整的方案。
+- 如果你手机上常年开着公司 VPN 或代理工具，不想来回切换系统 VPN，且日常核心动作是**看内网网页、SSH/SFTP 运维、RDP/WebRTC 远程控制电脑、收发文件**，云雀通免 VPN 的 `tsnet` App 体验会顺手得多。
+
+### 2. 极端网络下的穿透策略 vs. 稳定兜底
+
+- 如果你的使用环境长期处于**双层/对称型 NAT、校园网、运营商对 UDP 严重限速或丢包**的地区，EasyTier 的 TCP/KCP/QUIC 协议栈和多跳 Mesh 确实在底层抗恶劣网络方面有先天优势。
+- 如果你的大多数场景是家庭宽带、办公网、云服务器与移动蜂窝网络，WireGuard 的低开销和成熟度依然难以替代；配合云雀通的国内中继（或按需加一台离你最近的自建 DERP 节点），既能优先跑满直连带宽，回退中继时也能保持低延迟与高稳定。
+
+### 3. 数据隐私、开源透明度与合规边界
+
+三者底层传输都经过端到端加密（WireGuard 或 AES-GCM 等），区别主要在于**控制面元数据由谁托管**：
+
+- 要求 **100% 开源、控制面和数据面全部自持、不经过任何第三方平台**：优先选 EasyTier 自建，或者 Tailscale 客户端 + 自建开源 Headscale。
+- 希望**省去自建控制面的运维成本，但要求访问路径贴近国内、且必要时流量只经过自己的中继服务器**：云雀通（SaaS 控制面 + 国内中继 / 自建 DERP）是平衡省心与可控性的折中方案。
+- 团队业务与人员主要在海外、合规体系已围绕欧美云厂商与 SSO 建立：Tailscale 官方商业版更加顺理成章。
+
+### 4. 它们并不是“互斥”的，其实可以混合搭配
+
+由于云雀通与 Tailscale 生态保持了协议层面的高度兼容，很多用户实际上会按设备特点组合使用：
+
+- **群晖 / 华硕等成品 NAS** 直接从自带套件中心装官方 Tailscale，登录指向云雀通控制面，享受国内中继与中文控制台；
+- **已经跑着 Tailscale 或自建 Headscale 的老用户**，也不必立刻迁移整张网——可以直接下载国区云雀通 iOS / Android App，通过**第三方登入**填上自己的 Auth Key 和控制服务器地址，立刻白嫖免 VPN 权限的内置 SSH、SFTP、Web 浏览等移动端工具能力（详见 [iOS App 登入第三方 Tailscale / Headscale](/docs/getting-started/ios-third-party-login)）。
+
+## 场景化选型建议：你应该选哪一个？
+
+如果看完对比还是有点纠结，可以直接对号入座：
+
+### 什么时候优先选 Tailscale？
+
+- 你的设备和日常使用环境主要在**海外**，或者直连成功率高且已有海外 Apple ID；
+- 团队已经深度使用 Okta / Google Workspace / GitHub SSO，且重度依赖 Tailscale Funnel、Serve、Tailscale SSH 等原生商业生态；
+- 你在手机上强依赖系统级 VPN 让大量第三方原生 App 无缝访问私有网段，且不在意与公司 VPN 的冲突。
+
+### 什么时候优先选 EasyTier？
+
+- 你是**偏极客/折腾向用户**，看重 100% 开源、去中心化、免账号注册，希望所有基础设施完全掌握在自己手里；
+- 你长期面对**严苛对称 NAT、校园网或严重 UDP 丢包**环境，需要 TCP/KCP/QUIC 打洞与多跳 Mesh 路由；
+- 你手头已经有国内云服务器，习惯用命令行、Docker 或配置文件管理网络，并且已经有自己习惯的一套独立 SSH / 远程桌面工具。
+
+### 什么时候优先选 Larktun（云雀通）？
+
+- 你主要在**中国大陆网络环境**下使用，希望有开箱即用的**国内中继**、国内下载通道和中文控制台，不想为了用 Tailscale 自己折腾海外中继或维护 Headscale；
+- 你是 **iPhone / iPad / Android 用户**，希望直接从国区 App Store 下载 App，且**不占用系统 VPN 权限**就能同时兼顾公司 VPN 与个人私有网络；
+- 你不只是想“把网络连上”，还希望在手机、平板甚至电视上**一站式完成 WebRTC 远控电脑（Windows/Mac）、RDP、SSH、SFTP、浏览 ComfyUI/NAS 后台和互传文件**；
+- 你家里有 **OpenWrt 路由器、群晖/ARM NAS、Linux 小主机**，希望有现成的一键脚本、`.ipk` 包和清晰的中文教程；
+- 你需要面向**家庭多成员、研发运维小团队或多客户项目**管理设备，希望有开箱即用的**多租户隔离、可视化 ACL 权限控制与统一路由审批**。
+
+<Head>
+  <script type="application/ld+json">{JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: '云雀通（Larktun）和 Tailscale 是什么关系？可以一起使用吗？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '云雀通 Larktun 基于 Tailscale 协议生态与 Headscale 控制面思想演进，并在国内中继、SaaS 多租户、可视化 ACL、中文设备名、免 VPN 移动端 App 与 WebRTC 远控等方面做了大量独立研发。两者可以很好配合：例如群晖等 NAS 可用官方 Tailscale 套件登入云雀通控制面，而云雀通 iOS/Android App 也支持第三方登入已有的 Tailscale 或 Headscale 网络。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '为什么云雀通 iOS App 不需要系统 VPN 权限？会影响其他 App 吗？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '云雀通 iOS 和 Android App 基于 tsnet 将组网能力直接嵌入应用内部，不需要申请和占用系统级 VPN 通道。只有云雀通 App 内部的内置浏览器、SSH、SFTP、RDP、WebRTC 远控和文件传输流量会走私有网络，不会接管手机其他 App 的流量，也不会与公司 VPN 或代理工具冲突。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Larktun、Tailscale、EasyTier 在国内谁的连接速度更快？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '三者在成功建立 P2P 直连时，速度都主要取决于双方宽带的上行与下行带宽。差异主要出现在无法直连而回退中继时：Tailscale 默认使用海外 DERP 中继，国内延迟较高；EasyTier 可轻松用国内自建 VPS 中继并支持 KCP/QUIC 抗丢包；云雀通默认提供国内共享中继，并支持升级专用中继或接入自建 DERP 节点，开箱即可获得较好的国内连通体验。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '没有公网 IP 远程访问家里 NAS 和电脑，应该选哪一款？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '如果你希望国内开箱即用、国区 iOS 直接安装、手机免开 VPN 就能打开 NAS 页面或用 WebRTC/RDP 远程控制家里 Windows 和 Mac，优先推荐云雀通 Larktun；如果你喜欢纯开源自建、自己维护国内 VPS 中继且只需要底层通道，可以选择 EasyTier；如果你习惯海外生态且已有自建 DERP 与第三方远控工具，Tailscale 同样成熟可靠。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '团队或企业需要按角色控制服务器访问权限，更推荐哪一个？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '在国内团队协作与多项目管理场景下，云雀通原生提供 SaaS 多租户隔离、每租户独立 ACL（支持模板、图形化与 JSON 编辑）、集中路由审批与中文控制台，配置和维护成本最低；海外或深度绑定国际 SSO 的企业适合 Tailscale 商业版；EasyTier 更偏去中心化与技术自托管，团队级多租户治理需要自行编排。',
+        },
+      },
+    ],
+  })}</script>
+</Head>
+
+## 常见问题（FAQ）
+
+### 云雀通（Larktun）和 Tailscale 是什么关系？可以一起使用吗？
+
+云雀通 Larktun 是在 `Tailscale` 协议生态和 `Headscale` 开源控制面思想之上发展出来的产品，我们在国内中继、SaaS 多租户、可视化 ACL、中文设备名、免 VPN 移动端 App、OpenWrt/Linux 打包和 WebRTC 远控等方面做了大量独立改造。
+
+两者完全可以配合使用：比如群晖、华硕等 NAS 可以直接安装官方 Tailscale 套件并接入云雀通控制面；反过来，如果你已经有一套运行稳定的 Tailscale 或 Headscale 网络，也可以直接用云雀通的国区 iOS / Android App 第三方登入，享受免 VPN 的 SSH、SFTP 和内网浏览器能力。
+
+### 为什么云雀通 iOS App 不需要系统 VPN 权限？会影响其他 App 吗？
+
+因为云雀通移动端基于 `tsnet` 把组网协议栈嵌入了 App 自身内部，而不是在手机系统层接管全局网卡。这意味着：
+
+- 不需要配置系统 VPN，也不会挤掉你正在使用的公司 VPN；
+- 只有云雀通 App 内部的功能（WebRTC 远控、RDP、SSH、SFTP、内置浏览器、文件传输）会经过私有网络；
+- 手机上其他 App 依然走原来的网络，隐私边界清楚。
+
+### Larktun、Tailscale、EasyTier 在国内谁的连接速度更快？
+
+当两端成功建立 **P2P 直连** 时，三者速度主要取决于双方网络的上行和下行带宽，差距并不大。真正拉开差距的是**无法直连、必须走中继**的场景：
+
+- **Tailscale** 默认走海外 DERP，国内延迟通常偏高，往往需要自己额外搭国内中继；
+- **EasyTier** 穿透策略激进（支持 TCP/KCP/QUIC），配合自己搭建的国内 VPS 中继速度表现很好；
+- **云雀通 Larktun** 默认提供**国内共享中继**，免费用户也能开箱连通，需要更稳更高带宽时还可切换专用中继或挂载自建 DERP 节点。
+
+### 没有公网 IP 远程访问家里 NAS 和电脑，应该选哪一款？
+
+如果你想尽量少折腾——路由器或 NAS 几分钟装好、国区 iPhone/iPad 和安卓手机直接打开 App 就能看 NAS、连 SSH 甚至远控电脑桌面——**云雀通**的整体闭环最完整。如果你更喜欢纯开源自建、享受亲手搭建中继与调优网络参数的过程，**EasyTier** 会很合胃口。如果你已经在用 **Tailscale** 且直连顺畅，直接沿用或搭配云雀通移动端 App 即可。
+
+### 团队或小公司需要分权限管理服务器，更推荐哪一个？
+
+国内研发、运维或需要隔离不同客户环境的团队，**云雀通**的多租户隔离、可视化 + JSON 双模式 ACL、集中路由审批和国内中继支持能让日常管理省心很多；人员与业务主要在海外、依赖国际 SSO 生态的企业团队，**Tailscale** 的企业级套件依然非常成熟；**EasyTier** 则更适合愿意自建与自运维基础设施的极客和技术团队。
+
+## 结语：工具没有高下，顺手最重要
+
+回头看这三款工具，其实各自代表了异地组网里三种很有价值的思路：
+
+- **Tailscale** 用优雅的零信任设计打开了现代私有网络的大门；
+- **EasyTier** 用纯开源、去中心化和强穿透证明了社区工程的锐度；
+- **Larktun（云雀通）** 则希望把可靠的组网能力、国内友好的中继与安装包、免 VPN 的移动端工作台、轻量无广告的 WebRTC 远控，以及清晰好用的多租户权限治理放到一起，让个人和团队不用先成为网络专家，也能拥有一张安静、安全、随手可用的私有网络。
+
+选型不必迷信“唯一最优解”，先想清楚自己最常在什么网络、用什么设备、做什么操作，再选最顺手的那一款就够了。如果你想亲自体验云雀通的国内中继、国区免 VPN 移动端或 WebRTC 远控，可以从下面几篇文档开始：
+
+- [云雀通下载页](https://larktun.com/download)（支持 Windows、macOS、Linux、OpenWrt、Docker、iOS、Android 与 Android TV）
+- [快速开始：几分钟完成设备接入、ACL 与中继配置](/docs/getting-started/quick-start)
+- [在 OpenWrt 路由器上安装云雀通](/docs/getting-started/openwrt-install-larktun)
+- [iOS 客户端功能介绍：免 VPN 组网、WebRTC 远控、RDP 与 SSH](/docs/introduction/ios-app-overview)
+- [云雀通与 Tailscale、Headscale 的关系](/docs/topics/larktun-vs-tailscale-headscale)
