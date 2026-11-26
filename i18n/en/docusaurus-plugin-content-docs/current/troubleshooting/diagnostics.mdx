@@ -1,52 +1,95 @@
 ---
 title: Diagnostics
-description: A practical user-side troubleshooting flow to quickly isolate connection and access issues.
+description: A practical 10-minute Larktun diagnostic checklist to isolate device status, ACL denials, subnet route forwarding, NAT traversal, and DERP relay latency issues.
+keywords:
+  - Larktun diagnostics
+  - larktun status ping netcheck
+  - troubleshoot Headscale connection
+  - debug remote access latency
 sidebar_position: 2
 ---
 
 # Diagnostics
 
-If you see access failure, denial, latency, or disconnects, follow this order. In most cases, you can isolate the issue direction in about 10 minutes.
+When a private connection fails, times out, or feels unexpectedly slow, troubleshooting in a fixed layer-by-layer order avoids guesswork. Following the six steps below isolates almost every connectivity or authorization issue in under 10 minutes.
 
-## Step 1: confirm device online state
+## Step 1: Confirm Both Endpoints Are Online
 
-1. In `Nodes`, confirm source device is online.
-2. In `Nodes`, confirm target device is online.
-3. Verify device names to avoid selecting stale or similarly named nodes.
+Before inspecting policies or routes, verify both source and target machines are registered and active inside the **same tenant**:
 
-If a device is offline, fix that first before moving on.
+1. Open **Nodes** in the Larktun console and confirm both devices show **Online**.
+2. Check their assigned private IPv4 addresses (`100.64.x.y`) and ensure you are not targeting an older duplicate node with a similar hostname.
+3. On Linux, macOS, Windows, or OpenWrt endpoints, confirm local daemon health:
 
-## Step 2: confirm ACL allow rules
+```bash
+larktun status
+```
 
-1. In `ACLs`, confirm the subject is your account or expected user group.
-2. Confirm target device is correct.
-3. Confirm protocol and port match your real request.
+If either side shows offline or logged out, resolve client login first (see [Common Issues](./common-issues)).
 
-If ACL was just updated, wait a few seconds and retry.
+## Step 2: Test Data-Plane Reachability and Path Type
 
-## Step 3: confirm subnet routing (if subnet is involved)
+Run a direct overlay ping from the source machine to the target's private IP (or tap **Ping** in the Larktun iOS/Android app):
 
-1. In `Routers`, confirm subnet route approval status.
-2. Verify the subnet range is correct.
-3. Retry the subnet endpoint.
+```bash
+larktun ping 100.64.0.15
+```
 
-## Step 4: confirm relay path
+Pay close attention to the output:
 
-1. Free shared relay is already available by default for all users.
-2. If you need lower latency or stronger stability, use dedicated relay.
-3. If you use user-managed relay, verify address and ports carefully.
+- **Direct P2P reply (`via <public-ip>:<port>`)**: WireGuard hole punching succeeded; latency should be close to direct ISP RTT.
+- **Relayed reply (`via DERP(...)`)**: Traffic is traversing a relay because one or both sides sit behind symmetric NAT or restrictive UDP firewalls.
+- **Timeout on all packets**: Either an ACL rule is dropping traffic, the target host firewall is blocking the port/ICMP, or a subnet route is not yet approved.
 
-## Step 5: run one positive and one negative test
+## Step 3: Verify ACL Allow Rules
 
-1. Test with an authorized account and confirm success.
-2. Test with an unauthorized account/device and confirm denial.
+Larktun ACLs are **default-deny**. Confirm your rule matches all three dimensions:
 
-This quickly proves whether your policy behavior matches expectation.
+1. **`src` matches the caller**: verify the exact user identity (including trailing `@` where applicable), user group, or device tag.
+2. **`dst` matches the target and port**: verify target IP/tag/CIDR and explicit port suffix (`:22`, `:443`, `:3389`, `:5001`, or `:*`).
+3. **Policy published**: after saving changes in **ACLs**, allow 5–10 seconds for propagation and re-test.
 
-## Step 6: if unresolved, send this info to support
+## Step 4: Verify Subnet Routing (LAN Targets Only)
 
-- Time of issue
-- Account and tenant name
-- Source and target device names
-- Protocol and port
-- Steps already tested
+If you can reach the gateway node itself (`100.64.x.y`) but not LAN devices behind it (such as `192.168.6.10`):
+
+1. Open **Routers** and confirm the advertised CIDR switch is **On** (approved).
+2. Confirm the requesting client accepts routes (`sudo larktun set --accept-routes`).
+3. On the Linux or OpenWrt subnet router, confirm IPv4 forwarding is enabled (`sysctl net.ipv4.ip_forward` equals `1`) and local firewall rules allow forwarding to the LAN interface.
+4. Confirm your current local Wi-Fi does not overlap with the remote LAN CIDR.
+
+## Step 5: Inspect NAT Type and DERP Relay Health
+
+Run `netcheck` on endpoints experiencing high latency or frequent drops:
+
+```bash
+larktun netcheck
+```
+
+- Check whether UDP is reachable and note the latency to each listed DERP region.
+- If you configured a user-managed relay in **Derper**, temporarily keep `omitDefaultRegions: false` to verify whether switching back to the default relay restores stability.
+- For daily RDP or WebRTC remote desktop usage over relayed networks, consider switching to a geographically closer dedicated or user-managed relay (see [Deployment Modes and Configuration](../getting-started/install-and-configure)).
+
+## Step 6: Run One Positive and One Negative Verification
+
+To confirm policy enforcement matches intent:
+
+1. **Positive test**: connect from an authorized account/device to an allowed port and verify success.
+2. **Negative test**: attempt the same connection from an unauthorized device or disallowed port and confirm it is denied.
+
+## Information to Include When Escalating to Support
+
+If the problem still reproduces after Step 6, collect these details for faster resolution:
+
+- Exact timestamp and timezone of the failed attempt
+- Account email and tenant name
+- Source and target device names, OS, and client version
+- Protocol and destination port (for example SSH 22, RDP 3389, HTTPS 443)
+- Sanitized output of `larktun status`, `larktun ping <target>`, and `larktun netcheck` (never include Auth Keys)
+
+## Continue Reading
+
+- [Common Issues](./common-issues)
+- [Resolving Larktun and Alibaba Cloud DNS Issues](./larktun-alibaba-cloud-dns)
+- [FAQ](./faq)
+- [Approve Subnet Routes](../getting-started/approve-subnet-routes)

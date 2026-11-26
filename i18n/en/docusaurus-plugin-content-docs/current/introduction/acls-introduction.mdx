@@ -1,37 +1,49 @@
 ---
 title: ACLs Introduction
-description: Understand Larktun ACLs policy structure, authorization model, and tenant isolation.
+description: Complete guide to Larktun tenant-scoped ACLs, policy JSON structure, practical zero-trust rules for SSH, NAS, subnet routers, and exit nodes, plus rollout and troubleshooting tips.
+keywords:
+  - Larktun ACLs
+  - Headscale ACL policy
+  - zero-trust access control
+  - multi-tenant ACL
+  - subnet router ACL
 sidebar_position: 4
 ---
 
 # ACLs Introduction
 
-Larktun ACLs follows a policy style similar to Headscale/Tailscale, with additional tenant-scoped guarantees for SaaS multi-tenancy. Each tenant has an independent ACL document, policy compilation flow, and audit trail.
+Larktun ACLs follow the declarative policy model familiar from Headscale and Tailscale, strengthened with strict **tenant-level isolation** for SaaS multi-tenancy. Every tenant owns an independent policy document, compilation pipeline, and audit trail—rules authored in one workspace can never reference or leak into another.
 
-## What ACLs solves
+## What Larktun ACLs Control
 
-- Define who can access which resources
-- Restrict access by protocol, port, and destination scope
-- Apply unified authorization to advanced capabilities such as subnet routers and exit nodes
+A private mesh gives devices encrypted reachability; ACLs define the security boundary on top of that mesh:
 
-## Multi-tenant ACLs design principles
+- **Who can initiate connections (`src`)**: individual user accounts, `group:*` user groups, device tags (`tag:*`), or specific hosts/CIDRs.
+- **Which targets and ports are reachable (`dst`)**: specific private hosts, LAN subnets published by subnet routers, or internet egress via exit nodes, restricted down to exact TCP/UDP ports.
+- **Automated route and exit approval (`autoApprovers`)**: automatically approve subnet routes or exit nodes advertised by explicitly tagged gateway nodes.
 
-- Each tenant owns a complete ACL policy space: `groups`, `hosts`, `tagOwners`, `acls`, `autoApprovers`, and more
-- Policies are fully isolated across tenants with no cross-tenant object references
-- Policy compilation, distribution, and enforcement are tenant-scoped
-- Audit data is retained per tenant for governance and compliance
+## Multi-Tenant Isolation Guarantees
 
-## Policy structure
+- Each tenant maintains a completely separate namespace for `groups`, `hosts`, `tagOwners`, `acls`, and `autoApprovers`.
+- Cross-tenant object references are rejected during validation.
+- Policy compilation and netmap distribution run per tenant so edits only trigger updates for devices inside that tenant.
+- All policy changes and access events remain scoped to the tenant's audit logs.
 
-- `groups`: user group definitions
-- `tagOwners`: tag ownership and assignment rights
-- `hosts`: alias-to-IP/CIDR mappings
-- `acls`: core network access rules (`src` -> `dst`)
-- `autoApprovers`: automatic approvals for subnet routes and exit nodes
-- `ssh`: SSH session authorization rules (optional)
-- `tests`: policy regression checks (optional)
+## Core Policy Sections
 
-## Example: single-tenant ACLs policy
+| Section | Purpose | Typical Example |
+|---|---|---|
+| `groups` | Map logical roles to user identities | `"group:dev": ["alice@", "bob@"]` |
+| `tagOwners` | Define who is allowed to assign a device tag | `"tag:router": ["group:ops"]` |
+| `hosts` | Give readable aliases to IPs or CIDRs | `"nas.home": "192.168.6.20/32"` |
+| `acls` | Explicit allow rules (`action: "accept"`, `src`, `dst`) | `group:dev` -> `db.prod:5432` |
+| `autoApprovers` | Auto-approve routes or exit nodes for tagged peers | `"192.168.6.0/24": ["tag:router"]` |
+| `ssh` | Optional SSH session policy rules | Restrict root/user login scopes |
+| `tests` | Optional unit assertions verified before publishing | Ensure `group:dev` cannot reach prod admin ports |
+
+> Larktun ACLs follow a **default-deny** model: any traffic not explicitly matched by an `accept` rule is dropped.
+
+## Complete Multi-Role ACL Policy Example
 
 ```json
 {
@@ -41,7 +53,8 @@ Larktun ACLs follows a policy style similar to Headscale/Tailscale, with additio
   },
   "tagOwners": {
     "tag:router": ["group:ops"],
-    "tag:exit": ["group:ops"]
+    "tag:exit": ["group:ops"],
+    "tag:prod-server": ["group:ops"]
   },
   "hosts": {
     "db.prod": "10.20.0.10/32",
@@ -52,12 +65,12 @@ Larktun ACLs follows a policy style similar to Headscale/Tailscale, with additio
     {
       "action": "accept",
       "src": ["group:dev"],
-      "dst": ["db.prod:5432", "nas.office:445"]
+      "dst": ["db.prod:5432", "nas.office:445", "nas.office:5001"]
     },
     {
       "action": "accept",
       "src": ["group:ops"],
-      "dst": ["autogroup:internet:*"]
+      "dst": ["tag:prod-server:22", "autogroup:internet:*"]
     }
   ],
   "autoApprovers": {
@@ -69,27 +82,66 @@ Larktun ACLs follows a policy style similar to Headscale/Tailscale, with additio
 }
 ```
 
-## Subnet router and exit node authorization
+## Common Real-World ACL Patterns
 
-- Subnet route access can be tightly scoped in `acls` via host aliases or route targets
-- Exit node usage can be controlled with `autogroup:internet` or explicit exit-node targets
-- `autoApprovers` can auto-approve routes or exit-node capabilities from tagged nodes
+### 1. Personal Account Self-Access (Fastest Onboarding)
 
-## Policy rollout and validation flow
+Allow all devices signed in under your personal account to reach each other across all ports while keeping everything private to your tenant:
 
-1. Maintain ACLs policy changes within a tenant
-2. Run policy validation and `tests` checks
-3. Publish and compile policy in control plane, then distribute to tenant nodes
-4. Verify effective results through audit logs
+```json
+{
+  "action": "accept",
+  "src": ["you@example.com@"],
+  "dst": ["you@example.com@:*"]
+}
+```
 
-## Reference model
+### 2. Least-Privilege SSH Access Without Public Port 22
 
-- [Headscale ACLs reference](https://headscale.net/0.27.1/ref/acls/)
-- [Headscale Routes (subnet router and exit node ACL)](https://headscale.net/0.27.1/ref/routes/)
+Grant developers SSH-only access (`:22`) to tagged cloud servers without exposing databases or admin panels on those machines:
 
-## Continue reading
+```json
+{
+  "action": "accept",
+  "src": ["group:dev"],
+  "dst": ["tag:dev-server:22"]
+}
+```
 
-- [Product Overview](./what-is-larktun)
-- [Product Architecture](./product-architecture)
+### 3. Scoped LAN Subnet Access (NAS / Home Lab)
+
+After approving `192.168.6.0/24` in the **Routers** page, allow only HTTPS and NAS DSM ports rather than opening the entire subnet blindly:
+
+```json
+{
+  "action": "accept",
+  "src": ["you@example.com@"],
+  "dst": ["192.168.6.20:5001", "192.168.6.0/24:443"]
+}
+```
+
+## Rollout and Validation Workflow
+
+1. **Edit in the console**: Start with built-in templates or the visual editor in **ACLs**, then switch to the JSON editor for advanced rules.
+2. **Validate before publishing**: Run syntax and `tests` checks to verify both positive access (allowed user succeeds) and negative isolation (unauthorized user or port is blocked).
+3. **Verify convergence**: Published policies compile on the control plane and push to tenant nodes within seconds.
+4. **Review audit logs**: Confirm expected connections and tighten overly broad `*` rules once initial testing completes.
+
+## Common ACL Pitfalls to Avoid
+
+- **Missing port suffix on `dst`**: Every destination requires a `:port` or `:*` suffix (for example `192.168.6.0/24:*`, not `192.168.6.0/24`).
+- **Approved route with no ACL rule**: Approving a subnet in **Routers** only enables forwarding—you must also add a matching `acls` entry targeting that CIDR or host IP.
+- **Overly broad `src: ["*"]` left in production**: Use `["*"]` only briefly while troubleshooting, then narrow `src` to a user, group, or device tag.
+
+## Reference Specifications
+
+- [Headscale ACLs Reference](https://headscale.net/0.27.1/ref/acls/)
+- [Headscale Routes (Subnet Router & Exit Node ACLs)](https://headscale.net/0.27.1/ref/routes/)
+
+## Continue Reading
+
+- [Create Your First Secure Access Path](../getting-started/publish-your-first-service)
+- [Approve Subnet Routes](../getting-started/approve-subnet-routes)
 - [Routes Introduction](./routes-introduction)
-- [Core Concepts](./core-concepts)
+- [Product Architecture](./product-architecture)
+- [Common Issues](../troubleshooting/common-issues)

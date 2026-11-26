@@ -1,47 +1,50 @@
 ---
 title: Open Source Links
-description: Open-source repositories and demo projects related to Larktun.
+description: Public open-source repositories, Android clients, Headscale multi-tenant SaaS demos, stress-test scripts, and documentation source code maintained by the Larktun project.
+keywords:
+  - Larktun open source
+  - Headscale SaaS GitHub
+  - Meshyra Android client
+  - Headscale stress test scripts
+  - Larktun repositories
 sidebar_position: 6
 ---
 
 # Open Source Links
 
-This page lists public repositories and demo projects related to Larktun for quick access to source code, docs, and implementation references.
+Larktun is built on top of open-source zero-trust networking ideas and publishes key client repositories, Headscale SaaS architecture demos, benchmarking scripts, and documentation sources publicly so developers can audit, learn from, and contribute to the ecosystem.
 
-## Core open-source repositories
+## Public Repositories
 
-- Android client source (Meshyra, Larktun's nickname)  
-  [https://github.com/OwnDing/meshyra-android](https://github.com/OwnDing/meshyra-android)  
-  Current app branch: `release-branch/1.86`
-- Android in-app networking client source (no VPN permission required)  
-  [https://github.com/OwnDing/larktun-android-open](https://github.com/OwnDing/larktun-android-open)
-- Documentation site source  
-  [https://github.com/OwnDing/larktun-docs](https://github.com/OwnDing/larktun-docs)
-- Architecture demo animation  
-  [https://github.com/OwnDing/larktun-architecture-demo](https://github.com/OwnDing/larktun-architecture-demo)
-- headscale-saas demo  
-  [https://github.com/OwnDing/headscale-saas](https://github.com/OwnDing/headscale-saas)
-- headscale stress test scripts  
-  [https://github.com/OwnDing/headscale-test-scripts](https://github.com/OwnDing/headscale-test-scripts)
-- headscale-java demo  
-  [https://github.com/OwnDing/headscale-java](https://github.com/OwnDing/headscale-java)
+| Project | Repository | What It Covers |
+|---|---|---|
+| **Android Client (Meshyra)** | [OwnDing/meshyra-android](https://github.com/OwnDing/meshyra-android) | Full Android client source code (active release branch: `release-branch/1.86`). |
+| **Android NoVPN Client** | [OwnDing/larktun-android-open](https://github.com/OwnDing/larktun-android-open) | In-app networking Android client built with `tsnet`, requiring no system VPN permission. |
+| **Documentation Site** | [OwnDing/larktun-docs](https://github.com/OwnDing/larktun-docs) | Bilingual (Chinese & English) Docusaurus documentation, guides, and engineering blog. |
+| **Architecture Simulator** | [OwnDing/larktun-architecture-demo](https://github.com/OwnDing/larktun-architecture-demo) | Interactive visualization demonstrating login, Headscale control plane, direct P2P, and DERP relay flows. |
+| **Headscale SaaS Demo** | [OwnDing/headscale-saas](https://github.com/OwnDing/headscale-saas) | Reference architecture for `cluster_id` sharding, multi-tenant isolation, and scalable Headscale deployments. |
+| **Headscale Stress-Test Scripts** | [OwnDing/headscale-test-scripts](https://github.com/OwnDing/headscale-test-scripts) | Containerized 200+ client bootstrap, reconnect churn, and TCP/UDP traffic sampling harness. |
+| **Headscale Java Demo** | [OwnDing/headscale-java](https://github.com/OwnDing/headscale-java) | Java integration demo for interacting with Headscale control-plane APIs. |
 
-## Future open-source plans
+## Roadmap for Additional Open-Source Releases
 
-We may gradually open-source more components based on roadmap and maintenance priorities, including:
+Based on maintenance capacity and stabilization milestones, we plan to continue evaluating additional components for open-source release, including:
 
-- `larktun` SaaS control plane source code
-- `larktun` multi-tenant + cluster source code
-- `larktun-ipn`
-- `larktun` Windows packaging program
-- `larktun` iOS client
-- Custom `larktun` clients
+- Core `larktun` SaaS control-plane modules and multi-tenant clustering components
+- `larktun-ipn` networking core utilities
+- `larktun` Windows packaging tooling
+- Additional client components across desktop and mobile platforms
 
-Stay tuned.
+## How to Get Involved
 
-## Continue reading
+- **Spot a documentation issue or want to improve a guide?** Open an issue or pull request directly in [OwnDing/larktun-docs](https://github.com/OwnDing/larktun-docs).
+- **Benchmarking your own Headscale deployment?** Start with [OwnDing/headscale-test-scripts](https://github.com/OwnDing/headscale-test-scripts) and read [Stress Testing Headscale at 200+ Concurrent Clients](/blog/headscale-stress-test).
+- **Exploring multi-tenant Headscale architecture?** Read [Headscale Multi-Tenant Isolation](/blog/headscale-multi-tenant-isolation) and [Headscale Cluster Architecture](/blog/headscale-cluster-infinite-scale).
 
-- [Product Overview](./what-is-larktun)
+## Continue Reading
+
+- [Larktun Product Overview](./what-is-larktun)
 - [Product Architecture](./product-architecture)
+- [Relationship Between Larktun, Tailscale, and Headscale](../topics/larktun-vs-tailscale-headscale)
 - [ACLs Introduction](./acls-introduction)
 - [Routes Introduction](./routes-introduction)

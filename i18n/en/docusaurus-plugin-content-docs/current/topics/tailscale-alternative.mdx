@@ -1,47 +1,57 @@
 ---
 title: Can Larktun Be a Tailscale Alternative?
-description: Learn when Larktun can serve as a Tailscale alternative for China-focused users, with Chinese device names, SaaS console, multi-tenant isolation, ACLs, mobile apps, and relay options.
+description: Detailed comparison of Larktun vs. Tailscale and self-hosted Headscale—covering SaaS multi-tenancy, China network relays, no-VPN iOS/Android apps, client compatibility, and when to choose each.
+keywords:
+  - Tailscale alternative
+  - Tailscale China alternative
+  - Headscale SaaS
+  - Larktun vs Tailscale
+  - zero-trust mesh VPN alternative
 sidebar_position: 2
 ---
 
 # Can Larktun Be a Tailscale Alternative?
 
-If your goal is to connect devices into a secure private network, `Tailscale` is a mature option. Larktun follows similar networking ideas and adds a product experience tailored for local users and team scenarios in China.
+If you want to connect distributed servers, home NAS boxes, routers, and mobile devices into a zero-trust WireGuard mesh, **Tailscale** is a proven benchmark. **Larktun** builds on the same WireGuard and Headscale networking foundation while addressing practical gaps faced by individual users and teams who want managed multi-tenancy, China-friendly relay performance, native Chinese/Unicode device names, and no-VPN mobile remote tools.
 
-In many scenarios, Larktun can be used as a Tailscale alternative, especially when you want Chinese UI, a SaaS console, tenant isolation, and clearer device governance.
+In many everyday and production scenarios, Larktun works directly as a drop-in Tailscale alternative—and because it remains compatible with standard Tailscale clients, you can even test or migrate incrementally without rebuilding your devices.
 
-## Good fits for Larktun
+## Side-by-Side Comparison: Larktun vs. Tailscale vs. Self-Hosted Headscale
 
-- Remote access to a home NAS, Home Assistant, camera, or mini PC.
-- SSH into a development machine or server without exposing public ports.
-- Use ACLs to control who can access which device, subnet, or service.
-- Use Chinese device names and aliases for easier daily recognition.
-- Choose shared, dedicated, or user-managed relays for different regions and network quality.
-- Use mobile app tools such as ping, file transfer, SSH, and SFTP without occupying system VPN permission in some scenarios.
+| Capability | Larktun (Managed SaaS) | Tailscale (Official SaaS) | Self-Hosted Headscale |
+|---|---|---|---|
+| Control-plane operations | Fully managed SaaS | Fully managed SaaS | Self-hosted server, DB, TLS & upgrades |
+| Multi-tenant isolation | Native per-tenant tailnet, ACL, routes & DNS | Tailnet per org / account | Single tailnet by default |
+| China / cross-ISP relay options | Built-in domestic relays + VIP + user-managed DERP | Global DERP (often higher latency in China) | Manual self-hosted DERP setup |
+| Device naming & localization | Native Chinese / Unicode aliases & bilingual UI | ASCII hostname focus | ASCII hostname focus |
+| Mobile access without system VPN | Built-in `tsnet` app (SSH, SFTP, Web, RDP, WebRTC) | System VPN client required | Relies on Tailscale system VPN client |
+| Tailscale client compatibility | Compatible via `--login-server=https://hs.larktun.com` | Native | Compatible via `--login-server` |
+| Built-in remote desktop & AI tools | Integrated RDP, WebRTC remote control & AI assistant | Network transport only | Network transport only |
 
-## Differences from Tailscale
+## When Larktun Is an Especially Strong Fit
 
-Larktun does not reject the value of `Tailscale`. We respect its technical ideas and ecosystem.
+- **Users needing reliable China & cross-region relays**: Choose between free shared relays, dedicated VIP relays, or your own self-hosted DERP nodes directly from the console.
+- **Home lab & NAS remote access without port forwarding**: Connect Synology, ASUSTOR, Linux NAS, OpenWrt routers, and home PCs under a free personal tenant.
+- **Mobile ops without fighting system VPN slots**: Use SSH, SFTP, internal Web browsing, and RDP/WebRTC from iPhone, iPad, Android phones, tablets, or Android TV while keeping your corporate VPN active.
+- **Teams who want Headscale's open-source roots without running ops**: Skip maintaining reverse proxies, PostgreSQL backups, TLS renewals, and custom DERP clusters yourself.
+- **Multi-customer or multi-department governance**: Isolate each project or customer into its own tenant with independent IP ranges, ACLs, and audit trails.
 
-Larktun focuses more on:
+## Smooth Coexistence and Easy Trial
 
-- Localization: Chinese device names, Chinese console, and local guidance.
-- SaaS multi-tenancy: each user or organization can have isolated networks and policies.
-- Access governance: clearer UI around ACLs, routes, relays, and device inventory.
-- Mobile tooling: in-app networking for focused tasks without system VPN permission.
-- China network adaptation: shared, dedicated, or user-managed relays for reachability and stability.
+You do not need an all-or-nothing migration to evaluate Larktun:
 
-## When Tailscale or Headscale may still fit
+1. **Reuse existing Tailscale clients**: On platforms like Synology DSM, ASUSTOR, or iOS where the official Tailscale client is already installed, point it to Larktun using `--login-server=https://hs.larktun.com` (see [Log in with Tailscale Client](../getting-started/tailscale-client-login)).
+2. **Use Larktun's mobile app with your existing network**: The Larktun iOS and Android apps also support third-party auth-key login directly into your existing Tailscale or self-hosted Headscale network (see [iOS Third-Party Login](../getting-started/ios-third-party-login)).
 
-If your team already uses `Tailscale` successfully and your network conditions are stable, continuing with it is reasonable.
+## When Tailscale or Self-Hosted Headscale May Still Be Better
 
-If you want full control over the control plane, you can study `Headscale`. But self-hosting also means maintaining servers, domains, certificates, relays, upgrades, and troubleshooting.
-
-Larktun is for users who want lower operational cost, local product experience, and stronger access-governance workflows.
+- Stay with **Tailscale** if your organization already standardizes on Tailscale Enterprise features, global identity integrations, and your users have consistently low-latency access to Tailscale's global DERP network.
+- Choose **self-hosted Headscale** if internal security policy strictly forbids any external SaaS control plane and your team has the engineering capacity to operate and secure the control plane and DERP fleet in-house.
 
 ## Continue Reading
 
 - [Relationship Between Larktun, Tailscale, and Headscale](./larktun-vs-tailscale-headscale)
 - [Quick Start](../getting-started/quick-start)
 - [Deployment Modes and Configuration](../getting-started/install-and-configure)
-- [Put the Larktun Network Inside an App Without VPN Permission](/blog/larktun-tsnet-app-without-vpn-permission)
+- [iOS Networking App Without System VPN Permission](./ios-app-without-vpn-permission)
+- [Install Larktun on OpenWrt Routers](../getting-started/openwrt-install-larktun)

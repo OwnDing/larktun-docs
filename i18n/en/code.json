@@ -290,6 +290,12 @@
   "homepage.link.firstPath": {
     "message": "Create Your First Secure Access Path"
   },
+  "homepage.link.nas": {
+    "message": "Install on NAS"
+  },
+  "homepage.link.openwrt": {
+    "message": "Install on OpenWrt Routers"
+  },
   "homepage.link.blog": {
     "message": "Blog"
   },

@@ -1,4 +1,5 @@
 import {themes as prismThemes} from 'prism-react-renderer';
+import {execFileSync} from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type {Config} from '@docusaurus/types';
@@ -26,78 +27,72 @@ const LEGACY_DOC_CATEGORY_REDIRECTS: Record<string, string> = {
   问题处理: '/docs/troubleshooting',
 };
 
-const CORE_BLOG_TAG_SLUGS = new Set([
-  'larktun',
-  'remote-access',
-  'zero-trust-networking',
-  'headscale',
-  'ssh',
-  'mobile',
+const NOINDEX_DOC_CATEGORY_PATHS = new Set([
+  '/docs/introduction',
+  '/docs/getting-started',
+  '/docs/troubleshooting',
+  '/docs/topics',
 ]);
 
-const CORE_SITEMAP_PATHS = [
-  '/',
-  '/docs',
-  '/docs/introduction',
-  '/docs/introduction/what-is-larktun',
-  '/docs/introduction/ai-assistant',
-  '/docs/getting-started',
-  '/docs/getting-started/quick-start',
-  '/docs/getting-started/webrtc-remote-control',
-  '/docs/getting-started/rdp-remote-desktop',
-  '/docs/getting-started/rustdesk-ip-remote',
-  '/docs/getting-started/install-and-configure',
-  '/docs/getting-started/publish-your-first-service',
-  '/docs/getting-started/approve-subnet-routes',
-  '/docs/getting-started/linux-install-larktun',
-  '/docs/getting-started/docker-login-larktun',
-  '/docs/getting-started/nas-install-larktun',
-  '/docs/getting-started/openwrt-install-larktun',
-  '/docs/getting-started/ios-third-party-login',
-  '/docs/getting-started/ios-tailscale-login-larktun',
-  '/docs/getting-started/tv-install-larktun',
-  '/docs/troubleshooting/common-issues',
-  '/docs/troubleshooting/larktun-alibaba-cloud-dns',
-  '/docs/topics/tailscale-alternative',
-  '/docs/topics/secure-ssh-without-public-port',
-  '/blog',
-  '/blog/what-is-larktun',
-  '/blog/secure-ssh-to-server-with-larktun',
-  '/blog/larktun-tsnet-app-without-vpn-permission',
-  '/blog/larktun-ipad-ios-app-without-vpn',
-  '/blog/larktun-ios-third-party-login',
-  '/blog/larktun-android-tv-remote-desktop',
-  '/blog/larktun-android-webrtc-tablet-phone-ui',
-  '/showcase',
-];
+function getLocalizedStructuredData(isEnglish: boolean) {
+  if (isEnglish) {
+    return {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': 'https://larktun.com/#organization',
+          name: 'Larktun',
+          alternateName: ['云雀通 Larktun', '云雀通'],
+          url: 'https://larktun.com',
+          logo: 'https://docs.larktun.com/img/larktun.png',
+        },
+        {
+          '@type': 'WebSite',
+          '@id': 'https://docs.larktun.com/en/#website',
+          name: 'Larktun Docs',
+          alternateName: ['Larktun Documentation', '云雀通 Larktun 文档'],
+          url: 'https://docs.larktun.com/en/',
+          inLanguage: 'en-US',
+          publisher: {
+            '@id': 'https://larktun.com/#organization',
+          },
+          about: {
+            '@id': 'https://larktun.com/#organization',
+          },
+        },
+      ],
+    };
+  }
 
-const LARKTUN_STRUCTURED_DATA = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Organization',
-      '@id': 'https://larktun.com/#organization',
-      name: '云雀通 Larktun',
-      alternateName: ['云雀通', 'Larktun'],
-      url: 'https://larktun.com',
-      logo: 'https://docs.larktun.com/img/larktun.png',
-    },
-    {
-      '@type': 'WebSite',
-      '@id': 'https://docs.larktun.com/#website',
-      name: '云雀通 Larktun 文档',
-      alternateName: ['云雀通文档', 'Larktun Docs', 'Larktun Documentation'],
-      url: 'https://docs.larktun.com',
-      inLanguage: ['zh-CN', 'en-US'],
-      publisher: {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
         '@id': 'https://larktun.com/#organization',
+        name: '云雀通 Larktun',
+        alternateName: ['云雀通', 'Larktun'],
+        url: 'https://larktun.com',
+        logo: 'https://docs.larktun.com/img/larktun.png',
       },
-      about: {
-        '@id': 'https://larktun.com/#organization',
+      {
+        '@type': 'WebSite',
+        '@id': 'https://docs.larktun.com/#website',
+        name: '云雀通 Larktun 文档',
+        alternateName: ['云雀通文档', 'Larktun Docs', 'Larktun Documentation'],
+        url: 'https://docs.larktun.com',
+        inLanguage: 'zh-CN',
+        publisher: {
+          '@id': 'https://larktun.com/#organization',
+        },
+        about: {
+          '@id': 'https://larktun.com/#organization',
+        },
       },
-    },
-  ],
-};
+    ],
+  };
+}
 
 function escapeHtml(value: string): string {
   return value
@@ -128,44 +123,170 @@ function shouldIncludeSitemapUrl(url: string): boolean {
     pathWithoutLocale === '/search' ||
     pathWithoutLocale === '/blog/archive' ||
     pathWithoutLocale === '/blog/authors' ||
-    pathWithoutLocale === '/blog/tags'
+    pathWithoutLocale.startsWith('/blog/authors/') ||
+    pathWithoutLocale === '/blog/tags' ||
+    pathWithoutLocale.startsWith('/blog/tags/') ||
+    pathWithoutLocale.startsWith('/blog/page/') ||
+    NOINDEX_DOC_CATEGORY_PATHS.has(pathWithoutLocale)
   ) {
     return false;
-  }
-
-  if (pathWithoutLocale.startsWith('/blog/tags/')) {
-    const tagSlug = pathWithoutLocale.replace('/blog/tags/', '');
-
-    return CORE_BLOG_TAG_SLUGS.has(tagSlug);
   }
 
   return true;
 }
 
-function toLocalizedPath(pathname: string, localePrefix: string): string {
-  if (!localePrefix) {
-    return pathname;
+let cachedGitLastmodMap: Map<string, string> | null = null;
+let cachedBlogSlugFileMap: Map<string, string> | null = null;
+
+function getGitLastmodMap(): Map<string, string> {
+  if (cachedGitLastmodMap) {
+    return cachedGitLastmodMap;
   }
 
-  return pathname === '/' ? `${localePrefix}/` : `${localePrefix}${pathname}`;
+  const map = new Map<string, string>();
+  try {
+    const output = execFileSync('git', ['log', '--format=DATE:%cs', '--name-only'], {
+      cwd: __dirname,
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+    });
+    let currentDate = '';
+    for (const rawLine of output.split('\n')) {
+      const line = rawLine.trim();
+      if (!line) {
+        continue;
+      }
+      if (line.startsWith('DATE:')) {
+        currentDate = line.slice(5);
+        continue;
+      }
+      if (currentDate && !map.has(line)) {
+        map.set(line, currentDate);
+      }
+    }
+  } catch {
+    // Ignore git lookup errors outside a git worktree
+  }
+
+  cachedGitLastmodMap = map;
+  return map;
 }
 
-function createSitemapXml(urls: string[]): string {
-  const lastmod = new Date().toISOString().slice(0, 10);
-  const urlEntries = urls
-    .map(
-      (url) => `  <url>
-    <loc>${escapeHtml(url)}</loc>
-    <lastmod>${lastmod}</lastmod>
-  </url>`,
-    )
-    .join('\n');
+function getFileLastmod(relPath: string): string | undefined {
+  const gitMap = getGitLastmodMap();
+  const gitDate = gitMap.get(relPath);
+  if (gitDate) {
+    return gitDate;
+  }
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urlEntries}
-</urlset>
-`;
+  const absPath = path.join(__dirname, relPath);
+  if (fs.existsSync(absPath)) {
+    return fs.statSync(absPath).mtime.toISOString().slice(0, 10);
+  }
+
+  return undefined;
+}
+
+function getBlogSlugFileMap(): Map<string, string> {
+  if (cachedBlogSlugFileMap) {
+    return cachedBlogSlugFileMap;
+  }
+
+  const map = new Map<string, string>();
+  const blogDirs: Array<{locale: 'zh' | 'en'; relDir: string}> = [
+    {locale: 'zh', relDir: 'blog'},
+    {locale: 'en', relDir: 'i18n/en/docusaurus-plugin-content-blog'},
+  ];
+
+  for (const {locale, relDir} of blogDirs) {
+    const absDir = path.join(__dirname, relDir);
+    if (!fs.existsSync(absDir)) {
+      continue;
+    }
+    for (const entry of fs.readdirSync(absDir)) {
+      if (!entry.endsWith('.mdx') && !entry.endsWith('.md')) {
+        continue;
+      }
+      const relPath = `${relDir}/${entry}`;
+      const content = fs.readFileSync(path.join(absDir, entry), 'utf8');
+      const slugMatch = content.match(/^slug:\s*['"]?([^\s'"]+)['"]?/m);
+      const slug = slugMatch
+        ? slugMatch[1].replace(/^\//, '')
+        : entry.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.mdx?$/, '');
+      map.set(`${locale}:${slug}`, relPath);
+    }
+  }
+
+  cachedBlogSlugFileMap = map;
+  return map;
+}
+
+function getMaxDate(dates: Array<string | undefined>): string | undefined {
+  const valid = dates.filter((d): d is string => Boolean(d));
+  if (valid.length === 0) {
+    return undefined;
+  }
+  valid.sort();
+  return valid[valid.length - 1];
+}
+
+function resolveSitemapLastmod(url: string): string | undefined {
+  const {pathname} = new URL(url);
+  const normalizedPath = stripTrailingSlash(decodeURIComponent(pathname));
+  const isEnglish = normalizedPath === '/en' || normalizedPath.startsWith('/en/');
+  const pathWithoutLocale = stripLocalePrefix(normalizedPath);
+
+  if (pathWithoutLocale === '/') {
+    return isEnglish
+      ? getMaxDate([getFileLastmod('src/pages/index.tsx'), getFileLastmod('i18n/en/code.json')])
+      : getFileLastmod('src/pages/index.tsx');
+  }
+
+  if (pathWithoutLocale === '/showcase') {
+    return getFileLastmod('src/pages/showcase.tsx');
+  }
+
+  if (pathWithoutLocale === '/docs') {
+    return getFileLastmod(
+      isEnglish
+        ? 'i18n/en/docusaurus-plugin-content-docs/current/intro.mdx'
+        : 'docs/intro.mdx',
+    );
+  }
+
+  if (pathWithoutLocale.startsWith('/docs/')) {
+    const docRel = pathWithoutLocale.slice('/docs/'.length);
+    const baseDir = isEnglish ? 'i18n/en/docusaurus-plugin-content-docs/current' : 'docs';
+    for (const ext of ['.mdx', '.md']) {
+      const candidate = `${baseDir}/${docRel}${ext}`;
+      if (fs.existsSync(path.join(__dirname, candidate))) {
+        return getFileLastmod(candidate);
+      }
+    }
+  }
+
+  if (pathWithoutLocale === '/blog') {
+    const slugMap = getBlogSlugFileMap();
+    const prefix = isEnglish ? 'en:' : 'zh:';
+    const blogDates: Array<string | undefined> = [];
+    for (const [key, relPath] of slugMap.entries()) {
+      if (key.startsWith(prefix)) {
+        blogDates.push(getFileLastmod(relPath));
+      }
+    }
+    return getMaxDate(blogDates);
+  }
+
+  if (pathWithoutLocale.startsWith('/blog/')) {
+    const slug = pathWithoutLocale.slice('/blog/'.length);
+    const slugMap = getBlogSlugFileMap();
+    const relPath = slugMap.get(`${isEnglish ? 'en' : 'zh'}:${slug}`);
+    if (relPath) {
+      return getFileLastmod(relPath);
+    }
+  }
+
+  return undefined;
 }
 
 function createRedirectHtml(to: string): string {
@@ -191,13 +312,72 @@ function createRedirectHtml(to: string): string {
 `;
 }
 
-function larktunSeoRedirectsPlugin(context: {i18n: {currentLocale: string}}) {
+function walkHtmlFiles(dir: string, results: string[] = []): string[] {
+  if (!fs.existsSync(dir)) {
+    return results;
+  }
+  for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      walkHtmlFiles(fullPath, results);
+    } else if (entry.isFile() && entry.name.endsWith('.html')) {
+      results.push(fullPath);
+    }
+  }
+  return results;
+}
+
+function injectNoindexMeta(filePath: string): void {
+  if (!fs.existsSync(filePath)) {
+    return;
+  }
+  const html = fs.readFileSync(filePath, 'utf8');
+  if (/<meta\b[^>]*\bname=(?:"robots"|'robots'|robots)(?=[\s/>])/i.test(html)) {
+    return;
+  }
+  const updated = html.replace('</head>', '<meta name="robots" content="noindex, follow"></head>');
+  if (updated !== html) {
+    fs.writeFileSync(filePath, updated);
+  }
+}
+
+function larktunSeoPlugin(context: {i18n: {currentLocale: string}}) {
   const isEnglish = context.i18n.currentLocale === 'en';
   const localePrefix = isEnglish ? '/en' : '';
+  const siteName = isEnglish ? 'Larktun Docs' : '云雀通 Larktun 文档';
+  const structuredData = getLocalizedStructuredData(isEnglish);
 
   return {
-    name: 'larktun-seo-redirects',
+    name: 'larktun-seo-plugin',
+    injectHtmlTags() {
+      return {
+        headTags: [
+          {
+            tagName: 'meta',
+            attributes: {
+              name: 'application-name',
+              content: siteName,
+            },
+          },
+          {
+            tagName: 'meta',
+            attributes: {
+              property: 'og:site_name',
+              content: siteName,
+            },
+          },
+          {
+            tagName: 'script',
+            attributes: {
+              type: 'application/ld+json',
+            },
+            innerHTML: JSON.stringify(structuredData),
+          },
+        ],
+      };
+    },
     postBuild({outDir}: {outDir: string}) {
+      // 1. Keep legacy Chinese tag & doc category redirects
       Object.entries(LEGACY_CHINESE_TAG_REDIRECTS).forEach(([legacyTag, targetTag]) => {
         const filePath = path.join(outDir, 'blog', 'tags', `${legacyTag}.html`);
         const targetPath = `${localePrefix}/blog/tags/${targetTag}`;
@@ -215,11 +395,72 @@ function larktunSeoRedirectsPlugin(context: {i18n: {currentLocale: string}}) {
         });
       }
 
-      const coreUrls = CORE_SITEMAP_PATHS.map(
-        (pathname) => `https://docs.larktun.com${toLocalizedPath(pathname, localePrefix)}`,
-      );
+      // 2. Apply noindex, follow to low-value aggregation / pagination / generated-index pages
+      const noindexFiles = [
+        path.join(outDir, 'blog', 'tags.html'),
+        path.join(outDir, 'blog', 'archive.html'),
+        path.join(outDir, 'blog', 'authors.html'),
+        path.join(outDir, 'docs', 'introduction.html'),
+        path.join(outDir, 'docs', 'getting-started.html'),
+        path.join(outDir, 'docs', 'troubleshooting.html'),
+        path.join(outDir, 'docs', 'topics.html'),
+        ...walkHtmlFiles(path.join(outDir, 'blog', 'tags')),
+        ...walkHtmlFiles(path.join(outDir, 'blog', 'page')),
+        ...walkHtmlFiles(path.join(outDir, 'blog', 'authors')),
+      ];
+      for (const filePath of noindexFiles) {
+        injectNoindexMeta(filePath);
+      }
 
-      fs.writeFileSync(path.join(outDir, 'sitemap-core.xml'), createSitemapXml(coreUrls));
+      // 3. Fix @easyops-cn/docusaurus-search-local invalid property="robots" attribute (must be name="robots")
+      const searchHtmlPath = path.join(outDir, 'search.html');
+      if (fs.existsSync(searchHtmlPath)) {
+        let html = fs.readFileSync(searchHtmlPath, 'utf8');
+        html = html.replace(/\bproperty=(?:"robots"|'robots'|robots)(?=[\s/>])/gi, 'name="robots"');
+        if (isEnglish) {
+          html = html.replace(
+            /(<meta\b[^>]*\bproperty=(?:"og:title"|'og:title'|og:title)(?=[\s/>])[^>]*\bcontent=)"云雀通 Larktun 文档"/gi,
+            '$1"Larktun Docs"',
+          );
+          html = html.replace(/\bhref=(?:"\/search"|'\/search'|\/search)(?=[\s>/])/g, 'href="/en/search"');
+        }
+        fs.writeFileSync(searchHtmlPath, html);
+      }
+
+      // 4. Fix BreadcrumbList trailing slash on /docs and /en/docs hub page
+      const docsHubPath = path.join(outDir, 'docs.html');
+      if (fs.existsSync(docsHubPath)) {
+        let html = fs.readFileSync(docsHubPath, 'utf8');
+        const expectedHubUrl = `https://docs.larktun.com${localePrefix}/docs`;
+        html = html.replaceAll(`"${expectedHubUrl}/"`, `"${expectedHubUrl}"`);
+        fs.writeFileSync(docsHubPath, html);
+      }
+
+      // 5. Localize English RSS/Atom feed titles in HTML <head> and XML files
+      if (isEnglish) {
+        for (const htmlFile of walkHtmlFiles(outDir)) {
+          const html = fs.readFileSync(htmlFile, 'utf8');
+          const updated = html
+            .replaceAll('title="云雀通 Larktun 文档 RSS Feed"', 'title="Larktun Docs RSS Feed"')
+            .replaceAll('title="云雀通 Larktun 文档 Atom Feed"', 'title="Larktun Docs Atom Feed"');
+          if (updated !== html) {
+            fs.writeFileSync(htmlFile, updated);
+          }
+        }
+
+        for (const feedName of ['rss.xml', 'atom.xml']) {
+          const feedPath = path.join(outDir, 'blog', feedName);
+          if (fs.existsSync(feedPath)) {
+            const xml = fs.readFileSync(feedPath, 'utf8');
+            const updated = xml
+              .replaceAll('云雀通 Larktun 文档 Blog', 'Larktun Blog')
+              .replaceAll('云雀通 Larktun 文档', 'Larktun Docs');
+            if (updated !== xml) {
+              fs.writeFileSync(feedPath, updated);
+            }
+          }
+        }
+      }
     },
   };
 }
@@ -278,6 +519,9 @@ const config: Config = {
           feedOptions: {
             type: ['rss', 'atom'],
             xslt: true,
+            title: 'Larktun Blog',
+            description:
+              'Larktun Blog: zero-trust networking, secure remote access, Headscale scaling, mobile networking, and SSH engineering guides.',
           },
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
@@ -291,10 +535,17 @@ const config: Config = {
         },
         sitemap: {
           lastmod: 'date',
+          changefreq: null,
+          priority: null,
           createSitemapItems: async ({routes, siteConfig, defaultCreateSitemapItems}) => {
             const items = await defaultCreateSitemapItems({routes, siteConfig});
 
-            return items.filter((item) => shouldIncludeSitemapUrl(item.url));
+            return items
+              .filter((item) => shouldIncludeSitemapUrl(item.url))
+              .map((item) => {
+                const realLastmod = resolveSitemapLastmod(item.url);
+                return realLastmod ? {...item, lastmod: realLastmod} : item;
+              });
           },
         },
       } satisfies Preset.Options,
@@ -302,7 +553,7 @@ const config: Config = {
   ],
 
   plugins: [
-    larktunSeoRedirectsPlugin,
+    larktunSeoPlugin,
     [
       '@easyops-cn/docusaurus-search-local',
       {
@@ -320,28 +571,8 @@ const config: Config = {
     ],
   ],
 
-  headTags: [
-    {
-      tagName: 'script',
-      attributes: {
-        type: 'application/ld+json',
-      },
-      innerHTML: JSON.stringify(LARKTUN_STRUCTURED_DATA),
-    },
-  ],
-
   themeConfig: {
     image: 'img/larktun-social-card.svg',
-    metadata: [
-      {
-        name: 'application-name',
-        content: '云雀通 Larktun 文档',
-      },
-      {
-        property: 'og:site_name',
-        content: '云雀通 Larktun 文档',
-      },
-    ],
     colorMode: {
       defaultMode: 'light',
       respectPrefersColorScheme: true,
@@ -383,6 +614,7 @@ const config: Config = {
           position: 'right',
           className: 'navbar-auth-link navbar-auth-link--login',
           target: '_self',
+          rel: 'nofollow',
         },
         {
           href: 'https://larktun.com/auth/register',
@@ -390,6 +622,7 @@ const config: Config = {
           position: 'right',
           className: 'navbar-auth-link navbar-auth-link--register',
           target: '_self',
+          rel: 'nofollow',
         },
       ],
     },

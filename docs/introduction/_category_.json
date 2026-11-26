@@ -4,7 +4,7 @@
   "link": {
     "type": "generated-index",
     "slug": "/introduction",
-    "title": "产品介绍",
+    "title": "产品介绍目录",
     "description": "了解云雀通 Larktun 的零信任组网、SaaS 多租户隔离、租户级 ACL 与中继能力。"
   }
 }

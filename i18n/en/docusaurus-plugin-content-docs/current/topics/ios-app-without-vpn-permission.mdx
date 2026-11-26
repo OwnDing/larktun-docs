@@ -1,44 +1,78 @@
 ---
 title: iOS Networking App Without System VPN Permission
-description: Learn how the Larktun iOS app uses tsnet for in-app networking, encryption, direct paths, and relay fallback without occupying system VPN permission.
+description: Learn how the Larktun iOS app uses tsnet for in-app zero-trust networking, encrypted P2P direct paths, and DERP relay fallback—giving you SSH, SFTP, private Web, and RDP without occupying the system VPN slot.
+keywords:
+  - iOS networking app without VPN
+  - tsnet iOS app
+  - Larktun iOS no VPN
+  - Tailscale without system VPN
+  - iPhone SSH SFTP private network
 sidebar_position: 5
 ---
 
 # iOS Networking App Without System VPN Permission
 
-On mobile devices, system VPN permission is usually the default entry point for networking tools. It can route device-wide traffic into a private network, but it also creates permission friction and conflicts with tools such as a company VPN.
+On iOS and iPadOS, private networking clients traditionally rely on Apple's `NEPacketTunnelProvider` (system VPN permission). While a system VPN routes device-wide traffic into a private network, it also introduces real friction: users must approve and manage a VPN profile, iOS only allows one active system VPN at a time, and enabling a personal mesh VPN immediately disconnects a corporate VPN, campus VPN, or network proxy.
 
-The Larktun iOS app provides another option: use `tsnet` to handle networking inside the app, without occupying the system VPN slot.
+The Larktun iOS and iPadOS app takes a different approach: it embeds Tailscale's user-space networking stack (`tsnet`) directly inside the application process. Your iPhone or iPad joins your Larktun, Tailscale, or self-hosted Headscale network **inside the app**, without requesting or occupying system VPN permission.
 
-## What in-app networking means
+## System VPN vs. In-App `tsnet` Networking
 
-The boundary of a system VPN is the whole phone. Once enabled, all traffic that matches the route rules may enter the private network.
+Understanding the boundary difference helps you pick the right tool for the job:
 
-The boundary of in-app networking is the Larktun app itself. Only built-in app capabilities enter the Larktun network, such as:
+| Dimension | System VPN Client | Larktun In-App (`tsnet`) |
+|---|---|---|
+| Network boundary | Device-wide (all apps matching route rules) | Strictly scoped to the Larktun app |
+| System VPN permission required | Yes (`NEPacketTunnelProvider`) | No |
+| Coexists with corporate / campus VPN | No (conflicts over the single VPN slot) | Yes (runs alongside existing system VPNs) |
+| Encryption & path selection | WireGuard E2E + direct P2P / DERP relay | WireGuard E2E + direct P2P / DERP relay |
+| Control-plane ACL enforcement | Per-device identity & ACL policy | Identical per-device identity & ACL policy |
+| Best use case | Any third-party iOS app must reach LAN IPs | Focused remote admin: SSH, SFTP, Web UI, RDP, Ping, files |
 
-- View networked devices
-- Ping devices and check latency or direct-path state
-- Send and receive files
-- SSH into servers or development machines
-- Use SFTP to manage remote files
+## How In-App Networking Works Under the Hood
 
-Other apps continue using the original system network or company VPN.
+When you sign in to the Larktun iOS app, the embedded `tsnet` engine registers the app itself as an authenticated node on the control plane:
 
-## Why this is useful
+1. **Identity and policy sync**: The app authenticates using your Larktun account, an Auth Key, or a third-party Tailscale/Headscale auth key, and receives only the peer list and ACL rules authorized for that node.
+2. **End-to-end encrypted transport**: All traffic uses WireGuard encryption between the app and target devices (home NAS, cloud servers, office workstations, or OpenWrt subnet routers).
+3. **Direct P2P with automatic relay fallback**: The app attempts direct peer-to-peer NAT traversal first and falls back seamlessly to shared, dedicated, or user-managed DERP relays when strict mobile carrier NAT blocks direct UDP.
+4. **Zero system network modification**: No OS routing table entries, DNS overrides, or global proxy settings are changed. Other apps on your phone keep using your normal Wi-Fi, 5G, or company VPN untouched.
 
-This model is helpful for mobile work and emergency operations. You do not need to switch the system VPN or route all phone traffic into a private network. Open the Larktun app and perform focused network tool actions.
+## Built-In Capabilities Inside the App
 
-It also fits safe AI Agent usage, device access governance, and remote operations. Access paths stay inside the app, making permission boundaries easier to understand.
+Because the network stack lives inside the app, Larktun bundles the everyday tools engineers and NAS users actually reach for on mobile:
 
-## Relationship to system VPN mode
+- **Device inventory**: View online status, private IPv4 addresses, and MagicDNS names across your servers, workstations, NAS boxes, and routers.
+- **Ping & path diagnostics**: Measure round-trip latency and check whether the connection is direct or relayed before starting heavy sessions.
+- **Built-in SSH terminal**: Connect directly to Linux servers, macOS hosts, or home mini PCs without exposing public port `22`.
+- **SFTP file browser**: Inspect directories, pull log files, or upload configs on mobile without juggling a separate file-transfer app.
+- **Private Web browser**: Open internal NAS dashboards (Synology DSM, ASUSTOR ADM), Home Assistant, Grafana, Swagger UIs, or AI Agent consoles directly over private IPs.
+- **Remote desktop (RDP & WebRTC)**: Control Windows or Linux workstations from iPhone or iPad with H.264/AVC444 and RemoteFX support.
+- **Third-party Tailscale & Headscale login**: Keep your existing Tailscale or self-hosted Headscale infrastructure and use Larktun strictly as your no-VPN mobile client.
 
-In-app networking without VPN permission does not replace every system VPN scenario.
+## Why This Matters for Real Workflows
 
-If any app on the phone must access the private network, system VPN is still the complete approach. Larktun's in-app networking is better for focused tools: device view, connectivity checks, file transfer, SSH, and SFTP.
+- **Emergency on-call ops**: Stay connected to your employer's VPN while opening Larktun to inspect a personal server, restart a container, or pull logs.
+- **Clean security boundaries for AI Agents and internal tools**: Access stays explicitly scoped to authenticated sessions inside one app rather than routing background traffic from every app on your phone into a private network.
+- **Zero profile friction**: Team members or family members can install the app and sign in without troubleshooting OS VPN profiles or split-DNS conflicts.
+
+## When You Still Need a System VPN
+
+In-app networking is intentionally scoped—it does not try to replace every system VPN scenario. If you need third-party iOS apps (such as Safari, an external media player, or a dedicated camera app) to reach private LAN addresses natively, use a system VPN client (for example, see [Log in to Larktun with the Tailscale iOS App](../getting-started/ios-tailscale-login-larktun)).
+
+## FAQ
+
+**Does skipping system VPN permission weaken encryption?**
+No. `tsnet` runs the same WireGuard cryptography, key exchange, and control-plane ACL checks as a full client; only the traffic capture boundary moves from the OS kernel tunnel to the application process.
+
+**Can I access LAN devices behind an OpenWrt or Linux subnet router?**
+Yes. As long as the subnet route is approved in the console and permitted by your tenant ACLs, the Larktun iOS app can reach private LAN IPs behind the subnet router.
 
 ## Continue Reading
 
+- [Larktun iOS App Overview](../introduction/ios-app-overview)
+- [Log In to Tailscale or Self-Hosted Headscale on iOS](../getting-started/ios-third-party-login)
 - [Put the Larktun Network Inside an App Without VPN Permission](/blog/larktun-tsnet-app-without-vpn-permission)
-- [Relationship Between Larktun, Tailscale, and Headscale](./larktun-vs-tailscale-headscale)
+- [Optimize iOS Remote Desktop: Enable RemoteFX](./optimize-ios-rdp-remotefx)
 - [Product Architecture](../introduction/product-architecture)
 - [FAQ](../troubleshooting/faq)

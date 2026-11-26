@@ -1,11 +1,12 @@
 ---
 title: Install Larktun on OpenWrt Routers
-description: Install Larktun on an OpenWrt router with a one-line script, generate an Auth Key, and log in for router-level zero-trust remote access and networking.
+description: Install Larktun on an OpenWrt router with a one-line script, verify flash space and architecture, log in with an Auth Key, configure LAN subnet routing and firewall forwarding, and manage procd autostart.
 keywords:
   - OpenWrt Larktun
   - OpenWrt VPN
   - OpenWrt remote access
   - router Tailscale
+  - OpenWrt subnet router
   - router networking
   - headscale
   - Larktun OpenWrt install
@@ -14,69 +15,135 @@ sidebar_position: 12
 
 # Install Larktun on an OpenWrt Router
 
-Larktun can be installed directly on OpenWrt routers. Once installed, the router itself joins the Larktun network as a node, and you can go on to configure subnet routes so other devices on the local network can be reached remotely without installing a client of their own.
+Installing Larktun directly on an OpenWrt router turns the router itself into an always-on node in your zero-trust network. Compared with installing agents on every single device, a router deployment is ideal as a **LAN subnet router**: cameras, printers, older NAS boxes, smart-home hubs, and industrial controllers behind the router become securely reachable remotely without opening a single public port or installing software on those endpoints.
 
-This guide walks through installing Larktun on OpenWrt with the online script, generating an Auth Key, and completing the first login.
+This guide covers OpenWrt pre-flight checks, one-command installation, Auth Key login, subnet routing and firewall forwarding notes, service management, and troubleshooting.
 
-## Before You Start
+## Before You Start (Pre-Flight Checks)
 
-- The router is running OpenWrt and has working internet access.
-- You can log in to the router over SSH (via LuCI under **System > Administration > SSH Access**, or any terminal tool).
-- You have registered and signed in to the [Larktun Console](https://larktun.com/auth/login).
-- The router has enough free storage to install `larktun` and `larktund` (a few MB of free space is recommended).
+Make sure you have the following ready:
+
+- A router running OpenWrt with working outbound internet access.
+- SSH access to the router (enable via LuCI under **System > Administration > SSH Access**, then connect with `ssh root@<router-ip>`).
+- An active account in the [Larktun Console](https://larktun.com/auth/login).
+- Verify your CPU architecture, available flash space, and system clock over SSH:
+
+```bash
+# Check CPU architecture and opkg architecture tags
+uname -m
+opkg print-architecture
+
+# Check free overlay storage (10-15 MB free recommended)
+df -h /overlay
+
+# Confirm the system clock is accurate (clock skew breaks TLS handshakes)
+date
+```
+
+:::tip
+On constrained routers (such as legacy 16 MB flash units), check `df -h /overlay` first and remove unused packages—or use extroot on USB/TF storage—before installing.
+:::
 
 ## 1. Install with the Online Script
 
-After connecting to the router over SSH, run the following command to download and execute the install script:
+After connecting to your OpenWrt router over SSH, download and execute the installer:
 
 ```bash
 wget -O /tmp/larktun.sh https://download2.larktun.com/openwrt/install.sh && sh /tmp/larktun.sh
 ```
 
-The script automatically detects the router's CPU architecture, downloads the matching Larktun binaries, and sets up the base service configuration. Installation progress is printed to the terminal in real time.
+The script automatically detects the router's CPU architecture (such as `aarch64_generic`, `x86_64`, or `mipsel`) and OpenWrt release, fetches the matching `.ipk` package, installs `larktun` and `larktund`, and configures OpenWrt `init.d` / `procd` startup. Live progress is printed in your terminal.
 
-Once the installation finishes, the terminal shows a screen similar to the one below, confirming the install completed and showing the command format you'll need for login:
+Once complete, you will see a confirmation screen showing the login command format:
 
 ![OpenWrt terminal showing a successful Larktun installation](/img/docs/openwrt/openwrt-install-success.webp)
 
 :::tip
-If `wget` fails with a certificate error or times out, check that the router's system clock is correct and that it can resolve and reach `download2.larktun.com`.
+If `wget` fails with a TLS certificate error or times out, verify three things:
+1. The router's system clock is synced via NTP (**System > System > Time Synchronization** in LuCI);
+2. `ca-bundle` / `ca-certificates` is installed;
+3. The router can resolve and reach `download2.larktun.com`.
 :::
 
 ## 2. Generate an Auth Key in the Console
 
-You'll need an Auth Key to connect the router to your Larktun network:
+Create a dedicated Auth Key for your router:
 
-1. Sign in to the [Larktun Console](https://larktun.com/auth/login) and enter your tenant or workspace.
-2. Open the **Machines (Nodes)** page from the left navigation menu.
-3. Click **Create Auth Key** to generate a dedicated key for this OpenWrt router.
-4. **Note**: for security reasons, the Auth Key is only shown in full once. Copy and store it securely, and avoid pasting it into public chats, tickets, or screenshots.
+1. Sign in to the [Larktun Console](https://larktun.com/auth/login) and open your tenant.
+2. Go to **Machines (Nodes)** in the left navigation.
+3. Click **Create Auth Key** to generate a key for this OpenWrt router.
+4. **Security note**: the full Auth Key is displayed only once. Copy it safely and never paste it into public chats, tickets, or screenshots.
 
 ## 3. Log In with the Auth Key
 
-Back in the router's SSH session, replace `<Your Auth Key>` with the key generated in the previous step and run:
+Back in the router's SSH terminal, replace `<Your Auth Key>` with the key from Step 2:
 
 ```bash
 larktun up --login-server=https://hs.larktun.com --auth-key=<Your Auth Key>
 ```
 
-`--login-server` must point to the Larktun access control plane (e.g., `https://hs.larktun.com`; refer to the console's setup instructions for the exact URL).
+`--login-server` must point to the Larktun control plane (`https://hs.larktun.com`, or the exact URL shown in your console).
 
-## Verify the Connection
+If you want this OpenWrt router to **immediately advertise your LAN subnet** (for example `192.168.1.0/24`) so remote devices can reach everything behind it, include `--advertise-routes`:
 
-After running the login command, go back to the **Nodes** page in the Larktun console and refresh it to confirm this OpenWrt router shows up as online. Once it's online, you can continue with [Approving Subnet Routes](./approve-subnet-routes) to publish the LAN behind the router into the Larktun network, so other devices can be reached remotely without installing a client.
+```bash
+larktun up \
+  --login-server=https://hs.larktun.com \
+  --auth-key=<Your Auth Key> \
+  --advertise-routes=192.168.1.0/24
+```
+
+## 4. Verify Online Status and Autostart
+
+Confirm both the local daemon state on OpenWrt and the node state in the console:
+
+```bash
+# Inspect online state, private Larktun IP, and peer list
+larktun status
+
+# Confirm boot-time autostart is enabled (init.d / procd)
+/etc/init.d/larktund enabled && echo "autostart enabled"
+
+# Inspect recent daemon logs
+logread | grep -i larktun | tail -n 30
+```
+
+Refresh **Nodes** in the Larktun console and verify the OpenWrt router appears **Online**. Consider renaming it to a clear label such as `home-openwrt`.
+
+## 5. Subnet Routing and OpenWrt Firewall Notes
+
+To access LAN devices behind OpenWrt (NAS, IP cameras, printers, Home Assistant) from outside your home or office:
+
+1. **Approve the route in the console**: open **Routers** and toggle the advertised LAN CIDR **On**.
+2. **Allow the subnet in ACLs**: add an ACL rule granting your account or group access to the LAN CIDR and target ports (full walkthrough in [Approve Subnet Routes](./approve-subnet-routes)).
+3. **Verify OpenWrt forwarding & firewall zones**:
+   - Confirm IPv4 forwarding is enabled (`sysctl net.ipv4.ip_forward` should return `1`, which is default on OpenWrt).
+   - If you can ping the router's Larktun IP (`100.64.x.y`) but cannot reach LAN hosts behind it, inspect **Network > Firewall** in LuCI and confirm forwarding and return-path masquerading are permitted between the Larktun tunnel interface and the `lan` zone.
+   - **Avoid LAN CIDR collisions**: if both your home router and a remote hotel/office Wi-Fi use `192.168.1.0/24`, remote routing will collide locally. Using a less common home LAN CIDR (such as `192.168.68.0/24`) avoids this problem permanently.
+
+## Everyday OpenWrt Management Commands
+
+| Task | Command |
+|---|---|
+| Check node status and private IP | `larktun status` |
+| Test direct P2P vs. relay path | `larktun ping <target-ip>` |
+| Restart the background daemon | `/etc/init.d/larktund restart` |
+| Inspect OpenWrt system logs | `logread \| grep -i larktun` |
+| Preserve config across sysupgrade | Add the Larktun state directory under LuCI **System > Backup / Flash Firmware > Configuration**, or re-login with an Auth Key after flashing |
 
 ## Troubleshooting
 
-- `wget` fails or times out: check that the router can reach the public internet, and that no firewall rule or ad-blocking plugin is blocking the download.
-- Out of storage space: free up unused packages or logs before retrying — OpenWrt devices typically have limited storage.
-- The router never comes online after `larktun up`: confirm the Auth Key hasn't expired or already been used, and double-check that `--login-server` is complete and correctly spelled.
-- Larktun doesn't start after a reboot: check whether the install script registered `larktund` as an OpenWrt boot-time service (init.d / procd).
-- Still stuck: see [Common Issues](../troubleshooting/common-issues), or include the router model, firmware version, and full command output when filing a support ticket.
+- **`wget` fails with TLS error or timeout**: confirm outbound internet connectivity, verify `date` is accurate, and ensure ad-blockers or firewall rules are not blocking `download2.larktun.com`.
+- **Out of storage space (`No space left on device`)**: check `df -h /overlay`, clear unused packages/logs, or use extroot on small-flash routers.
+- **Router stays offline after `larktun up`**: confirm the Auth Key has not expired or been consumed already, check `--login-server=https://hs.larktun.com`, and inspect `logread | grep -i larktun`.
+- **Service does not start after reboot**: run `/etc/init.d/larktund enable && /etc/init.d/larktund start` to register `larktund` with OpenWrt `procd`.
+- **Can reach the router IP, but not LAN hosts behind it**: verify the route is approved in **Routers**, permitted in **ACLs**, accepted on the remote client (`--accept-routes`), and allowed through OpenWrt firewall zone forwarding.
+- **Still stuck**: see [Common Issues](../troubleshooting/common-issues) and [Diagnostics](../troubleshooting/diagnostics), or share your router model, OpenWrt version, and `logread` output with support.
 
 ## Next Steps
 
 - [Approve Subnet Routes](./approve-subnet-routes)
-- [Publish Your First Service](./publish-your-first-service)
+- [Create Your First Secure Access Path](./publish-your-first-service)
+- [Install and Log In to Larktun on a NAS](./nas-install-larktun)
 - [Log in with Tailscale Client](./tailscale-client-login)
 - [Common Issues](../troubleshooting/common-issues)

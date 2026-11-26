@@ -1,6 +1,6 @@
 ---
 title: Quick Start
-description: Larktun quick start guide for first-time device onboarding, route approval, user visibility, access policy, relay configuration, and profile verification.
+description: Complete Larktun quick start guide covering console navigation, device onboarding, Auth Keys, subnet route approval, ACL setup, relay configuration, and first end-to-end connectivity test.
 keywords:
   - Larktun quick start
   - Larktun onboarding
@@ -12,86 +12,114 @@ sidebar_position: 1
 
 # Larktun Quick Start
 
-This page walks through your first full setup in the Larktun console: device onboarding, route approval, user visibility, access policy, relay configuration, and profile verification.
+This guide walks you through your first end-to-end setup in the Larktun SaaS console: enrolling your first devices, approving subnet routes, verifying tenant members, configuring least-privilege ACLs, choosing a relay strategy, and testing private connectivity.
 
-> All screenshots below are in `webp` format to reduce bandwidth and speed up page loading.
+> All console screenshots below are served in `webp` format for fast loading.
 
 ## Prerequisites
 
-- An active Larktun account
-- At least one device to onboard (desktop, server, or gateway)
-- A created tenant (or workspace)
-- If using user-managed relay, one publicly reachable host
+Before you start, make sure you have:
 
-## 1. Nodes: Manage devices
+- A registered Larktun account at [larktun.com](https://larktun.com/auth/register) (every account gets an isolated personal tenant with **up to 5 free devices**).
+- At least two devices to test private connectivity (for example, your laptop/phone plus a Linux server, NAS, home PC, or OpenWrt router).
+- If you plan to use a user-managed DERP relay later, one publicly reachable host with open HTTPS/STUN ports.
 
-The `nodes` page shows devices under the current user. Free users can manage **up to 5 free devices** by default.
+## 1. Nodes: Onboard and Manage Devices
 
-You can:
+Open the **Nodes** page in the console to manage devices enrolled in your tenant.
 
-- View device status and details
-- Remove unused devices
-- Rename device display names
+From this view you can:
 
-Initial names are usually based on `HOSTNAME`, which is hard to remember. Rename them to meaningful names like `dev-macbook` or `prod-gateway`.
+- Generate one-time or reusable **Auth Keys** for headless servers, NAS units, Docker containers, or routers.
+- Inspect online status, assigned private IPv4 address (`100.64.x.y`), and MagicDNS name.
+- Rename raw `HOSTNAME` entries into readable labels such as `home-nas`, `dev-macbook`, or `prod-gateway`.
+- Remove stale or decommissioned devices immediately to revoke their network keys.
 
 ![Nodes page (device details, remove, rename)](/img/view/nodes.webp)
 
-## 2. Routers: Approve subnet routes
+### Enroll Your First Devices
 
-Use the `routers` page to approve subnet routes. If a node should advertise a subnet, approve it here.
+Install the Larktun client on your target platforms:
+
+- **Desktop (Windows / macOS / Linux)**: Download from [larktun.com/download](https://larktun.com/download) or follow [Desktop Client Operations](./desktop-client-operations).
+- **Linux server / ARM64 NAS**: Run the one-line installer from [Install Larktun on Linux](./linux-install-larktun) or [Install Larktun on a NAS](./nas-install-larktun), then authenticate with your Auth Key:
+
+  ```bash
+  sudo larktun up --login-server=https://hs.larktun.com --auth-key=<Your Auth Key>
+  ```
+
+- **OpenWrt router / Docker / iOS / Android TV**: See [OpenWrt](./openwrt-install-larktun), [Docker](./docker-login-larktun), [iOS App Overview](../introduction/ios-app-overview), and [Android TV](./tv-install-larktun).
+
+Refresh **Nodes** until both devices show as **Online**.
+
+## 2. Routers: Approve Subnet Routes
+
+If one of your online nodes advertises a local LAN CIDR (for example `192.168.6.0/24` to expose printers, IP cameras, or a NAS that cannot run a client directly), open **Routers** to review and approve the advertised route.
 
 Recommended practice:
 
-- Approve only the subnets that are explicitly required
-- Validate connectivity right after route changes
+- Approve only the specific subnets you intentionally want reachable from the mesh.
+- Avoid overlapping CIDR ranges across multiple sites inside the same tenant.
+- Test reachability right after toggling approval, and remember that ACL rules must also allow traffic to that subnet.
 
 ![Routers page (subnet route approval)](/img/view/routers.webp)
 
-## 3. Users: Tenant member visibility
+For the complete command-line and ACL walkthrough, see [Approve Subnet Routes](./approve-subnet-routes).
 
-The `users` page lists all users in the tenant so you can verify membership and ownership clearly.
+## 3. Users: Verify Tenant Membership
+
+The **Users** page displays all accounts belonging to the current tenant so you can audit ownership clearly.
 
 Recommended practice:
 
-- Review stale accounts regularly
-- Update users promptly when team membership changes
+- Confirm each user identity matches the expected account before referencing it in ACL rules.
+- Review and remove departed team members or unused test accounts regularly.
 
 ![Users page (tenant user list)](/img/view/users.webp)
 
-## 4. ACLs: Access control policy
+## 4. ACLs: Configure Access Control Policy
 
-The `acls` page controls which devices can access which targets.
+The **ACLs** page defines exactly which users, groups, or device tags can reach which targets and ports. By default, follow least privilege rather than opening every port permanently.
 
 Built-in capabilities:
 
-- Several ACL templates for fast setup
-- Visual editor for daily operations
-- JSON editor for advanced users
-
-Start from a least-privilege template, then open access incrementally for real workloads.
+- Ready-to-use ACL templates for fast initial validation.
+- Visual policy editor for day-to-day maintenance.
+- Raw JSON editor for fine-grained port rules, `hosts` aliases, `tagOwners`, and `autoApprovers`.
 
 ![ACLs page (visual + JSON editing)](/img/view/acls.webp)
 
-## 5. Derper: Relay server configuration
+For example, once two devices under your account are online, allow your account to reach its own devices first, test `ping` or `ssh` to the target's private `100.64.x.y` address, and then narrow the destination ports (such as `:22`, `:443`, or `:3389`).
 
-Use the `derper` page to manage relay servers:
+## 5. Derper: Configure Relay Servers
 
-- Use platform default relays
-- Bring your own relay servers
-- Paid users can access VIP dedicated relay servers
-- Both visual configuration and JSON editing are available
+When NAT traversal succeeds, Larktun establishes a direct encrypted WireGuard path between peers. When restrictive firewalls or symmetric NAT block direct UDP, traffic falls back automatically to a DERP relay.
+
+Use the **Derper** page to choose your relay tier:
+
+- **Default shared relays**: Included automatically for all free and paid accounts with zero setup.
+- **Dedicated VIP relays**: Available for paid plans that require lower jitter and reserved capacity.
+- **User-managed relays**: Attach your own self-hosted DERP nodes via the visual form or JSON config for regional routing or compliance isolation.
 
 ![Derper page (relay server settings)](/img/view/derper.webp)
 
-## 6. Me: Personal center
+## 6. Me: Verify Account and Tenant Context
 
-The `me` page shows your personal profile and account details for identity confirmation.
+The **Me** page shows your active account profile, tenant details, and quota usage so you can confirm you are operating in the right workspace.
 
 ![Me page (personal profile)](/img/view/me.webp)
 
-## Next steps
+## Verify Your First End-to-End Connection
 
-1. Pick two nodes and validate one least-privilege ACL path immediately.
-2. If cross-region latency is high, switch relay region or connect your own relay in `derper`.
-3. If anything looks off, go to [Troubleshooting](../troubleshooting/common-issues).
+Before deploying more services, validate one concrete path:
+
+1. Copy the target device's private IP from **Nodes** (for example `100.64.0.5`).
+2. From your laptop or the Larktun mobile app, run a connectivity check (`ping 100.64.0.5`) or open SSH / RDP / a private Web dashboard.
+3. Confirm the connection succeeds without opening any inbound ports on your router or cloud security group.
+
+## Next Steps
+
+- Walk through a full hands-on first connection: [Create Your First Secure Access Path](./publish-your-first-service)
+- Plan relays and multi-device rollouts: [Deployment Modes and Configuration](./install-and-configure)
+- Publish an entire LAN behind one node: [Approve Subnet Routes](./approve-subnet-routes)
+- Hit an error? Go to [Common Issues](../troubleshooting/common-issues) or [Diagnostics](../troubleshooting/diagnostics)

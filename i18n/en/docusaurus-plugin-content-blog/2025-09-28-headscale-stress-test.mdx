@@ -1,49 +1,73 @@
 ---
 slug: headscale-stress-test
-title: "Headscale Series: Headscale Stress Testing"
-description: "A practical Headscale stress-test workflow for around 200 clients, covering environment sizing, bootstrap scripts, churn tests, and traffic sampling."
+title: "Stress Testing Headscale at 200+ Concurrent Clients"
+description: "A practical Headscale load-testing runbook for 200+ simulated clients covering host sizing, container bootstrap, churn simulation, TCP/UDP traffic sampling, and control-plane bottleneck analysis."
 authors: [ownding]
 tags: [headscale, stress-test, docker, tailscale]
 ---
 
-This article documents a practical stress-test workflow for `headscale` at around 200 concurrent clients, including environment sizing, bootstrap scripts, churn tests, and traffic sampling.
+Running a small self-hosted `headscale` instance for ten personal devices is effortless. Operating Headscale as a production multi-user control plane is a completely different workload: every node join, disconnect, route change, or key rotation triggers map-response updates across peers. Before scaling Headscale into a multi-tenant SaaS control plane, you need repeatable load tests that measure both steady-state overhead and reconnect storms.
 
-Original post:
-[headscale系列：headsale压力测试](https://ownding.com/2025/09/28/headscale%E7%B3%BB%E5%88%97%EF%BC%9Aheadsale%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/)
+This guide documents a reproducible stress-testing workflow for 200+ concurrent clients using containerized Tailscale nodes, automated churn injection, and randomized TCP/UDP traffic sampling.
 
 {/* truncate */}
 
-## Test Scripts
+## Why Control-Plane Load Testing Matters
 
-- Repository:
-  [OwnDing/headscale-test-scripts](https://github.com/OwnDing/headscale-test-scripts.git)
+In a WireGuard mesh coordinated by Headscale, the data plane flows peer-to-peer (or via DERP relays), while the control plane coordinates authentication, node state, ACL compilation, and netmap distribution. At higher node counts, bottlenecks rarely come from idle nodes—they come from **state fan-out**:
 
-## Quick Runbook
+- **Netmap broadcast amplification**: When `N` nodes share visibility in the same tailnet, a single online/offline transition can trigger `O(N)` map-response updates.
+- **Reconnect churn storms**: Mobile devices switching between Wi-Fi and cellular networks or containers restarting in waves can spike CPU, PostgreSQL/SQLite lock contention, and memory allocations simultaneously.
+- **DERP fallback contention**: Under strict NAT conditions, validating whether relay bandwidth and file descriptor limits hold steady during peer-to-peer and relayed traffic rounds prevents surprises in production.
+
+## Test Harness Repository
+
+All automation scripts used in this benchmark are open source:
+
+- Repository: [OwnDing/headscale-test-scripts](https://github.com/OwnDing/headscale-test-scripts.git)
+
+## Recommended Machine Sizing (200 Clients)
+
+Running 200 client containers on the same host as the control plane skews CPU and memory telemetry. Separate the load generator from the target Headscale node:
+
+| Role | Recommended Spec | Purpose |
+|---|---|---|
+| Load generator host | 16 vCPU / 32 GB RAM / 100 GB NVMe | Runs 200 lightweight client containers, churn loop, and traffic workers |
+| Target Headscale host | 4 vCPU / 8 GB RAM / 100 GB SSD | Isolated control-plane CPU, RAM, DB I/O, and goroutine measurement |
+| Optional DERP relay | 2–4 vCPU / 2–4 GB RAM | Measures relay throughput and socket concurrency under NAT fallback |
+
+Before launching 200+ containers on the load generator, verify that host kernel limits will not bottleneck container startup (`fs.inotify.max_user_instances`, `fs.file-max`, and Docker bridge subnet pools).
+
+## Step-by-Step Stress-Test Runbook
+
+Clone the repository onto the load-generator host and execute the scripts in order:
 
 ```bash
-# 1) Prepare env
+# 1) Copy and customize environment configuration
 cp .env.example .env
 
-# 2) Validate host environment
+# 2) Verify Docker, Compose, /dev/net/tun, and pre-pull container images
 bash scripts/00_check_env.sh
 
-# 3) Bootstrap clients (default 200)
+# 3) Bootstrap simulated clients (defaults to 200 replicas)
 bash scripts/01_bootstrap_up.sh
 
-# 4) Export node list
+# 4) Export active containers and their assigned Tailnet IPv4 addresses
 bash scripts/02_list_nodes.sh
 
-# 5) Churn test (terminal A)
+# 5) Start continuous reconnect churn (Terminal A)
 bash scripts/03_churn.sh
 
-# 6) Traffic rounds (terminal B)
+# 6) Run periodic random pair TCP/UDP traffic rounds (Terminal B)
 watch -n 20 'bash scripts/04_traffic_round.sh'
 
-# 7) Cleanup
+# 7) Tear down all test containers and clean up state
 bash scripts/99_cleanup.sh
 ```
 
 ## Key Environment Variables
+
+Tune concurrency, churn aggressiveness, and traffic intensity in `.env`:
 
 ```bash
 HEADSCALE_URL=https://headscale.example.com
@@ -59,28 +83,39 @@ TRAFFIC_UDP_DURATION=10
 TRAFFIC_UDP_BW=50M
 ```
 
-## Recommended Sizing (200 devices)
+### What Each Script Does
 
-- Load generator: 16 vCPU / 32 GB / 100 GB NVMe
-- Headscale control plane target: 4 vCPU / 8 GB / 100 GB
-- Optional DERP relay: 2-4 vCPU / 2-4 GB
+- **`00_check_env.sh`**: Validates Docker daemon availability, Compose CLI, `/dev/net/tun` device access, and pre-pulls images so bootstrap timings reflect control-plane registration rather than registry downloads.
+- **`01_bootstrap_up.sh`**: Spins up `REPLICAS` client containers using a reusable pre-authentication key (`TS_AUTHKEY`) and waits for them to register against `HEADSCALE_URL`.
+- **`02_list_nodes.sh`**: Writes `nodes.tsv` mapping each container name to its assigned tailnet IPv4 address for downstream traffic scripts.
+- **`03_churn.sh`**: Every `CHURN_INTERVAL` seconds, randomly cycles `CHURN_BATCH_PERCENT` of containers through `up`/`down`/`restart` to emulate real-world roaming networks and flaky endpoints.
+- **`04_traffic_round.sh`**: Selects `TRAFFIC_PAIR_COUNT` random source-destination pairs from `nodes.tsv` and runs parallel TCP and UDP benchmarks to confirm that data-plane forwarding remains healthy while the control plane is under churn.
+- **`99_cleanup.sh`**: Stops and removes all test containers, networks, and temporary sidecar state.
 
-## Script Roles
+## Observing Results and Identifying Bottlenecks
 
-- `00_check_env.sh`: validate docker/compose/tun and pre-pull images.
-- `01_bootstrap_up.sh`: scale client containers to `REPLICAS`.
-- `02_list_nodes.sh`: export `nodes.tsv` (container -> Tailnet IPv4).
-- `03_churn.sh`: periodic random `up/down/restart`.
-- `04_traffic_round.sh`: random TCP/UDP pair traffic rounds.
-- `99_cleanup.sh`: stop and remove test containers and sidecars.
+During the 200-client run, monitor three key telemetry dimensions simultaneously:
 
-## Result Screenshots
+1. **Client convergence**: Confirm all 200 replicas reach `online` status without prolonged registration backoff.
+2. **Control-plane CPU profile**: Watch whether CPU stays flat during steady state and how quickly spikes decay during `03_churn.sh` waves. Sustained high CPU during 10% batch churn indicates full-netmap rebuild pressure.
+3. **Memory footprint**: Track both Headscale resident memory (ensuring no unbounded map-response goroutine leaks) and per-client container memory on the generator host.
 
-![200 clients online](/img/blog/headscale/stress-test/clients.webp)
-![headscale cpu usage](/img/blog/headscale/stress-test/cpus.webp)
-![client memory usage](/img/blog/headscale/stress-test/mems.webp)
+![200 simulated clients online in Headscale](/img/blog/headscale/stress-test/clients.webp)
 
----
+![Headscale control-plane CPU utilization during churn and traffic rounds](/img/blog/headscale/stress-test/cpus.webp)
 
-This article is mirrored on the Larktun blog. For source updates and original context, refer to:
-[headscale系列：headsale压力测试](https://ownding.com/2025/09/28/headscale%E7%B3%BB%E5%88%97%EF%BC%9Aheadsale%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95/)
+![Client container memory usage across 200 replicas](/img/blog/headscale/stress-test/mems.webp)
+
+## Key Architectural Takeaways
+
+Running this benchmark repeatedly highlighted the exact bottlenecks that must be solved before scaling Headscale to thousands of tenants:
+
+- **Isolate blast radius**: Putting every user into a single shared tailnet causes linear-to-quadratic map broadcast overhead during churn. Strict tenant boundaries keep each update scoped to a small peer set.
+- **Avoid full netmap rebuilds**: Debouncing dirty events and recomputing only affected tenant/tag scopes dramatically cuts control-plane CPU under frequent mobile reconnects.
+- **Shard horizontally**: Moving from a monolithic single instance to `cluster_id`-partitioned nodes allows capacity to scale linearly as device counts grow.
+
+## Continue Reading
+
+- [Headscale Cluster Architecture for Large-Scale Device Onboarding](/blog/headscale-cluster-infinite-scale)
+- [Headscale Multi-Tenant Isolation for ACL, Routes, and MagicDNS](/blog/headscale-multi-tenant-isolation)
+- [Headscale SaaS Seamless User Switching](/blog/headscale-saas-seamless-user-switch)

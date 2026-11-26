@@ -1,32 +1,33 @@
 ---
 slug: headscale-magicdns
-title: "Headscale Series: Using MagicDNS in Headscale"
-description: "How to enable MagicDNS in Headscale and use hostnames to access devices without memorizing raw IP addresses."
+title: "Using MagicDNS and Extra Records in Headscale"
+description: "A complete guide to enabling MagicDNS in Headscale, managing dynamic extra-records.json entries for IPv4/IPv6 and 4via6 subnets, and troubleshooting private DNS resolution across platforms."
 authors: [ownding]
 tags: [headscale, magicdns, dns]
 ---
 
-This post walks through enabling `MagicDNS` in `headscale`, plus practical usage of `extra-records.json` so clients can reach devices by hostname instead of memorizing raw IP addresses.
+Remembering dynamic tailnet IP addresses quickly becomes painful once your private network grows past a handful of servers, NAS appliances, and laptops. Enabling `MagicDNS` in `headscale` solves this by automatically publishing readable hostnames for every enrolled node, and pairing it with `extra_records_path` lets you map internal LAN services and `4via6` routes to stable DNS names.
 
-Original post:
-[headscale系列：如何在headscale中使用MagicDNS](https://ownding.com/2025/08/14/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%9C%A8headscale%E4%B8%AD%E4%BD%BF%E7%94%A8MagicDNS/)
+This guide covers how to configure MagicDNS in Headscale, structure `extra-records.json`, apply updates cleanly without disrupting connected clients, and verify DNS resolution end to end.
 
 {/* truncate */}
 
-## Scenario
+## Why Enable MagicDNS in Headscale
 
-- After login, clients can communicate with peers using hostnames in addition to IP.
-- On Windows, `tailscale` writes host mappings into the system `hosts` file.
-- This is especially useful when using features like `4via6`.
+Without MagicDNS, every SSH session, browser bookmark, and monitoring target has to hardcode `100.64.x.y` overlay addresses. Enabling MagicDNS provides three immediate operational benefits:
 
-## Enable MagicDNS
+- **Readable device hostnames**: Reach machines by short hostname or FQDN (`nas.example.com`) instead of memorizing overlay IPs.
+- **Cross-platform consistency**: Tailscale and Larktun clients receive the DNS map directly from the control plane. On Windows, the client synchronizes peer mappings transparently; on Linux and macOS, the local MagicDNS stub resolver (`100.100.100.100`) intercepts queries for your base domain.
+- **Cleaner `4via6` and internal service aliases**: When routing overlapping RFC 1918 LAN subnets with `4via6`, raw IPv6 ULA addresses (`fd7a:115c:a1e0:...`) are nearly impossible to type by hand. Custom DNS records turn them into predictable service names.
 
-Update your `config.yaml` (core options shown below):
+## Configuring MagicDNS in `config.yaml`
+
+Open your Headscale `config.yaml` and configure the `dns` block. Below is a production-ready baseline:
 
 ```yaml
 dns:
   magic_dns: true
-  base_domain: example.com
+  base_domain: internal.example.com
   override_local_dns: false
 
   nameservers:
@@ -38,32 +39,67 @@ dns:
   extra_records_path: /var/lib/headscale/extra-records.json
 ```
 
-Using `extra_records_path` makes DNS record updates easier to maintain.
+### Key Options Explained
 
-## extra-records.json Example
+- **`magic_dns: true`**: Turns on automatic hostname-to-tailnet-IP resolution for all devices registered in the tailnet.
+- **`base_domain`**: The private DNS suffix appended to node names. Avoid reusing a public domain you actively resolve on the internet unless you intentionally want split-horizon DNS; a dedicated subdomain such as `tailnet.example.com` or `internal.example.com` prevents accidental collisions.
+- **`override_local_dns: false`**: Keeps the client's existing local DNS resolvers for normal internet traffic and sends only MagicDNS queries through the configured global nameservers. Set this to `true` only if you want every client's DNS traffic forced through `nameservers.global`.
+- **`extra_records_path`**: Points to an external JSON file containing custom `A` and `AAAA` records. Compared with inlining `extra_records` directly in `config.yaml`, keeping records in a separate file makes automation, GitOps updates, and day-to-day maintenance much cleaner.
+
+## Managing Custom Records with `extra-records.json`
+
+Create `/var/lib/headscale/extra-records.json` (ensure the `headscale` service user has read permissions) and add your custom mappings:
 
 ```json
 [
   {
-    "name": "192-168-6-1-via-7",
+    "name": "nas.internal.example.com",
+    "type": "A",
+    "value": "100.64.0.12"
+  },
+  {
+    "name": "192-168-6-1-via-7.internal.example.com",
     "type": "AAAA",
     "value": "fd7a:115c:a1e0:b1a:0:7:c0a8:601"
   }
 ]
 ```
 
-- `type` supports `A` (IPv4) and `AAAA` (IPv6).
-- On first migration from inline `extra_records` to file-based records, one restart is recommended.
-- After that, changing `extra-records.json` is usually enough.
+### Operational Tips for `extra-records.json`
 
-## Usage
+- **Supported record types**: Use `A` for IPv4 addresses (tailnet IPs or advertised subnet IPs) and `AAAA` for IPv6 addresses (including `4via6` mapped targets).
+- **Initial migration**: The first time you switch from inline `extra_records` inside `config.yaml` to `extra_records_path`, restart the `headscale` daemon once so it registers the file watcher cleanly.
+- **Ongoing updates**: After `extra_records_path` is active, editing `extra-records.json` pushes updated DNS maps to connected clients without requiring a full service restart. Always validate JSON syntax (`jq . /var/lib/headscale/extra-records.json`) before saving so malformed JSON does not prevent a reload.
 
-After clients come online, you can access target services by the custom DNS name.
+## Verifying Resolution on Clients
 
-![route table update](/img/blog/headscale/magicdns/route.webp)
-![magicdns query example](/img/blog/headscale/magicdns/dns.webp)
+Once `headscale` is running with MagicDNS enabled and clients have re-synced their network map, test resolution from any enrolled machine:
 
----
+```bash
+# Inspect advertised DNS names for peers
+tailscale status
 
-This article is mirrored on the Larktun blog. For source updates and original context, refer to:
-[headscale系列：如何在headscale中使用MagicDNS](https://ownding.com/2025/08/14/headscale%E7%B3%BB%E5%88%97%EF%BC%9A%E5%A6%82%E4%BD%95%E5%9C%A8headscale%E4%B8%AD%E4%BD%BF%E7%94%A8MagicDNS/)
+# Query a custom extra record directly against MagicDNS
+nslookup 192-168-6-1-via-7.internal.example.com 100.100.100.100
+
+# Verify reachability over the overlay
+ping -c 3 nas.internal.example.com
+```
+
+If clients also consume subnet routes alongside MagicDNS, confirm that the subnet route is approved on the control plane and accepted on the client (`--accept-routes`).
+
+![Headscale route table update with MagicDNS active](/img/blog/headscale/magicdns/route.webp)
+
+![MagicDNS query returning the configured custom record](/img/blog/headscale/magicdns/dns.webp)
+
+## Common Troubleshooting Checks
+
+- **Client ignores MagicDNS names**: Make sure the client has not disabled DNS acceptance (`tailscale up --accept-dns=true`).
+- **Custom record resolves to NXDOMAIN**: Verify that the record `name` in `extra-records.json` matches your `base_domain` suffix and that the JSON file is readable by the `headscale` process.
+- **Public domain shadowed by MagicDNS**: If internal hosts fail to reach public websites under the same root domain, move `base_domain` to a dedicated subdomain such as `mesh.example.com`.
+
+## Related Reading
+
+- [Headscale Multi-Tenant Isolation for ACL, Routes, and MagicDNS](/blog/headscale-multi-tenant-isolation)
+- [Larktun Routes Introduction](/docs/introduction/routes-introduction)
+- [Approve Subnet Routes in Larktun](/docs/getting-started/approve-subnet-routes)
